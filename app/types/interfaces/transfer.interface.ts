@@ -13,6 +13,25 @@ export interface ITransferList {
   updated_at: Date | string;
 }
 
+export interface ITransfer {
+  id: number;
+  source_name: TransferSource;
+  source_url: string;
+  source_category: string;
+  digikala_category_id?: string;
+  title: string;
+  brand: string;
+  description: string;
+  attributes: string;
+  details: string;
+  images: number[];
+  main_image: string;
+  status: TransferStatus;
+  progress: number;
+  created_at: Date | string;
+  updated_at: Date | string;
+}
+
 export enum TransferStatus {
   RAW = "raw",
   FETCHED = "data_fetched",

@@ -17,24 +17,10 @@ interface LayoutProps {
 const Layout = ({ children, title }: LayoutProps) => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [templatesOpen, setTemplatesOpen] = useState(false);
-  const [productTemplatesOpen, setProductTemplatesOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
-  const [ticketingOpen, setTicketingOpen] = useState(false);
+  // Per-menu open state is now handled inside `Drawer` so we don't need separate state here
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
 
-  // Keep templates menu open if any child path is active
-  React.useEffect(() => {
-    if (isChildPathActive("/dashboard/templates")) {
-      setProductTemplatesOpen(true);
-    }
-    if (isChildPathActive("/dashboard/products")) {
-      setProductsOpen(true);
-    }
-    if (isChildPathActive("/dashboard/tickets")) {
-      setTicketingOpen(true);
-    }
-  }, [location.pathname]);
+  // Menu open state is handled inside Drawer; Layout no longer manages per-menu open flags.
 
   const currentDrawerWidth = desktopCollapsed
     ? collapsedDrawerWidth
@@ -53,27 +39,12 @@ const Layout = ({ children, title }: LayoutProps) => {
     setDesktopCollapsed(!desktopCollapsed);
     // وقتی منو جمع می‌شود، زیرمنوها را ببندیم
     if (!desktopCollapsed) {
-      setTemplatesOpen(false);
-      setProductTemplatesOpen(false);
-      setProductsOpen(false);
-      setTicketingOpen(false);
+      // NOTE: menu open/close is handled inside Drawer now; nothing to close here.
+      // per-menu state is now handled in Drawer
     }
   };
 
-  const handleProductTemplatesClick = () => {
-    if (desktopCollapsed) return; // در حالت collapsed کلیک نکند
-    setProductTemplatesOpen(!productTemplatesOpen);
-  };
-
-  const handleProductsClick = () => {
-    if (desktopCollapsed) return; // در حالت collapsed کلیک نکند
-    setProductsOpen(!productsOpen);
-  };
-
-  const handleTicketingClick = () => {
-    if (desktopCollapsed) return; // در حالت collapsed کلیک نکند
-    setTicketingOpen(!ticketingOpen);
-  };
+  // Per-item click handlers removed — toggling is handled in Drawer now.
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -90,19 +61,11 @@ const Layout = ({ children, title }: LayoutProps) => {
         handleDrawerToggle={handleDrawerToggle}
         desktopCollapsed={desktopCollapsed}
         handleDesktopToggle={handleDesktopToggle}
-        productTemplatesOpen={productTemplatesOpen}
-        handleProductTemplatesClick={handleProductTemplatesClick}
-        productsOpen={productsOpen}
-        handleProductsClick={handleProductsClick}
-        ticketingOpen={ticketingOpen}
-        handleTicketingClick={handleTicketingClick}
         currentDrawerWidth={currentDrawerWidth}
       />
 
       <MainContent currentDrawerWidth={currentDrawerWidth}>
-        <PageTransition>
-          {children}
-        </PageTransition>
+        <PageTransition>{children}</PageTransition>
       </MainContent>
     </Box>
   );

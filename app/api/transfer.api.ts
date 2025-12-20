@@ -1,8 +1,17 @@
-import { authorizedPost } from "~/utils/authorizeReq";
+import {
+  authorizedDelete,
+  authorizedGet,
+  authorizedPost,
+} from "~/utils/authorizeReq";
 import { apiUtils } from "./apiUtils.api";
 import type { IPostTransfer } from "~/types/dtos/transfer.dto";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { ITransferList } from "~/types/interfaces/transfer.interface";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { UseMutationResult } from "@tanstack/react-query";
+import type { ApiResponseData } from "~/types";
+import type {
+  ITransfer,
+  ITransferList,
+} from "~/types/interfaces/transfer.interface";
 
 const createNewTransfer = async (data: IPostTransfer) => {
   return apiUtils<{ count: number }>(async () => {
@@ -33,7 +42,23 @@ const getTransferList = async ({
     if (source && source.trim().length > 0) {
       url += `&source=${encodeURIComponent(source)}`;
     }
-    const response = await authorizedPost(url);
+    const response = await authorizedGet(url);
+    return response.data;
+  });
+};
+
+const getTransfer = async (id: number) => {
+  return apiUtils<ITransfer>(async () => {
+    const response = await authorizedGet(`/v1/transfer_product/get/${id}`);
+    return response.data;
+  });
+};
+
+const deleteTransfer = async (id: number) => {
+  return apiUtils(async () => {
+    const response = await authorizedDelete(
+      `/v1/transfer_product/delete/${id}`
+    );
     return response.data;
   });
 };
@@ -63,6 +88,31 @@ export const useTransfers = () => {
     },
     onError: (error) => {
       console.error("❌ Error fetching transfers list:", error);
+    },
+  });
+};
+
+export const useTransfer = (id: number) => {
+  return useQuery({
+    queryKey: ["transfer", id],
+    queryFn: () => getTransfer(id),
+    enabled: !!id,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useDeleteTransfer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteTransfer,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transfer delete"] });
+      console.log("✅ transfer deleted successfully");
+    },
+    onError: (error) => {
+      console.error("❌ Error deleting transfer:", error);
     },
   });
 };

@@ -25,6 +25,7 @@ import {
   TagIcon,
   TemplateIcon,
 } from "../icons/IconComponents";
+import React from "react";
 import type { FC, ComponentType } from "react";
 
 const drawerWidth = 280;
@@ -76,12 +77,6 @@ const menuItems: MenuItem[] = [
     icon: GalleryIcon,
   },
   {
-    id: "transportation",
-    title: "انتقال محصول",
-    path: "/dashboard/transportation",
-    icon: ImportIcon,
-  },
-  {
     id: "products",
     title: "محصولات",
     icon: TagIcon,
@@ -104,6 +99,24 @@ const menuItems: MenuItem[] = [
       },
     ],
   },
+  {
+    id: "transfer",
+    title: "اننتقال محصول",
+    icon: ImportIcon,
+    expandable: true,
+    subItems: [
+      {
+        id: "transfers-list",
+        title: "تمام محصولات",
+        path: "/dashboard/transfer/list",
+      },
+      {
+        id: "transfers-new",
+        title: "انتقال جدید",
+        path: "/dashboard/transfer/new",
+      },
+    ],
+  },
 ];
 
 interface DrawerProps {
@@ -111,10 +124,6 @@ interface DrawerProps {
   handleDrawerToggle: () => void;
   desktopCollapsed: boolean;
   handleDesktopToggle: () => void;
-  productTemplatesOpen: boolean;
-  handleProductTemplatesClick: () => void;
-  productsOpen: boolean;
-  handleProductsClick: () => void;
 
   currentDrawerWidth: number;
 }
@@ -124,10 +133,6 @@ const Drawer = ({
   handleDrawerToggle,
   desktopCollapsed,
   handleDesktopToggle,
-  productTemplatesOpen,
-  handleProductTemplatesClick,
-  productsOpen,
-  handleProductsClick,
 
   currentDrawerWidth,
 }: DrawerProps) => {
@@ -150,18 +155,32 @@ const Drawer = ({
     return false;
   };
 
-  // Get open state based on menu item id
-  const getOpenState = (itemId: string) => {
-    if (itemId === "templates") return productTemplatesOpen;
-    if (itemId === "products") return productsOpen;
-    return false;
+  // Internal open-state map for expandable items
+  const [openState, setOpenState] = React.useState<Record<string, boolean>>({});
+
+  // Toggle a menu by id, respecting collapsed mode
+  const toggleMenu = (itemId: string) => {
+    if (desktopCollapsed) return;
+    setOpenState((s) => ({ ...s, [itemId]: !s[itemId] }));
   };
 
-  // Get click handler based on menu item id
-  const getClickHandler = (itemId: string) => {
-    if (itemId === "templates") return handleProductTemplatesClick;
-    if (itemId === "products") return handleProductsClick;
-    return undefined;
+  // Keep menus open if any of their subpaths match the current path
+  React.useEffect(() => {
+    const newState: Record<string, boolean> = { ...openState };
+    menuItems.forEach((item) => {
+      if (item.subItems) {
+        const active = item.subItems.some((sub) =>
+          location.pathname.startsWith(sub.path)
+        );
+        if (active) newState[item.id] = true;
+      }
+    });
+    setOpenState(newState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  const getOpenState = (itemId: string) => {
+    return !!openState[itemId];
   };
 
   const drawer = (
@@ -195,15 +214,14 @@ const Drawer = ({
           const ItemIcon = item.icon;
           const isActive = isMenuItemActive(item);
           const isOpen = getOpenState(item.id);
-          const handleClick = getClickHandler(item.id);
 
           return (
             <Box key={item.id}>
               <ListItem disablePadding>
                 <ListItemButton
-                  component={item.path ? Link : "div"}
-                  to={item.path}
-                  onClick={handleClick}
+                  component={item.path && !item.expandable ? Link : "div"}
+                  to={item.path && !item.expandable ? item.path : undefined}
+                  onClick={item.expandable ? () => toggleMenu(item.id) : undefined}
                   sx={{
                     backgroundColor: isActive
                       ? theme.palette.action.selected
@@ -238,12 +256,7 @@ const Drawer = ({
                           },
                         }}
                       />
-                      {item.expandable &&
-                        (isOpen ? (
-                          <AngleUp size={15} />
-                        ) : (
-                          <AngleDown size={15} />
-                        ))}
+                      {item.expandable && (isOpen ? <AngleUp size={15} /> : <AngleDown size={15} />)}
                     </>
                   )}
                 </ListItemButton>
@@ -276,8 +289,11 @@ const Drawer = ({
                               backgroundColor: theme.palette.action.hover,
                             },
                           }}
-                          component={Link}
+                                component={Link}
                           to={subItem.path}
+                          onClick={() => {
+                            if (mobileOpen) handleDrawerToggle();
+                          }}
                         >
                           <ListItemText
                             sx={{
