@@ -106,14 +106,14 @@ const menuItems: MenuItem[] = [
     expandable: true,
     subItems: [
       {
-        id: "transfers-list",
-        title: "تمام محصولات",
-        path: "/dashboard/transfer/list",
-      },
-      {
         id: "transfers-new",
         title: "انتقال جدید",
         path: "/dashboard/transfer/new",
+      },
+      {
+        id: "transfers-list",
+        title: "تمام محصولات",
+        path: "/dashboard/transfers/list",
       },
     ],
   },
@@ -221,7 +221,9 @@ const Drawer = ({
                 <ListItemButton
                   component={item.path && !item.expandable ? Link : "div"}
                   to={item.path && !item.expandable ? item.path : undefined}
-                  onClick={item.expandable ? () => toggleMenu(item.id) : undefined}
+                  onClick={
+                    item.expandable ? () => toggleMenu(item.id) : undefined
+                  }
                   sx={{
                     backgroundColor: isActive
                       ? theme.palette.action.selected
@@ -256,7 +258,12 @@ const Drawer = ({
                           },
                         }}
                       />
-                      {item.expandable && (isOpen ? <AngleUp size={15} /> : <AngleDown size={15} />)}
+                      {item.expandable &&
+                        (isOpen ? (
+                          <AngleUp size={15} />
+                        ) : (
+                          <AngleDown size={15} />
+                        ))}
                     </>
                   )}
                 </ListItemButton>
@@ -289,7 +296,7 @@ const Drawer = ({
                               backgroundColor: theme.palette.action.hover,
                             },
                           }}
-                                component={Link}
+                          component={Link}
                           to={subItem.path}
                           onClick={() => {
                             if (mobileOpen) handleDrawerToggle();

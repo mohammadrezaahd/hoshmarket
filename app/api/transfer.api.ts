@@ -6,8 +6,7 @@ import {
 import { apiUtils } from "./apiUtils.api";
 import type { IPostTransfer } from "~/types/dtos/transfer.dto";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { UseMutationResult } from "@tanstack/react-query";
-import type { ApiResponseData } from "~/types";
+
 import type {
   ITransfer,
   ITransferList,
