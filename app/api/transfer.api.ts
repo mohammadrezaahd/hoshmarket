@@ -2,6 +2,8 @@ import {
   authorizedDelete,
   authorizedGet,
   authorizedPost,
+  authorizedPostMultipleFilesWithQuery,
+  authorizedPut,
 } from "~/utils/authorizeReq";
 import { apiUtils } from "./apiUtils.api";
 import type { IPostTransfer } from "~/types/dtos/transfer.dto";
@@ -62,6 +64,21 @@ const deleteTransfer = async (id: number) => {
   });
 };
 
+const setCategory = async ({
+  transferId,
+  categoryId,
+}: {
+  transferId: number;
+  categoryId: number;
+}) => {
+  return apiUtils<{ status: string }>(async () => {
+    const response = await authorizedPut(
+      `/v1/transfer_product/set_category/${transferId}?category_id=${categoryId}`
+    );
+    return response.data;
+  });
+};
+
 export const useCreateTransfer = () => {
   const queryClient = useQueryClient();
 
@@ -112,6 +129,21 @@ export const useDeleteTransfer = () => {
     },
     onError: (error) => {
       console.error("❌ Error deleting transfer:", error);
+    },
+  });
+};
+
+export const useSetCategory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: setCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transfer category"] });
+      // console.log("✅ Attribute added successfully:", data);
+    },
+    onError: (error) => {
+      console.error("❌ Error setting transfer category:", error);
     },
   });
 };

@@ -24,21 +24,38 @@ import {
   Container,
   LinearProgress,
   Avatar,
+  CircularProgress,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
 } from "@mui/material";
 
-import { RefreshIcon, DeleteIcon, EyeIcon } from "~/components/icons/IconComponents";
+import {
+  RefreshIcon,
+  DeleteIcon,
+  ExportIcon,
+} from "~/components/icons/IconComponents";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router";
-import { useTransfers, useDeleteTransfer } from "~/api/transfer.api";
+import {
+  useTransfers,
+  useDeleteTransfer,
+  useSetCategory,
+} from "~/api/transfer.api";
+import { useCategoriesList } from "~/api/categories.api";
 import type { ITransferList } from "~/types/interfaces/transfer.interface";
+import type { ICategoryList } from "~/types/interfaces/categories.interface";
 import { TransferStatus } from "~/types/interfaces/transfer.interface";
 import { TransferSource } from "~/types/dtos/transfer.dto";
 import AppLayout from "~/components/layout/AppLayout";
-import { PageSizeSelector, PaginationControls, SearchInput, TitleCard } from "~/components/common";
+import CategorySelector from "~/components/templates/CategorySelector";
+import {
+  PageSizeSelector,
+  PaginationControls,
+  SearchInput,
+  TitleCard,
+} from "~/components/common";
 import { ApiStatus } from "~/types";
 
 export function meta() {
@@ -52,12 +69,23 @@ const TransferList: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-  const [sourceFilter, setSourceFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    undefined
+  );
+  const [sourceFilter, setSourceFilter] = useState<string | undefined>(
+    undefined
+  );
 
   const [items, setItems] = useState<ITransferList[]>([]);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [metaData, setMetaData] = useState<any | null>(null);
+
+  // Category editing state
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
+    null
+  );
+  const [categorySearch, setCategorySearch] = useState("");
+  const [editingRow, setEditingRow] = useState<ITransferList | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -68,9 +96,22 @@ const TransferList: React.FC = () => {
     error: fetchError,
   } = useTransfers();
 
-  const { mutateAsync: deleteTransfer, isPending: isDeleting } = useDeleteTransfer();
+  const { mutateAsync: deleteTransfer, isPending: isDeleting } =
+    useDeleteTransfer();
 
-  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: number | null; title?: string }>({
+  const { mutateAsync: setCategory, isPending: isSettingCategory } =
+    useSetCategory();
+
+  // Categories API
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useCategoriesList(categorySearch, 1, 50);
+  const categories = categoriesData?.data?.items ?? [];
+
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    id: number | null;
+    title?: string;
+  }>({
     open: false,
     id: null,
     title: "",
@@ -78,19 +119,28 @@ const TransferList: React.FC = () => {
 
   const fetchTransfers = async () => {
     try {
-      const res = await getList({ page, limit, status_filter: statusFilter, source: sourceFilter });
+      const res = await getList({
+        page,
+        limit,
+        status_filter: statusFilter,
+        source: sourceFilter,
+      });
 
       if (res.status === ApiStatus.SUCCEEDED && res.data) {
         setItems(res.data.list || []);
         setTotalItems(res.data.list?.length || 0);
         setMetaData(res.meta_data || null);
         // Prefer meta_data totals if provided
-        setTotalItems(res.meta_data?.total_items ?? (res.data.list?.length ?? 0));
+        setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
       } else {
-        enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", { variant: "error" });
+        enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", {
+          variant: "error",
+        });
       }
     } catch (err: any) {
-      enqueueSnackbar(err.message || "خطا در دریافت لیست انتقالات", { variant: "error" });
+      enqueueSnackbar(err.message || "خطا در دریافت لیست انتقالات", {
+        variant: "error",
+      });
     }
   };
 
@@ -99,7 +149,8 @@ const TransferList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit, searchValue, statusFilter, sourceFilter]);
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => setPage(value);
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) =>
+    setPage(value);
   const handleLimitChange = (event: any) => {
     setLimit(Number(event.target.value));
     setPage(1);
@@ -111,8 +162,10 @@ const TransferList: React.FC = () => {
 
   const handleRefresh = () => fetchTransfers();
 
-  const openDelete = (id: number, title?: string) => setDeleteDialog({ open: true, id, title });
-  const closeDelete = () => setDeleteDialog({ open: false, id: null, title: "" });
+  const openDelete = (id: number, title?: string) =>
+    setDeleteDialog({ open: true, id, title });
+  const closeDelete = () =>
+    setDeleteDialog({ open: false, id: null, title: "" });
 
   const confirmDelete = async () => {
     if (!deleteDialog.id) return;
@@ -122,7 +175,9 @@ const TransferList: React.FC = () => {
         enqueueSnackbar("انتقال با موفقیت حذف شد", { variant: "success" });
         await fetchTransfers();
       } else {
-        enqueueSnackbar(res.message || "خطا در حذف انتقال", { variant: "error" });
+        enqueueSnackbar(res.message || "خطا در حذف انتقال", {
+          variant: "error",
+        });
       }
     } catch (err: any) {
       enqueueSnackbar(err.message || "خطا در حذف انتقال", { variant: "error" });
@@ -131,20 +186,76 @@ const TransferList: React.FC = () => {
     }
   };
 
+  const handleCategoryEdit = (row: ITransferList) => {
+    setEditingRow(row);
+    setEditingCategoryId(row.id);
+  };
+
+  const closeCategoryEdit = () => {
+    setEditingRow(null);
+    setEditingCategoryId(null);
+    setCategorySearch("");
+  };
+
+  const handlePublish = (id: number) => {
+    console.log("Publish transfer:", id);
+  };
+
+  const handleCategoryChange = async (selectedCategory: ICategoryList | null) => {
+    if (!selectedCategory || !editingRow || isSettingCategory) return;
+
+    try {
+      const res = await setCategory({
+        transferId: editingRow.id,
+        categoryId: selectedCategory.id,
+      });
+
+      if (res.status === ApiStatus.SUCCEEDED) {
+        enqueueSnackbar("دسته‌بندی با موفقیت ذخیره شد", { variant: "success" });
+        // Update the row in state immediately
+        setItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === editingRow.id
+              ? {
+                  ...item,
+                  digikala_category_id: String(selectedCategory.id),
+                  digikala_category_name: selectedCategory.title,
+                }
+              : item
+          )
+        );
+        closeCategoryEdit();
+      } else {
+        enqueueSnackbar(res.message || "خطا در ذخیره دسته‌بندی", {
+          variant: "error",
+        });
+      }
+    } catch (err: any) {
+      enqueueSnackbar(err.message || "خطا در ذخیره دسته‌بندی", {
+        variant: "error",
+      });
+    }
+  };
+
   const getStatusLabel = (s: TransferStatus | string) => {
     const map: Record<string, string> = {
       raw: "خام",
       data_fetched: "داده‌برداری شده",
+      converted: "تبدیل شده",
       error_fetching_data: "خطا در دریافت داده",
       asin_not_found: "یافت نشد",
     };
-    return map[String(s)] || "نامشخص";
+    return map[String(s)] || String(s);
   };
 
   const getStatusColor = (s: TransferStatus | string) => {
-    const map: Record<string, "default" | "error" | "warning" | "info" | "success"> = {
+    const map: Record<
+      string,
+      "default" | "error" | "warning" | "info" | "success"
+    > = {
       raw: "warning",
-      data_fetched: "success",
+      data_fetched: "info",
+      converted: "success",
       error_fetching_data: "error",
       asin_not_found: "default",
     };
@@ -162,6 +273,7 @@ const TransferList: React.FC = () => {
 
           <TableCell>
             <Skeleton variant="text" width={200} />
+            <Skeleton variant="text" width={140} sx={{ mt: 0.5 }} />
           </TableCell>
 
           <TableCell>
@@ -169,8 +281,9 @@ const TransferList: React.FC = () => {
           </TableCell>
 
           <TableCell>
-            <Skeleton variant="text" width={100} />
+            <Skeleton variant="text" width={150} />
           </TableCell>
+
           <TableCell>
             <Skeleton variant="text" width={100} />
           </TableCell>
@@ -202,8 +315,12 @@ const TransferList: React.FC = () => {
     return (
       String(r.id).includes(s) ||
       String(r.title).toLowerCase().includes(s) ||
-      String(r.brand || "").toLowerCase().includes(s) ||
-      String(r.source_name || "").toLowerCase().includes(s)
+      String(r.brand || "")
+        .toLowerCase()
+        .includes(s) ||
+      String(r.source_name || "")
+        .toLowerCase()
+        .includes(s)
     );
   });
 
@@ -215,30 +332,66 @@ const TransferList: React.FC = () => {
     <AppLayout title="انتقال‌های ثبت‌شده">
       <Container maxWidth="xl">
         <Box sx={{ mb: 3 }}>
-          <TitleCard title="مدیریت انتقال‌ها" description="مشاهده و مدیریت درخواست‌های انتقال" />
+          <TitleCard
+            title="مدیریت انتقال‌ها"
+            description="مشاهده و مدیریت درخواست‌های انتقال"
+          />
         </Box>
 
         <Card>
           <CardContent>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, gap: 2, flexWrap: "wrap" }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
-                <PageSizeSelector value={limit} onChange={handleLimitChange} options={[5, 10, 20, 50]} />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+                gap: 2,
+                flexWrap: "wrap",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <PageSizeSelector
+                  value={limit}
+                  onChange={handleLimitChange}
+                  options={[5, 10, 20, 50]}
+                />
 
-                <SearchInput onSearchChange={handleSearchChange} label="جستجو در انتقال‌ها" placeholder="عنوان یا برند یا شناسه..." size="small" />
+                <SearchInput
+                  onSearchChange={handleSearchChange}
+                  label="جستجو در انتقال‌ها"
+                  placeholder="عنوان یا برند یا شناسه..."
+                  size="small"
+                />
 
                 <FormControl size="small">
                   <InputLabel>وضعیت</InputLabel>
                   <Select
                     value={statusFilter ?? ""}
                     label="وضعیت"
-                    onChange={(e) => setStatusFilter(e.target.value ? String(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      setStatusFilter(
+                        e.target.value ? String(e.target.value) : undefined
+                      )
+                    }
                     sx={{ minWidth: 140 }}
                   >
                     <MenuItem value="">همه</MenuItem>
                     <MenuItem value={TransferStatus.RAW}>خام</MenuItem>
-                    <MenuItem value={TransferStatus.FETCHED}>داده‌برداری شده</MenuItem>
+                    <MenuItem value={TransferStatus.FETCHED}>
+                      داده‌برداری شده
+                    </MenuItem>
                     <MenuItem value={TransferStatus.ERROR}>خطا</MenuItem>
-                    <MenuItem value={TransferStatus.NOT_FOUND}>یافت نشد</MenuItem>
+                    <MenuItem value={TransferStatus.NOT_FOUND}>
+                      یافت نشد
+                    </MenuItem>
                   </Select>
                 </FormControl>
 
@@ -247,13 +400,19 @@ const TransferList: React.FC = () => {
                   <Select
                     value={sourceFilter ?? ""}
                     label="منبع"
-                    onChange={(e) => setSourceFilter(e.target.value ? String(e.target.value) : undefined)}
+                    onChange={(e) =>
+                      setSourceFilter(
+                        e.target.value ? String(e.target.value) : undefined
+                      )
+                    }
                     sx={{ minWidth: 140 }}
                   >
                     <MenuItem value="">همه</MenuItem>
                     <MenuItem value={TransferSource.AMAZON}>Amazon</MenuItem>
                     <MenuItem value={TransferSource.TOROB}>Torob</MenuItem>
-                    <MenuItem value={TransferSource.DIGIKALA}>Digikala</MenuItem>
+                    <MenuItem value={TransferSource.DIGIKALA}>
+                      Digikala
+                    </MenuItem>
                     <MenuItem value={TransferSource.BAZAR}>Bazar</MenuItem>
                     <MenuItem value={TransferSource.SHEYPUR}>Sheypoor</MenuItem>
                     <MenuItem value={TransferSource.OTHER}>Other</MenuItem>
@@ -268,7 +427,8 @@ const TransferList: React.FC = () => {
                   </IconButton>
                 </Tooltip>
                 <Typography variant="body2" color="text.secondary">
-                  مجموع: {total} مورد {searchValue && `(${filteredRows.length} در این صفحه)`}
+                  مجموع: {total} مورد{" "}
+                  {searchValue && `(${filteredRows.length} در این صفحه)`}
                 </Typography>
               </Box>
             </Box>
@@ -279,18 +439,39 @@ const TransferList: React.FC = () => {
               </Alert>
             )}
 
-            <TableContainer component={Paper} variant="outlined" dir="rtl" sx={{ overflowX: "auto" }}>
+            <TableContainer
+              component={Paper}
+              variant="outlined"
+              dir="rtl"
+              sx={{ overflowX: "auto" }}
+            >
               <Table sx={{ minWidth: 1200 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: 64, textAlign: "center" }}>{/* تصویر */}</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>عنوان</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>برند</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>منبع</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>وضعیت</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>پیشرفت</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>تاریخ</TableCell>
-                    <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>عملیات</TableCell>
+                    <TableCell sx={{ width: 64, textAlign: "center" }}>
+                      {/* تصویر */}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>
+                      عنوان
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>
+                      منبع
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>
+                      دسته‌بندی دیجی‌کالا
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>
+                      وضعیت
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>
+                      پیشرفت
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", textAlign: "right" }}>
+                      تاریخ
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+                      عملیات
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -300,51 +481,199 @@ const TransferList: React.FC = () => {
                     filteredRows.map((r) => (
                       <TableRow key={r.id} hover>
                         <TableCell align="center" sx={{ width: 64 }}>
-                          <Avatar src={r.main_image} alt={r.title} variant="rounded" sx={{ width: 56, height: 56 }} />
+                          <Avatar
+                            src={r.main_image}
+                            alt={r.title}
+                            variant="rounded"
+                            sx={{ width: 56, height: 56 }}
+                          />
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: "right", minWidth: 0, maxWidth: 520 }}>
+                        <TableCell
+                          sx={{
+                            textAlign: "right",
+                            minWidth: 0,
+                            maxWidth: 280,
+                          }}
+                        >
                           <Tooltip title={r.title} arrow>
-                            <Typography variant="body2" fontWeight={600} noWrap sx={{ textOverflow: "ellipsis", overflow: "hidden" }}>
+                            <Typography
+                              variant="body2"
+                              fontWeight={600}
+                              noWrap
+                              sx={{
+                                textOverflow: "ellipsis",
+                                overflow: "hidden",
+                              }}
+                            >
                               {r.title}
                             </Typography>
                           </Tooltip>
-                        </TableCell>
-
-                        <TableCell sx={{ textAlign: "right", maxWidth: 260 }}>
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ textOverflow: "ellipsis", overflow: "hidden" }}>
-                            {r.brand || "—"}
-                          </Typography>
+                          {r.brand && (
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{
+                                display: "block",
+                                textOverflow: "ellipsis",
+                                overflow: "hidden",
+                                mt: 0.5,
+                              }}
+                            >
+                              {r.brand}
+                            </Typography>
+                          )}
                         </TableCell>
 
                         <TableCell sx={{ textAlign: "right" }}>
-                          <Chip label={r.source_name} size="small" color="primary" variant="outlined" />
+                          <Chip
+                            label={r.source_name}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
                         </TableCell>
+
+                        <TableCell sx={{ textAlign: "right", minWidth: 250 }}>
+                          {editingCategoryId === r.id ? (
+                            <Box sx={{ py: 1, position: "relative" }}>
+                              {isSettingCategory && (
+                                <Box
+                                  sx={{
+                                    position: "absolute",
+                                    top: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    left: 0,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    backgroundColor: "rgba(255, 255, 255, 0.7)",
+                                    zIndex: 10,
+                                    borderRadius: 1,
+                                  }}
+                                >
+                                  <CircularProgress size={24} />
+                                </Box>
+                              )}
+                              <CategorySelector
+                                categories={categories}
+                                selectedCategory={
+                                  categories.find(
+                                    (c) =>
+                                      c.id === Number(r.digikala_category_id)
+                                  ) || null
+                                }
+                                loadingCategories={categoriesLoading}
+                                onCategoryChange={(category) => {
+                                  handleCategoryChange(category);
+                                }}
+                                onSearchChange={setCategorySearch}
+                                title=""
+                                sx={{ p: 0 }}
+                              />
+                            </Box>
+                          ) : (
+                            <Box
+                              onClick={() => handleCategoryEdit(r)}
+                              sx={{
+                                py: 0.5,
+                                px: 1,
+                                borderRadius: 1,
+                                cursor: "pointer",
+                                "&:hover": {
+                                  backgroundColor: "action.hover",
+                                },
+                                minHeight: 36,
+                                display: "flex",
+                                alignItems: "center",
+                              }}
+                            >
+                              {r.digikala_category_name ? (
+                                <Tooltip title="برای ویرایش کلیک کنید">
+                                  <Typography variant="body2">
+                                    {r.digikala_category_name}
+                                  </Typography>
+                                </Tooltip>
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  sx={{ fontStyle: "italic" }}
+                                >
+                                  انتخاب دسته‌بندی...
+                                </Typography>
+                              )}
+                            </Box>
+                          )}
+                        </TableCell>
+
                         <TableCell sx={{ textAlign: "right" }}>
-                          <Chip label={getStatusLabel(r.status)} size="small" color={getStatusColor(r.status)} variant="outlined" />
+                          <Chip
+                            label={getStatusLabel(r.status)}
+                            size="small"
+                            color={getStatusColor(r.status)}
+                            variant="outlined"
+                          />
                         </TableCell>
                         <TableCell sx={{ textAlign: "right", minWidth: 200 }}>
                           <Box>
-                            <LinearProgress variant="determinate" value={Math.max(0, Math.min(100, r.progress || 0))} sx={{ height: 8, borderRadius: 2 }} />
-                            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={Math.max(
+                                0,
+                                Math.min(100, r.progress || 0)
+                              )}
+                              sx={{ height: 8, borderRadius: 2 }}
+                            />
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              sx={{ mt: 0.5, display: "block" }}
+                            >
                               {r.progress ?? 0}%
                             </Typography>
                           </Box>
                         </TableCell>
                         <TableCell sx={{ textAlign: "right" }}>
-                          <Typography variant="body2">{new Date(r.created_at).toLocaleDateString("fa-IR")}</Typography>
-                          <Typography variant="caption" color="text.secondary">{new Date(r.updated_at).toLocaleString("fa-IR")}</Typography>
+                          <Typography variant="body2">
+                            {new Date(r.created_at).toLocaleDateString("fa-IR")}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {new Date(r.updated_at).toLocaleString("fa-IR")}
+                          </Typography>
                         </TableCell>
                         <TableCell align="center">
-                          <Box sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
-                            <Tooltip title="مشاهده جزئیات">
-                              <IconButton size="small" color="primary" onClick={() => navigate(`/dashboard/transfers/${r.id}`)}>
-                                <EyeIcon size="small" />
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 1,
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Tooltip title="انتشار">
+                              <IconButton
+                                size="small"
+                                color="success"
+                                onClick={() => {
+                                  closeCategoryEdit();
+                                  handlePublish(r.id);
+                                }}
+                                disabled={
+                                  !r.digikala_category_id || !r.digikala_category_name
+                                }
+                              >
+                                <ExportIcon size="small" />
                               </IconButton>
                             </Tooltip>
 
                             <Tooltip title="حذف">
-                              <IconButton size="small" color="error" onClick={() => openDelete(r.id, r.title)} disabled={isDeleting}>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => openDelete(r.id, r.title)}
+                                disabled={isDeleting}
+                              >
                                 <DeleteIcon size="small" />
                               </IconButton>
                             </Tooltip>
@@ -355,7 +684,11 @@ const TransferList: React.FC = () => {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
-                        <Typography variant="body2" color="text.secondary">{searchValue ? "نتیجه‌ای یافت نشد" : "هیچ انتقالی یافت نشد"}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {searchValue
+                            ? "نتیجه‌ای یافت نشد"
+                            : "هیچ انتقالی یافت نشد"}
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   )}
@@ -365,7 +698,13 @@ const TransferList: React.FC = () => {
 
             {total > 0 && totalPages > 1 && (
               <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
-                <PaginationControls currentPage={page} totalPages={totalPages} totalItems={total} onPageChange={handlePageChange} disabled={isLoading} />
+                <PaginationControls
+                  currentPage={page}
+                  totalPages={totalPages}
+                  totalItems={total}
+                  onPageChange={handlePageChange}
+                  disabled={isLoading}
+                />
               </Box>
             )}
           </CardContent>
@@ -376,11 +715,18 @@ const TransferList: React.FC = () => {
       <Dialog open={deleteDialog.open} onClose={closeDelete}>
         <DialogTitle>حذف انتقال</DialogTitle>
         <DialogContent>
-          <Typography>آیا از حذف انتقال "{deleteDialog.title}" مطمئن هستید؟</Typography>
+          <Typography>
+            آیا از حذف انتقال "{deleteDialog.title}" مطمئن هستید؟
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeDelete}>انصراف</Button>
-          <Button onClick={confirmDelete} color="error" variant="contained" disabled={isDeleting}>
+          <Button
+            onClick={confirmDelete}
+            color="error"
+            variant="contained"
+            disabled={isDeleting}
+          >
             حذف
           </Button>
         </DialogActions>

@@ -50,6 +50,13 @@ const TransferSources: React.FC<Props> = ({ selected, onSelect, sx }) => {
                   ? `2px solid ${theme.palette.primary.main}`
                   : "2px solid transparent",
               cursor: opt.status === "active" ? "pointer" : "default",
+              transition: "all 200ms ease",
+              "&:hover": {
+                ...(opt.status === "active" && {
+                  borderColor: theme.palette.primary.main,
+                  boxShadow: `0 4px 12px ${theme.palette.primary.main}33`,
+                }),
+              },
               "&:hover .logoBg": {
                 transform: opt.status === "active" ? "scale(1.03)" : "none",
               },

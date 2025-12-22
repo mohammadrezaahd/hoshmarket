@@ -11,6 +11,8 @@ export interface ITransferList {
   progress: number;
   created_at: Date | string;
   updated_at: Date | string;
+  digikala_category_id?: string;
+  digikala_category_name?: string;
 }
 
 export interface ITransfer {

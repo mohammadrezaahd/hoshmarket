@@ -11,11 +11,15 @@ import {
   Divider,
   useTheme,
   CircularProgress,
+  Grid,
 } from "@mui/material";
 import TransferSources from "~/components/transfer/Sources";
 import TransferResult from "~/components/transfer/Result";
+import CategorySelector from "~/components/templates/CategorySelector";
 import { useCreateTransfer } from "~/api/transfer.api";
+import { useCategoriesList } from "~/api/categories.api";
 import type { TransferSource, IPostTransfer } from "~/types/dtos/transfer.dto";
+import type { ICategoryList } from "~/types/interfaces/categories.interface";
 import { ApiStatus } from "~/types";
 import { useSnackbar } from "notistack";
 
@@ -38,6 +42,17 @@ const NewTransferPage = () => {
     message?: string;
   } | null>(null);
 
+  // Category state
+  const [selectedCategory, setSelectedCategory] =
+    useState<ICategoryList | null>(null);
+  const [categorySearch, setCategorySearch] = useState("");
+
+  // Categories API
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useCategoriesList(categorySearch, 1, 50);
+  const categories = categoriesData?.data?.items ?? [];
+  const suggestedCategories = categoriesData?.data?.suugest ?? [];
+
   const hasValidUrl = useMemo(
     () => urls.some((u) => u.trim().length > 0),
     [urls]
@@ -58,6 +73,7 @@ const NewTransferPage = () => {
       const payload: IPostTransfer = {
         source: selectedSource!,
         urls: urls.filter((u) => u.trim().length > 0),
+        ...(selectedCategory && { category_id: selectedCategory.id }),
       };
       const res = await createTransferMutate(payload);
       if (res.status === ApiStatus.SUCCEEDED) {
@@ -80,6 +96,7 @@ const NewTransferPage = () => {
     setSuccessPayload(null);
     setSelectedSource(null);
     setUrls([""]);
+    setSelectedCategory(null);
     setAttemptedSubmit(false);
   };
 
@@ -102,106 +119,131 @@ const NewTransferPage = () => {
       <Box sx={{ minHeight: "100vh", py: 4 }}>
         <Container maxWidth="md">
           <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
-            <Box sx={{ mb: 3 }}>
-              <TransferSources
-                selected={selectedSource}
-                onSelect={(s) => setSelectedSource(s)}
-                sx={{
-                  "& .MuiButtonBase-root": {
-                    height: 120,
-                    borderRadius: `${theme.shape.borderRadius}px`,
-                    overflow: "hidden",
-                  },
-                  ".logoBg": {
-                    backgroundSize: "contain",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "center",
-                    height: "100%",
-                  },
-                }}
-              />
+            <Grid container spacing={3}>
+              {/* Transfer Sources Selection */}
+              <Grid size={{ xs: 12 }}>
+                <Box sx={{ mb: 3 }}>
+                  <TransferSources
+                    selected={selectedSource}
+                    onSelect={(s) => setSelectedSource(s)}
+                    sx={{
+                      "& .MuiButtonBase-root": {
+                        height: 120,
+                        borderRadius: `${theme.shape.borderRadius}px`,
+                        overflow: "hidden",
+                      },
+                      ".logoBg": {
+                        backgroundSize: "contain",
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
+                        height: "100%",
+                      },
+                    }}
+                  />
 
-              {attemptedSubmit && !selectedSource && (
-                <Typography
-                  variant="caption"
-                  color="error"
-                  sx={{ mt: 1, display: "block" }}
-                >
-                  لطفا یک منبع را انتخاب کنید
-                </Typography>
-              )}
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            <Box sx={{ mb: 2 }}>
-              <Stack spacing={2}>
-                {urls.map((u, idx) => (
-                  <Box key={idx} sx={{ display: "flex", gap: 1 }}>
-                    <TextField
-                      fullWidth
-                      placeholder="آدرس محصول (لینک)"
-                      value={u}
-                      onChange={(e) => handleChangeUrl(idx, e.target.value)}
-                      error={attemptedSubmit && u.trim().length === 0}
-                      helperText={
-                        attemptedSubmit && u.trim().length === 0
-                          ? "آدرس نباید خالی باشد"
-                          : ""
-                      }
-                    />
-                    <IconButton
-                      aria-label="remove"
+                  {attemptedSubmit && !selectedSource && (
+                    <Typography
+                      variant="caption"
                       color="error"
-                      onClick={() => handleRemoveUrl(idx)}
-                      disabled={urls.length === 1}
-                      sx={{ alignSelf: "center" }}
+                      sx={{ mt: 1, display: "block" }}
                     >
-                      <CloseIcon />
-                    </IconButton>
-                  </Box>
-                ))}
+                      لطفا یک منبع را انتخاب کنید
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
 
-                <Button
-                  startIcon={<AddIcon />}
-                  onClick={handleAddUrl}
-                  sx={{ alignSelf: "flex-start", textTransform: "none" }}
+              {/* Category Selection */}
+              <Grid size={{ xs: 12 }}>
+                <CategorySelector
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  loadingCategories={categoriesLoading}
+                  onCategoryChange={(category) => setSelectedCategory(category)}
+                  onSearchChange={setCategorySearch}
+                  suggestedCategories={suggestedCategories}
+                  loadingSuggestions={categoriesLoading}
+                  title="دسته‌بندی محصول (اختیاری)"
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12 }}>
+                <Divider sx={{ my: 1 }} />
+              </Grid>
+
+              {/* URLs Input */}
+              <Grid size={{ xs: 12 }}>
+                <Box sx={{ mb: 2 }}>
+                  <Stack spacing={2}>
+                    {urls.map((u, idx) => (
+                      <Box key={idx} sx={{ display: "flex", gap: 1 }}>
+                        <TextField
+                          fullWidth
+                          placeholder="آدرس محصول (لینک)"
+                          value={u}
+                          onChange={(e) => handleChangeUrl(idx, e.target.value)}
+                          error={attemptedSubmit && u.trim().length === 0}
+                          helperText={
+                            attemptedSubmit && u.trim().length === 0
+                              ? "آدرس نباید خالی باشد"
+                              : ""
+                          }
+                        />
+                        <IconButton
+                          aria-label="remove"
+                          color="error"
+                          onClick={() => handleRemoveUrl(idx)}
+                          disabled={urls.length === 1}
+                          sx={{ alignSelf: "center" }}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      </Box>
+                    ))}
+
+                    <Button
+                      startIcon={<AddIcon />}
+                      onClick={handleAddUrl}
+                      sx={{ alignSelf: "flex-start", textTransform: "none" }}
+                    >
+                      افزودن آدرس جدید
+                    </Button>
+
+                    {attemptedSubmit && !hasValidUrl && (
+                      <Typography variant="caption" color="error">
+                        لطفا حداقل یک آدرس معتبر وارد کنید
+                      </Typography>
+                    )}
+                  </Stack>
+                </Box>
+              </Grid>
+
+              {/* Submit Button */}
+              <Grid size={{ xs: 12 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: 2,
+                    mt: 2,
+                  }}
                 >
-                  افزودن آدرس جدید
-                </Button>
-
-                {attemptedSubmit && !hasValidUrl && (
-                  <Typography variant="caption" color="error">
-                    لطفا حداقل یک آدرس معتبر وارد کنید
-                  </Typography>
-                )}
-              </Stack>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 2,
-                mt: 2,
-              }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmit}
-                disabled={!isValid || isCreating}
-                sx={{ textTransform: "none", minWidth: 160 }}
-              >
-                {isCreating ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  "ارسال درخواست"
-                )}
-              </Button>
-            </Box>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                    disabled={!isValid || isCreating}
+                    sx={{ textTransform: "none", minWidth: 160 }}
+                  >
+                    {isCreating ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      "ارسال درخواست"
+                    )}
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
           </Paper>
         </Container>
       </Box>

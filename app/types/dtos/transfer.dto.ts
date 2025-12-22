@@ -1,6 +1,7 @@
 export interface IPostTransfer {
   source: TransferSource;
   urls: string[];
+  category_id?:number
 }
 
 export enum TransferSource {
