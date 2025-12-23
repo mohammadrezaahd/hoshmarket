@@ -60,7 +60,15 @@ const getProductsList = async ({
       url += `&category_id=${categoryId}`;
     }
     const response = await authorizedPost(url);
-    return response.data;
+    
+    // Return response with meta_data from server
+    return {
+      status: response.data.status,
+      code: response.status as any,
+      data: response.data.data,
+      meta_data: response.data.meta_data,
+      message: response.data.message,
+    };
   });
 };
 

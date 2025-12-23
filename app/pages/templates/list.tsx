@@ -104,59 +104,84 @@ const TemplatesList = () => {
   const attributesSkip = (attributesPage - 1) * attributesLimit;
   const detailsSkip = (detailsPage - 1) * detailsLimit;
 
-  // Fetch attributes data
-  const fetchAttributes = async () => {
-    try {
-      const response = await getAttrList({
-        skip: attributesSkip,
-        limit: attributesLimit,
-      });
-
-      if (response.status === "true" && response.data?.list) {
-        setAttributesList(response.data.list);
-        // For now, we'll use the list length as total since total is not provided in API response
-        setAttributesTotal(response.data.list.length);
-      }
-    } catch (error: any) {
-      enqueueSnackbar(`خطا در دریافت لیست ویژگی‌ها: ${error.message}`, {
-        variant: "error",
-      });
-    }
-  };
-
-  // Fetch details data
-  const fetchDetails = async () => {
-    try {
-      const response = await getDetailsList({
-        skip: detailsSkip,
-        limit: detailsLimit,
-      });
-
-      if (response.status === "true" && response.data?.list) {
-        setDetailsList(response.data.list);
-        setDetailsTotal(response.data.list.length);
-      }
-    } catch (error: any) {
-      enqueueSnackbar(`خطا در دریافت لیست اطلاعات: ${error.message}`, {
-        variant: "error",
-      });
-    }
-  };
-
-  // Effect to fetch data when template type or pagination changes
+  // Initial load
   useEffect(() => {
-    if (templateType === "attributes") {
-      fetchAttributes();
-    } else {
-      fetchDetails();
-    }
-  }, [
-    templateType,
-    attributesPage,
-    attributesLimit,
-    detailsPage,
-    detailsLimit,
-  ]);
+    const fetchInitialData = async () => {
+      try {
+        const attrRes = await getAttrList({
+          skip: 0,
+          limit: attributesLimit,
+        });
+
+        if (attrRes.status === "true" && attrRes.data?.list) {
+          setAttributesList(attrRes.data.list);
+          setAttributesTotal(attrRes.data.list.length);
+        }
+
+        const detailRes = await getDetailsList({
+          skip: 0,
+          limit: detailsLimit,
+        });
+
+        if (detailRes.status === "true" && detailRes.data?.list) {
+          setDetailsList(detailRes.data.list);
+          setDetailsTotal(detailRes.data.list.length);
+        }
+      } catch (error: any) {
+        enqueueSnackbar(`خطا در دریافت اطلاعات: ${error.message}`, {
+          variant: "error",
+        });
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  // Fetch attributes when page or limit changes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getAttrList({
+          skip: attributesSkip,
+          limit: attributesLimit,
+        });
+
+        if (response.status === "true" && response.data?.list) {
+          setAttributesList(response.data.list);
+          setAttributesTotal(response.data.list.length);
+        }
+      } catch (error: any) {
+        enqueueSnackbar(`خطا در دریافت لیست ویژگی‌ها: ${error.message}`, {
+          variant: "error",
+        });
+      }
+    };
+
+    fetchData();
+  }, [attributesPage, attributesLimit, getAttrList, enqueueSnackbar]);
+
+  // Fetch details when page or limit changes
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getDetailsList({
+          skip: detailsSkip,
+          limit: detailsLimit,
+        });
+
+        if (response.status === "true" && response.data?.list) {
+          setDetailsList(response.data.list);
+          setDetailsTotal(response.data.list.length);
+        }
+      } catch (error: any) {
+        enqueueSnackbar(`خطا در دریافت لیست اطلاعات: ${error.message}`, {
+          variant: "error",
+        });
+      }
+    };
+
+    fetchData();
+  }, [detailsPage, detailsLimit, getDetailsList, enqueueSnackbar]);
 
   // Handle template type change
   const handleTemplateTypeChange = (
@@ -211,9 +236,6 @@ const TemplatesList = () => {
 
   const handleSearchChange = (searchValue: string) => {
     setSearchValue(searchValue);
-    // Reset both pages when searching
-    setAttributesPage(1);
-    setDetailsPage(1);
   };
 
   // Handle edit and delete actions
@@ -245,12 +267,28 @@ const TemplatesList = () => {
         await removeAttribute(deleteDialog.id);
         enqueueSnackbar("ویژگی با موفقیت حذف شد", { variant: "success" });
         // Refresh the attributes list
-        await fetchAttributes();
+        const response = await getAttrList({
+          skip: attributesSkip,
+          limit: attributesLimit,
+        });
+
+        if (response.status === "true" && response.data?.list) {
+          setAttributesList(response.data.list);
+          setAttributesTotal(response.data.list.length);
+        }
       } else {
         await removeDetail(deleteDialog.id);
         enqueueSnackbar("اطلاعات با موفقیت حذف شد", { variant: "success" });
         // Refresh the details list
-        await fetchDetails();
+        const response = await getDetailsList({
+          skip: detailsSkip,
+          limit: detailsLimit,
+        });
+
+        if (response.status === "true" && response.data?.list) {
+          setDetailsList(response.data.list);
+          setDetailsTotal(response.data.list.length);
+        }
       }
     } catch (error: any) {
       enqueueSnackbar(
@@ -267,11 +305,33 @@ const TemplatesList = () => {
   };
 
   // Handle refresh
-  const handleRefresh = () => {
-    if (templateType === "attributes") {
-      fetchAttributes();
-    } else {
-      fetchDetails();
+  const handleRefresh = async () => {
+    try {
+      if (templateType === "attributes") {
+        const response = await getAttrList({
+          skip: attributesSkip,
+          limit: attributesLimit,
+        });
+
+        if (response.status === "true" && response.data?.list) {
+          setAttributesList(response.data.list);
+          setAttributesTotal(response.data.list.length);
+        }
+      } else {
+        const response = await getDetailsList({
+          skip: detailsSkip,
+          limit: detailsLimit,
+        });
+
+        if (response.status === "true" && response.data?.list) {
+          setDetailsList(response.data.list);
+          setDetailsTotal(response.data.list.length);
+        }
+      }
+    } catch (error: any) {
+      enqueueSnackbar(`خطا در دریافت اطلاعات: ${error.message}`, {
+        variant: "error",
+      });
     }
   };
 

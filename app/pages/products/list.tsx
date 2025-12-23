@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -126,11 +126,16 @@ const ProductsList = () => {
   // Calculate skip value based on current page
   const skip = (page - 1) * limit;
 
-  // Fetch products data
-  const fetchProducts = async () => {
+  // Handle pagination change - fetch data for selected page
+  const handlePageChange = async (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
     try {
+      const skipValue = (value - 1) * limit;
       const response = await getList({
-        skip,
+        skip: skipValue,
         limit,
         searchTerm: searchValue,
         categoryId,
@@ -140,8 +145,9 @@ const ProductsList = () => {
       if (response.status === "true" && response.data?.list) {
         setProductsList(response.data.list);
         setTotal(response.data.list.length);
-        // Use meta_data from API response for pagination
-        setMetaData(response.meta_data || null);
+        if (response.meta_data) {
+          setMetaData(response.meta_data);
+        }
       }
     } catch (error: any) {
       enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
@@ -150,29 +156,76 @@ const ProductsList = () => {
     }
   };
 
-  // Effect to fetch data when filters or pagination changes
+  // Initial load on component mount
   useEffect(() => {
-    fetchProducts();
-  }, [page, limit, searchValue, categoryId, statusFilter]);
+    const fetchData = async () => {
+      try {
+        const response = await getList({
+          skip: 0,
+          limit,
+          searchTerm: "",
+          categoryId: undefined,
+          status: undefined,
+        });
 
-  // Handle pagination change
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setPage(value);
-  };
+        if (response.status === "true" && response.data?.list) {
+          setProductsList(response.data.list);
+          setTotal(response.data.list.length);
+          if (response.meta_data) {
+            setMetaData(response.meta_data);
+          }
+        }
+      } catch (error: any) {
+        enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
+          variant: "error",
+        });
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Fetch when search or filters change
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getList({
+          skip: 0,
+          limit,
+          searchTerm: searchValue,
+          categoryId,
+          status: statusFilter,
+        });
+
+        if (response.status === "true" && response.data?.list) {
+          setProductsList(response.data.list);
+          setTotal(response.data.list.length);
+          if (response.meta_data) {
+            setMetaData(response.meta_data);
+          }
+        }
+      } catch (error: any) {
+        enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
+          variant: "error",
+        });
+      }
+    };
+
+    // فقط وقتی search/filter واقعا تغییر کرده باشد، fetch کن
+    if (searchValue || categoryId !== undefined || statusFilter !== undefined) {
+      setPage(1); // Reset to page 1
+      fetchData();
+    }
+  }, [searchValue, categoryId, statusFilter, limit, getList, enqueueSnackbar]);
 
   // Handle limit change
   const handleLimitChange = (event: any) => {
     setLimit(event.target.value);
-    setPage(1); // Reset to first page
+    setPage(1);
   };
 
-  const handleSearchChange = (searchValue: string) => {
-    setSearchValue(searchValue);
-    // Reset page when searching
-    setPage(1);
+  const handleSearchChange = (value: string) => {
+    setSearchValue(value);
   };
 
   // Handle edit action
@@ -197,8 +250,15 @@ const ProductsList = () => {
     try {
       await removeProduct(deleteDialog.id);
       enqueueSnackbar("محصول با موفقیت حذف شد", { variant: "success" });
-      // Refresh the products list
-      await fetchProducts();
+      // Refresh the products list with current page
+      const skipValue = (page - 1) * limit;
+      await getList({
+        skip: skipValue,
+        limit,
+        searchTerm: searchValue,
+        categoryId,
+        status: statusFilter,
+      });
     } catch (error: any) {
       enqueueSnackbar(`خطا در حذف محصول: ${error.message}`, {
         variant: "error",
@@ -219,8 +279,15 @@ const ProductsList = () => {
 
       if (response.status === "true") {
         enqueueSnackbar("محصول با موفقیت منتشر شد", { variant: "success" });
-        // Refresh the products list
-        await fetchProducts();
+        // Refresh the products list with current page
+        const skipValue = (page - 1) * limit;
+        await getList({
+          skip: skipValue,
+          limit,
+          searchTerm: searchValue,
+          categoryId,
+          status: statusFilter,
+        });
       } else {
         enqueueSnackbar(response.message || "خطا در انتشار محصول", {
           variant: "error",
@@ -234,8 +301,29 @@ const ProductsList = () => {
   };
 
   // Handle refresh
-  const handleRefresh = () => {
-    fetchProducts();
+  const handleRefresh = async () => {
+    try {
+      const skipValue = (page - 1) * limit;
+      const response = await getList({
+        skip: skipValue,
+        limit,
+        searchTerm: searchValue,
+        categoryId,
+        status: statusFilter,
+      });
+
+      if (response.status === "true" && response.data?.list) {
+        setProductsList(response.data.list);
+        setTotal(response.data.list.length);
+        if (response.meta_data) {
+          setMetaData(response.meta_data);
+        }
+      }
+    } catch (error: any) {
+      enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
+        variant: "error",
+      });
+    }
   };
 
   // Handle view sub products
@@ -303,10 +391,6 @@ const ProductsList = () => {
   const totalItems = metaData?.total_items || 0;
   const hasNext = metaData?.has_next || false;
   const hasPrev = metaData?.has_prev || false;
-
-  useEffect(() => {
-    console.log(totalPages);
-  }, [totalPages]);
 
   // Loading skeleton
   const LoadingSkeleton = () => (

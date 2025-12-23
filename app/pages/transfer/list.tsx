@@ -110,7 +110,83 @@ const TransferList: React.FC = () => {
     title: "",
   });
 
-  const fetchTransfers = async () => {
+  // Initial load
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getList({
+          page: 1,
+          limit: 10,
+          status_filter: undefined,
+          source: undefined,
+        });
+
+        if (res.status === ApiStatus.SUCCEEDED && res.data) {
+          setItems(res.data.list || []);
+          setTotalItems(res.data.list?.length || 0);
+          setMetaData(res.meta_data || null);
+          setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
+        } else {
+          enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", {
+            variant: "error",
+          });
+        }
+      } catch (err: any) {
+        enqueueSnackbar(err.message || "خطا در دریافت لیست انتقالات", {
+          variant: "error",
+        });
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Fetch when filters change
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getList({
+          page: 1,
+          limit,
+          status_filter: statusFilter,
+          source: sourceFilter,
+        });
+
+        if (res.status === ApiStatus.SUCCEEDED && res.data) {
+          setItems(res.data.list || []);
+          setTotalItems(res.data.list?.length || 0);
+          setMetaData(res.meta_data || null);
+          setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
+        } else {
+          enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", {
+            variant: "error",
+          });
+        }
+      } catch (err: any) {
+        enqueueSnackbar(err.message || "خطا در دریافت لیست انتقالات", {
+          variant: "error",
+        });
+      }
+    };
+
+    // فقط وقتی filter واقعا تغییر کرده باشد
+    if (statusFilter !== undefined || sourceFilter !== undefined) {
+      setPage(1); // Reset to page 1
+      fetchData();
+    }
+  }, [statusFilter, sourceFilter, limit, getList, enqueueSnackbar]);
+
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) =>
+    setPage(value);
+  const handleLimitChange = (event: any) => {
+    setLimit(Number(event.target.value));
+    setPage(1);
+  };
+  const handleSearchChange = (val: string) => {
+    setSearchValue(val);
+  };
+
+  const handleRefresh = async () => {
     try {
       const res = await getList({
         page,
@@ -123,12 +199,7 @@ const TransferList: React.FC = () => {
         setItems(res.data.list || []);
         setTotalItems(res.data.list?.length || 0);
         setMetaData(res.meta_data || null);
-        // Prefer meta_data totals if provided
         setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
-      } else {
-        enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", {
-          variant: "error",
-        });
       }
     } catch (err: any) {
       enqueueSnackbar(err.message || "خطا در دریافت لیست انتقالات", {
@@ -136,24 +207,6 @@ const TransferList: React.FC = () => {
       });
     }
   };
-
-  useEffect(() => {
-    fetchTransfers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit, statusFilter, sourceFilter]);
-
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) =>
-    setPage(value);
-  const handleLimitChange = (event: any) => {
-    setLimit(Number(event.target.value));
-    setPage(1);
-  };
-  const handleSearchChange = (val: string) => {
-    setSearchValue(val);
-    setPage(1);
-  };
-
-  const handleRefresh = () => fetchTransfers();
 
   const openDelete = (id: number, title?: string) =>
     setDeleteDialog({ open: true, id, title });
@@ -166,7 +219,18 @@ const TransferList: React.FC = () => {
       const res = await deleteTransfer(deleteDialog.id);
       if (res.status === ApiStatus.SUCCEEDED) {
         enqueueSnackbar("انتقال با موفقیت حذف شد", { variant: "success" });
-        await fetchTransfers();
+        // Refresh current page
+        const res = await getList({
+          page,
+          limit,
+          status_filter: statusFilter,
+          source: sourceFilter,
+        });
+        if (res.status === ApiStatus.SUCCEEDED && res.data) {
+          setItems(res.data.list || []);
+          setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
+          setMetaData(res.meta_data || null);
+        }
       } else {
         enqueueSnackbar(res.message || "خطا در حذف انتقال", {
           variant: "error",

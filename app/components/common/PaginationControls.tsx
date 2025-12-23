@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Pagination, Typography } from "@mui/material";
 
 interface PaginationControlsProps {
@@ -20,6 +20,17 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   showFirstButton = true,
   showLastButton = true,
 }) => {
+  const [page, setPage] = useState<number>(currentPage);
+
+  useEffect(() => {
+    setPage(currentPage);
+  }, [currentPage]);
+
+  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    onPageChange(event, value);
+  };
+
   if (totalPages <= 1) {
     return null;
   }
@@ -36,8 +47,8 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
     >
       <Pagination
         count={totalPages}
-        page={currentPage}
-        onChange={onPageChange}
+        page={page}
+        onChange={handleChange}
         color="primary"
         showFirstButton={showFirstButton}
         showLastButton={showLastButton}
