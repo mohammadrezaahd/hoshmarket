@@ -10,7 +10,9 @@ import {
   Skeleton,
   Stack,
 } from "@mui/material";
+import { useEffect, useState, useCallback, useRef } from "react";
 import type { ICategoryList } from "~/types/interfaces/categories.interface";
+import { useCategoriesList } from "~/api/categories.api";
 
 const SectionCard = ({ title, children, ...props }: any) => (
   <Card sx={{ p: 2, ...props.sx }} {...props}>
@@ -24,34 +26,81 @@ const SectionCard = ({ title, children, ...props }: any) => (
 );
 
 interface CategorySelectorProps {
-  categories: ICategoryList[];
   selectedCategory: ICategoryList | null;
-  loadingCategories: boolean;
   onCategoryChange: (category: ICategoryList | null) => void;
-  onSearchChange: (search: string) => void;
-  // اضافه کردن suggest ها
+  // Props-based mode (optional - if provided, uses these instead of fetching)
+  categories?: ICategoryList[];
+  loadingCategories?: boolean;
+  onSearchChange?: (search: string) => void;
   suggestedCategories?: ICategoryList[];
   loadingSuggestions?: boolean;
-  // اختیاری props برای styling
+  // Styling
   title?: string;
   sx?: any;
 }
 
 const CategorySelector = ({
-  categories,
   selectedCategory,
-  loadingCategories,
   onCategoryChange,
-  onSearchChange,
+  categories: externalCategories,
+  loadingCategories: externalLoading,
+  onSearchChange: externalOnSearchChange,
   suggestedCategories,
   loadingSuggestions,
   title = "دسته‌بندی قالب",
   sx,
 }: CategorySelectorProps) => {
+  const [inputValue, setInputValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Determine if using props-based mode or autonomous mode
+  const isPropsMode = externalCategories !== undefined;
+
+  // Fetch categories based on search (autonomous mode only)
+  const { data: categoriesData, isLoading: autonomousLoading } =
+    useCategoriesList(isPropsMode ? "" : searchQuery, 1, 50);
+  
+  // Use either external categories or fetched ones
+  const categories = isPropsMode ? externalCategories : (categoriesData?.data?.items ?? []);
+  const loadingCategories = isPropsMode ? (externalLoading ?? false) : autonomousLoading;
+
+  // Debounced search
+  const handleInputChange = useCallback((search: string) => {
+    setInputValue(search);
+    
+    // Call external onSearchChange if provided (props mode)
+    if (isPropsMode && externalOnSearchChange) {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      searchTimeoutRef.current = setTimeout(() => {
+        externalOnSearchChange(search);
+      }, 300);
+    } else if (!isPropsMode) {
+      // Autonomous mode - update searchQuery
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      searchTimeoutRef.current = setTimeout(() => {
+        setSearchQuery(search);
+      }, 300);
+    }
+  }, [isPropsMode, externalOnSearchChange]);
+
   const handleSuggestionClick = (suggestion: ICategoryList) => {
     onCategoryChange(suggestion);
-    onSearchChange(suggestion.title);
+    setInputValue(suggestion.title);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Grid size={{ xs: 12 }}>
@@ -63,18 +112,21 @@ const CategorySelector = ({
               options={categories}
               getOptionLabel={(option) => option.title}
               value={selectedCategory}
-              onChange={(_, newValue) => onCategoryChange(newValue)}
-              onInputChange={(_, newInputValue) =>
-                onSearchChange(newInputValue)
-              }
+              inputValue={inputValue}
+              onChange={(_, newValue) => {
+                onCategoryChange(newValue);
+              }}
+              onInputChange={(_, newInputValue) => {
+                handleInputChange(newInputValue);
+              }}
               loading={loadingCategories}
-              noOptionsText="قالب‌ای یافت نشد"
+              noOptionsText="دسته‌بندی یافت نشد"
               loadingText="در حال جستجو..."
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="قالب اطلاعاتی محصول"
-                  placeholder="جستجو در قالب‌ها..."
+                  label="دسته‌بندی دیجی‌کالا"
+                  placeholder="جستجو..."
                 />
               )}
             />

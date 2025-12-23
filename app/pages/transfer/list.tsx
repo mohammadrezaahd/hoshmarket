@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -43,7 +43,6 @@ import {
   useDeleteTransfer,
   useSetCategory,
 } from "~/api/transfer.api";
-import { useCategoriesList } from "~/api/categories.api";
 import type { ITransferList } from "~/types/interfaces/transfer.interface";
 import type { ICategoryList } from "~/types/interfaces/categories.interface";
 import { TransferStatus } from "~/types/interfaces/transfer.interface";
@@ -84,7 +83,6 @@ const TransferList: React.FC = () => {
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
     null
   );
-  const [categorySearch, setCategorySearch] = useState("");
   const [editingRow, setEditingRow] = useState<ITransferList | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -101,11 +99,6 @@ const TransferList: React.FC = () => {
 
   const { mutateAsync: setCategory, isPending: isSettingCategory } =
     useSetCategory();
-
-  // Categories API
-  const { data: categoriesData, isLoading: categoriesLoading } =
-    useCategoriesList(categorySearch, 1, 50);
-  const categories = categoriesData?.data?.items ?? [];
 
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
@@ -147,7 +140,7 @@ const TransferList: React.FC = () => {
   useEffect(() => {
     fetchTransfers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit, searchValue, statusFilter, sourceFilter]);
+  }, [page, limit, statusFilter, sourceFilter]);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) =>
     setPage(value);
@@ -194,48 +187,50 @@ const TransferList: React.FC = () => {
   const closeCategoryEdit = () => {
     setEditingRow(null);
     setEditingCategoryId(null);
-    setCategorySearch("");
   };
 
   const handlePublish = (id: number) => {
     console.log("Publish transfer:", id);
   };
 
-  const handleCategoryChange = async (selectedCategory: ICategoryList | null) => {
-    if (!selectedCategory || !editingRow || isSettingCategory) return;
+  const handleCategoryChange = useCallback(
+    async (selectedCategory: ICategoryList | null) => {
+      if (!selectedCategory || !editingRow || isSettingCategory) return;
 
-    try {
-      const res = await setCategory({
-        transferId: editingRow.id,
-        categoryId: selectedCategory.id,
-      });
+      try {
+        const res = await setCategory({
+          transferId: editingRow.id,
+          categoryId: selectedCategory.id,
+        });
 
-      if (res.status === ApiStatus.SUCCEEDED) {
-        enqueueSnackbar("دسته‌بندی با موفقیت ذخیره شد", { variant: "success" });
-        // Update the row in state immediately
-        setItems((prevItems) =>
-          prevItems.map((item) =>
-            item.id === editingRow.id
-              ? {
-                  ...item,
-                  digikala_category_id: String(selectedCategory.id),
-                  digikala_category_name: selectedCategory.title,
-                }
-              : item
-          )
-        );
-        closeCategoryEdit();
-      } else {
-        enqueueSnackbar(res.message || "خطا در ذخیره دسته‌بندی", {
+        if (res.status === ApiStatus.SUCCEEDED) {
+          enqueueSnackbar("دسته‌بندی با موفقیت ذخیره شد", { variant: "success" });
+          // Update the row in state immediately
+          setItems((prevItems) =>
+            prevItems.map((item) =>
+              item.id === editingRow.id
+                ? {
+                    ...item,
+                    digikala_category_id: String(selectedCategory.id),
+                    digikala_category_name: selectedCategory.title,
+                  }
+                : item
+            )
+          );
+          closeCategoryEdit();
+        } else {
+          enqueueSnackbar(res.message || "خطا در ذخیره دسته‌بندی", {
+            variant: "error",
+          });
+        }
+      } catch (err: any) {
+        enqueueSnackbar(err.message || "خطا در ذخیره دسته‌بندی", {
           variant: "error",
         });
       }
-    } catch (err: any) {
-      enqueueSnackbar(err.message || "خطا در ذخیره دسته‌بندی", {
-        variant: "error",
-      });
-    }
-  };
+    },
+    [editingRow, isSettingCategory, setCategory, enqueueSnackbar]
+  );
 
   const getStatusLabel = (s: TransferStatus | string) => {
     const map: Record<string, string> = {
@@ -557,18 +552,16 @@ const TransferList: React.FC = () => {
                                 </Box>
                               )}
                               <CategorySelector
-                                categories={categories}
                                 selectedCategory={
-                                  categories.find(
-                                    (c) =>
-                                      c.id === Number(r.digikala_category_id)
-                                  ) || null
+                                  // Find the category by ID (we don't have categories list anymore)
+                                  r.digikala_category_id
+                                    ? {
+                                        id: Number(r.digikala_category_id),
+                                        title: r.digikala_category_name || "",
+                                      } as ICategoryList
+                                    : null
                                 }
-                                loadingCategories={categoriesLoading}
-                                onCategoryChange={(category) => {
-                                  handleCategoryChange(category);
-                                }}
-                                onSearchChange={setCategorySearch}
+                                onCategoryChange={handleCategoryChange}
                                 title=""
                                 sx={{ p: 0 }}
                               />
