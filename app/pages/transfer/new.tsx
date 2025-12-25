@@ -111,13 +111,12 @@ const NewTransferPage = () => {
 
   return (
     <AppLayout title="انتقال محصول">
-      <TitleCard
-        title="انتقال محصول از منابع دیگر"
-        description="ابتدا منبع را انتخاب کنید و سپس آدرس یا آدرس‌های محصول را وارد کنید."
-      />
-
       <Box sx={{ minHeight: "100vh", py: 4 }}>
         <Container maxWidth="md">
+          <TitleCard
+            title="انتقال محصول از منابع دیگر"
+            description="ابتدا منبع را انتخاب کنید و سپس آدرس یا آدرس‌های محصول را وارد کنید."
+          />
           <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, borderRadius: 3 }}>
             <Grid container spacing={3}>
               {/* Transfer Sources Selection */}

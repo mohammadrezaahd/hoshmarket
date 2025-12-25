@@ -2,7 +2,6 @@ import {
   authorizedDelete,
   authorizedGet,
   authorizedPost,
-  authorizedPostMultipleFilesWithQuery,
   authorizedPut,
 } from "~/utils/authorizeReq";
 import { apiUtils } from "./apiUtils.api";
@@ -79,6 +78,14 @@ const setCategory = async ({
   });
 };
 
+const convertTransfer = async (id: number) => {
+  return apiUtils<{ count: number }>(async () => {
+    const response = await authorizedPost(`/v1/transfer_product/convert/${id}`);
+
+    return response.data;
+  });
+};
+
 export const useCreateTransfer = () => {
   const queryClient = useQueryClient();
 
@@ -144,6 +151,22 @@ export const useSetCategory = () => {
     },
     onError: (error) => {
       console.error("❌ Error setting transfer category:", error);
+    },
+  });
+};
+
+export const useConvertTransfer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: convertTransfer,
+    onSuccess: (data) => {
+      // Invalidate related queries after successful creation
+      queryClient.invalidateQueries({ queryKey: ["Conver Transfer"] });
+      console.log("✅ Transfer converted successfully:", data);
+    },
+    onError: (error) => {
+      console.error("❌ Error converting transfer:", error);
     },
   });
 };

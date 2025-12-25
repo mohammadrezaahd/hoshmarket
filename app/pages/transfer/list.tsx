@@ -42,6 +42,7 @@ import {
   useTransfers,
   useDeleteTransfer,
   useSetCategory,
+  useConvertTransfer,
 } from "~/api/transfer.api";
 import type { ITransferList } from "~/types/interfaces/transfer.interface";
 import type { ICategoryList } from "~/types/interfaces/categories.interface";
@@ -97,6 +98,9 @@ const TransferList: React.FC = () => {
   const { mutateAsync: deleteTransfer, isPending: isDeleting } =
     useDeleteTransfer();
 
+  const { mutateAsync: convertTransfer, isPending: isConverting } =
+    useConvertTransfer();
+
   const { mutateAsync: setCategory, isPending: isSettingCategory } =
     useSetCategory();
 
@@ -125,7 +129,9 @@ const TransferList: React.FC = () => {
           setItems(res.data.list || []);
           setTotalItems(res.data.list?.length || 0);
           setMetaData(res.meta_data || null);
-          setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
+          setTotalItems(
+            res.meta_data?.total_items ?? res.data.list?.length ?? 0
+          );
         } else {
           enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", {
             variant: "error",
@@ -156,7 +162,9 @@ const TransferList: React.FC = () => {
           setItems(res.data.list || []);
           setTotalItems(res.data.list?.length || 0);
           setMetaData(res.meta_data || null);
-          setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
+          setTotalItems(
+            res.meta_data?.total_items ?? res.data.list?.length ?? 0
+          );
         } else {
           enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", {
             variant: "error",
@@ -228,7 +236,9 @@ const TransferList: React.FC = () => {
         });
         if (res.status === ApiStatus.SUCCEEDED && res.data) {
           setItems(res.data.list || []);
-          setTotalItems(res.meta_data?.total_items ?? res.data.list?.length ?? 0);
+          setTotalItems(
+            res.meta_data?.total_items ?? res.data.list?.length ?? 0
+          );
           setMetaData(res.meta_data || null);
         }
       } else {
@@ -253,8 +263,40 @@ const TransferList: React.FC = () => {
     setEditingCategoryId(null);
   };
 
-  const handlePublish = (id: number) => {
-    console.log("Publish transfer:", id);
+  const handlePublish = async (id: number) => {
+    try {
+      const res = await convertTransfer(id);
+
+      if (res.status === ApiStatus.SUCCEEDED) {
+        enqueueSnackbar(res.message || "تبدیل با موفقیت انجام شد", {
+          variant: "success",
+        });
+
+        // Refresh current list to get server updates
+        const listRes = await getList({
+          page,
+          limit,
+          status_filter: statusFilter,
+          source: sourceFilter,
+        });
+
+        if (listRes.status === ApiStatus.SUCCEEDED && listRes.data) {
+          setItems(listRes.data.list || []);
+          setMetaData(listRes.meta_data || null);
+          setTotalItems(
+            listRes.meta_data?.total_items ?? listRes.data.list?.length ?? 0
+          );
+        }
+      } else {
+        enqueueSnackbar(res.message || "خطا در تبدیل انتقال", {
+          variant: "error",
+        });
+      }
+    } catch (err: any) {
+      enqueueSnackbar(err.message || "خطا در تبدیل انتقال", {
+        variant: "error",
+      });
+    }
   };
 
   const handleCategoryChange = useCallback(
@@ -268,7 +310,9 @@ const TransferList: React.FC = () => {
         });
 
         if (res.status === ApiStatus.SUCCEEDED) {
-          enqueueSnackbar("دسته‌بندی با موفقیت ذخیره شد", { variant: "success" });
+          enqueueSnackbar("دسته‌بندی با موفقیت ذخیره شد", {
+            variant: "success",
+          });
           // Update the row in state immediately
           setItems((prevItems) =>
             prevItems.map((item) =>
@@ -619,10 +663,10 @@ const TransferList: React.FC = () => {
                                 selectedCategory={
                                   // Find the category by ID (we don't have categories list anymore)
                                   r.digikala_category_id
-                                    ? {
+                                    ? ({
                                         id: Number(r.digikala_category_id),
                                         title: r.digikala_category_name || "",
-                                      } as ICategoryList
+                                      } as ICategoryList)
                                     : null
                                 }
                                 onCategoryChange={handleCategoryChange}
@@ -717,7 +761,9 @@ const TransferList: React.FC = () => {
                                   handlePublish(r.id);
                                 }}
                                 disabled={
-                                  !r.digikala_category_id || !r.digikala_category_name
+                                  isConverting ||
+                                  !r.digikala_category_id ||
+                                  !r.digikala_category_name
                                 }
                               >
                                 <ExportIcon size="small" />
