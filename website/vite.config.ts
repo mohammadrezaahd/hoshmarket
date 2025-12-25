@@ -20,6 +20,7 @@ export default defineConfig(({ command, mode, isSsrBuild }) => ({
     },
   },
   server: {
+    port: 3000, // پورت دلخواهت رو اینجا بنویس
     fs: {
       strict: false,
     },
