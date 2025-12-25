@@ -638,74 +638,84 @@ const TransferList: React.FC = () => {
                         </TableCell>
 
                         <TableCell sx={{ textAlign: "right", minWidth: 250 }}>
-                          {editingCategoryId === r.id ? (
-                            <Box sx={{ py: 1, position: "relative" }}>
-                              {isSettingCategory && (
+                          {r.status === TransferStatus.FETCHED ? (
+                            <>
+                              {editingCategoryId === r.id ? (
+                                <Box sx={{ py: 1, position: "relative" }}>
+                                  {isSettingCategory && (
+                                    <Box
+                                      sx={{
+                                        position: "absolute",
+                                        top: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        left: 0,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        backgroundColor:
+                                          "rgba(255, 255, 255, 0.7)",
+                                        zIndex: 10,
+                                        borderRadius: 1,
+                                      }}
+                                    >
+                                      <CircularProgress size={24} />
+                                    </Box>
+                                  )}
+                                  <CategorySelector
+                                    selectedCategory={
+                                      // Find the category by ID (we don't have categories list anymore)
+                                      r.digikala_category_id
+                                        ? ({
+                                            id: Number(r.digikala_category_id),
+                                            title:
+                                              r.digikala_category_name || "",
+                                          } as ICategoryList)
+                                        : null
+                                    }
+                                    onCategoryChange={handleCategoryChange}
+                                    title=""
+                                    sx={{ p: 0 }}
+                                  />
+                                </Box>
+                              ) : (
                                 <Box
+                                  onClick={() => handleCategoryEdit(r)}
                                   sx={{
-                                    position: "absolute",
-                                    top: 0,
-                                    right: 0,
-                                    bottom: 0,
-                                    left: 0,
+                                    py: 0.5,
+                                    px: 1,
+                                    borderRadius: 1,
+                                    cursor: "pointer",
+                                    "&:hover": {
+                                      backgroundColor: "action.hover",
+                                    },
+                                    minHeight: 36,
                                     display: "flex",
                                     alignItems: "center",
-                                    justifyContent: "center",
-                                    backgroundColor: "rgba(255, 255, 255, 0.7)",
-                                    zIndex: 10,
-                                    borderRadius: 1,
                                   }}
                                 >
-                                  <CircularProgress size={24} />
+                                  {r.digikala_category_name ? (
+                                    <Tooltip title="برای ویرایش کلیک کنید">
+                                      <Typography variant="body2">
+                                        {r.digikala_category_name}
+                                      </Typography>
+                                    </Tooltip>
+                                  ) : (
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                      sx={{ fontStyle: "italic" }}
+                                    >
+                                      انتخاب دسته‌بندی...
+                                    </Typography>
+                                  )}
                                 </Box>
                               )}
-                              <CategorySelector
-                                selectedCategory={
-                                  // Find the category by ID (we don't have categories list anymore)
-                                  r.digikala_category_id
-                                    ? ({
-                                        id: Number(r.digikala_category_id),
-                                        title: r.digikala_category_name || "",
-                                      } as ICategoryList)
-                                    : null
-                                }
-                                onCategoryChange={handleCategoryChange}
-                                title=""
-                                sx={{ p: 0 }}
-                              />
-                            </Box>
+                            </>
                           ) : (
-                            <Box
-                              onClick={() => handleCategoryEdit(r)}
-                              sx={{
-                                py: 0.5,
-                                px: 1,
-                                borderRadius: 1,
-                                cursor: "pointer",
-                                "&:hover": {
-                                  backgroundColor: "action.hover",
-                                },
-                                minHeight: 36,
-                                display: "flex",
-                                alignItems: "center",
-                              }}
-                            >
-                              {r.digikala_category_name ? (
-                                <Tooltip title="برای ویرایش کلیک کنید">
-                                  <Typography variant="body2">
-                                    {r.digikala_category_name}
-                                  </Typography>
-                                </Tooltip>
-                              ) : (
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                  sx={{ fontStyle: "italic" }}
-                                >
-                                  انتخاب دسته‌بندی...
-                                </Typography>
-                              )}
-                            </Box>
+                            <Typography>
+                              تا دریافت کامل اطلاعات صبر کنید
+                            </Typography>
                           )}
                         </TableCell>
 
@@ -763,7 +773,8 @@ const TransferList: React.FC = () => {
                                 disabled={
                                   isConverting ||
                                   !r.digikala_category_id ||
-                                  !r.digikala_category_name
+                                  !r.digikala_category_name ||
+                                  r.status !== TransferStatus.FETCHED
                                 }
                               >
                                 <ExportIcon size="small" />
