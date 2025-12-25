@@ -240,7 +240,7 @@ const TemplatesList = () => {
 
   // Handle edit and delete actions
   const handleEdit = (id: number, type: TemplateType) => {
-    navigate(`/dashboard/templates/edit?id=${id}&type=${type}`);
+    navigate(`/templates/edit?id=${id}&type=${type}`);
   };
 
   const handleDelete = (id: number, type: TemplateType) => {

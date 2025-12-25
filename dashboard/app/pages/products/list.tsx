@@ -230,7 +230,7 @@ const ProductsList = () => {
 
   // Handle edit action
   const handleEdit = (id: number) => {
-    navigate(`/dashboard/products/edit/${id}`);
+    navigate(`/products/edit/${id}`);
   };
 
   // Handle delete action

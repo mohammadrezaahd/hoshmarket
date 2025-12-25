@@ -15,11 +15,11 @@ const ResultPage = () => {
   const theme = useTheme();
 
   const handleViewProductsList = () => {
-    navigate("/dashboard/products/list");
+    navigate("/products/list");
   };
 
   const handleCreateAnother = () => {
-    navigate("/dashboard/products/new");
+    navigate("/products/new");
   };
 
   return (

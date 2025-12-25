@@ -126,7 +126,7 @@ const Navbar: React.FC = () => {
       {/* Help */}
       <Tooltip title="راهنما" arrow>
         <IconButton
-          onClick={() => navigate("/dashboard/help")}
+          onClick={() => navigate("/help")}
           sx={{
             color: "inherit",
             "&:hover": {
@@ -141,7 +141,7 @@ const Navbar: React.FC = () => {
       {/* Support */}
       <Tooltip title="پشتیبانی" arrow>
         <IconButton
-          onClick={() => navigate("/dashboard/ticketing")}
+          onClick={() => navigate("/ticketing")}
           sx={{
             color: "inherit",
             "&:hover": {
@@ -250,7 +250,7 @@ const Navbar: React.FC = () => {
 
         {/* Menu Items */}
         <MenuItem
-          onClick={() => handleNavigation("/dashboard/profile")}
+          onClick={() => handleNavigation("/profile")}
           sx={{
             py: 1.5,
             "&:hover": {
@@ -303,7 +303,7 @@ const Navbar: React.FC = () => {
         </MenuItem>
 
         <MenuItem
-          onClick={() => handleNavigation("/dashboard/pricing")}
+          onClick={() => handleNavigation("/pricing")}
           sx={{
             py: 1.5,
             "&:hover": {

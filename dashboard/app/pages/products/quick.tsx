@@ -182,7 +182,7 @@ const QuickProductPage = () => {
 
       if (result.status === ApiStatus.SUCCEEDED) {
         enqueueSnackbar("محصول با موفقیت ایجاد شد", { variant: "success" });
-        navigate("/dashboard/products/list");
+        navigate("/products/list");
       } else {
         enqueueSnackbar("خطا در ایجاد محصول", { variant: "error" });
       }

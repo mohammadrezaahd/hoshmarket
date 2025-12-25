@@ -473,7 +473,7 @@ const EditProductPage = () => {
         enqueueSnackbar("محصول با موفقیت به‌روزرسانی شد", {
           variant: "success",
         });
-        navigate("/dashboard/products/list");
+        navigate("/products/list");
       } else {
         enqueueSnackbar("خطا در به‌روزرسانی محصول", { variant: "error" });
       }
@@ -487,11 +487,11 @@ const EditProductPage = () => {
 
   // Navigation handlers
   const handleNavigateBack = () => {
-    navigate("/dashboard/products/list");
+    navigate("/products/list");
   };
 
   const handleSaveSuccess = () => {
-    navigate("/dashboard/products/list");
+    navigate("/products/list");
   };
 
   // State update handlers with useCallback for stable references

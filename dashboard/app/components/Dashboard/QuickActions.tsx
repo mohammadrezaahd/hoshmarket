@@ -11,25 +11,25 @@ const QuickActions: React.FC = () => {
       label: "محصول سریع",
       icon: SpeedIcon,
       color: "#FF6B6B",
-      path: "/dashboard/products/quick",
+      path: "/products/quick",
     },
     {
       label: "محصول جدید",
       icon: TemplateIcon,
       color: "#6C5CE7",
-      path: "/dashboard/products/new",
+      path: "/products/new",
     },
     {
       label: "آپلود تصویر",
       icon: ImageIcon,
       color: "#00CEC9",
-      path: "/dashboard/gallery",
+      path: "/gallery",
     },
     {
       label: "قالب جدید",
       icon: TemplateIcon,
       color: "#FDA7DC",
-      path: "/dashboard/templates/new",
+      path: "/templates/new",
     },
   ];
 
