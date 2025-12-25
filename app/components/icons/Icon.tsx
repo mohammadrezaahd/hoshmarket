@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { Box } from "@mui/material";
+import { useIconLoader } from "./useIconLoader";
 
 export type VariantType =
   | "solid"
@@ -38,10 +39,6 @@ const Icon: React.FC<IconProps> = ({
   style,
   onClick,
 }) => {
-  const [svgContent, setSvgContent] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   // Convert size to pixel value
   const getSize = (size: string | number | undefined): number => {
     if (typeof size === 'number') return size;
@@ -51,36 +48,15 @@ const Icon: React.FC<IconProps> = ({
   };
 
   const pixelSize = getSize(size);
+  const { svgContent, loading, error } = useIconLoader(name, variant);
 
-  useEffect(() => {
-    const loadIcon = async () => {
-      try {
-        setLoading(true);
-        setError(false);
-
-        const response = await fetch(`/icons/${variant}/${name}.svg`);
-        if (!response.ok) {
-          throw new Error(`Icon not found: ${name}`);
-        }
-
-        let svgText = await response.text();
-
-        // Replace fill="currentColor" with the specified color
-        if (color !== "currentColor") {
-          svgText = svgText.replace(/fill="currentColor"/g, `fill="${color}"`);
-        }
-
-        setSvgContent(svgText);
-      } catch (err) {
-        console.warn(`Failed to load icon: ${name} (${variant})`, err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadIcon();
-  }, [name, variant, color]);
+  const processedSvg = useMemo(() => {
+    if (!svgContent) return "";
+    if (color !== "currentColor") {
+      return svgContent.replace(/fill="currentColor"/g, `fill="${color}"`);
+    }
+    return svgContent;
+  }, [svgContent, color]);
 
   if (loading) {
     return (
@@ -143,7 +119,7 @@ const Icon: React.FC<IconProps> = ({
         ...style,
         cursor: "pointer",
       }}
-      dangerouslySetInnerHTML={{ __html: svgContent }}
+      dangerouslySetInnerHTML={{ __html: processedSvg }}
     />
   );
 };

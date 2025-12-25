@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { fetchIconSvg, getCachedIconSvg } from "./iconCache";
 
 export interface IconMetadata {
   name: string;
@@ -6,36 +7,46 @@ export interface IconMetadata {
   available: boolean;
 }
 
-export const useIconLoader = (name: string, variant: "solid" | "regular" = "solid") => {
+export const useIconLoader = (name: string, variant: string = "solid") => {
   const [svgContent, setSvgContent] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const loadIcon = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        const response = await fetch(`/icons/${variant}/${name}.svg`);
-        if (!response.ok) {
-          throw new Error(`Icon not found: ${name} (${variant})`);
+
+        const cached = getCachedIconSvg(name, variant as string);
+        if (cached) {
+          if (mounted) setSvgContent(cached);
+          return;
         }
-        
-        const svgText = await response.text();
-        setSvgContent(svgText);
+
+        const svgText = await fetchIconSvg(name, variant as string);
+        if (mounted) setSvgContent(svgText);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        setError(errorMessage);
+        if (mounted) setError(errorMessage);
         console.warn(`Failed to load icon: ${name} (${variant})`, err);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     if (name) {
       loadIcon();
+    } else {
+      setSvgContent("");
+      setLoading(false);
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [name, variant]);
 
   return { svgContent, loading, error };

@@ -12,9 +12,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
-  // اگر در server-side هستیم، فوراً redirect کن
   if (!isClient()) {
-    return <Navigate to="/auth" replace />;
+    return null;
   }
 
   const { isAuthenticated, isLoading, isError, error } = useAuthStatus();
@@ -27,24 +26,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       console.log("🔒 ProtectedRoute Error:", statusCode, axiosError);
 
       if (statusCode === 401) {
-        // 401: توکن نداره یا توکن نامعتبر - برو صفحه auth
         console.log("❌ 401: توکن نامعتبر - هدایت به صفحه ورود");
         safeLocalStorage.removeItem("access_token");
         setRedirectPath("/auth");
       } else if (statusCode === 422) {
-        // 422: توکن داره اما register نکرده - برو صفحه auth با state برای نمایش فرم register
         console.log("⚠️ 422: کاربر register نکرده - هدایت به فرم ثبت‌نام");
-        // توکن را نگه دار چون برای register لازم است
-        navigate("/auth", { 
-          state: { 
+
+        navigate("/auth", {
+          state: {
             step: "register",
-            needsRegistration: true 
+            needsRegistration: true,
           },
-          replace: true 
+          replace: true,
         });
-        return; // جلوگیری از ادامه execution
+        return;
       } else {
-        // سایر خطاها - پاک کردن توکن و برو auth
         console.log("❌ خطای احراز هویت - هدایت به صفحه ورود");
         safeLocalStorage.removeItem("access_token");
         setRedirectPath("/auth");
@@ -52,7 +48,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     }
   }, [isError, error, navigate]);
 
-  // نمایش Loading در حین بررسی
   if (isLoading) {
     return (
       <Box
@@ -73,17 +68,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // Redirect اگر لازم باشد
   if (redirectPath) {
     return <Navigate to={redirectPath} replace />;
   }
 
-  // اگر احراز هویت نشده، redirect کن
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
 
-  // نمایش محتوای محافظت شده
   return <>{children}</>;
 };
 
