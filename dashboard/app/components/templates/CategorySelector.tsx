@@ -37,6 +37,8 @@ interface CategorySelectorProps {
   // Styling
   title?: string;
   sx?: any;
+  // Enabled/Disabled state
+  enabled?: boolean;
 }
 
 const CategorySelector = ({
@@ -49,6 +51,7 @@ const CategorySelector = ({
   loadingSuggestions,
   title = "دسته‌بندی قالب",
   sx,
+  enabled = true,
 }: CategorySelectorProps) => {
   const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -120,6 +123,7 @@ const CategorySelector = ({
                 handleInputChange(newInputValue);
               }}
               loading={loadingCategories}
+              disabled={!enabled}
               noOptionsText="دسته‌بندی یافت نشد"
               loadingText="در حال جستجو..."
               renderInput={(params) => (
@@ -161,8 +165,9 @@ const CategorySelector = ({
                         key={suggestion.id}
                         label={suggestion.title}
                         variant="outlined"
-                        clickable
-                        onClick={() => handleSuggestionClick(suggestion)}
+                        clickable={enabled}
+                        disabled={!enabled}
+                        onClick={() => enabled && handleSuggestionClick(suggestion)}
                         sx={{
                           fontSize: "0.875rem",
                           "&:hover": {

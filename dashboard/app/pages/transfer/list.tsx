@@ -638,7 +638,8 @@ const TransferList: React.FC = () => {
                         </TableCell>
 
                         <TableCell sx={{ textAlign: "right", minWidth: 250 }}>
-                          {r.status === TransferStatus.FETCHED ? (
+                          {r.status === TransferStatus.FETCHED ||
+                          r.status === TransferStatus.CONVERTED ? (
                             <>
                               {editingCategoryId === r.id ? (
                                 <Box sx={{ py: 1, position: "relative" }}>
@@ -675,19 +676,21 @@ const TransferList: React.FC = () => {
                                     }
                                     onCategoryChange={handleCategoryChange}
                                     title=""
+                                    enabled={r.status !== TransferStatus.CONVERTED}
                                     sx={{ p: 0 }}
+                                    
                                   />
                                 </Box>
                               ) : (
                                 <Box
-                                  onClick={() => handleCategoryEdit(r)}
+                                  onClick={() => r.status !== TransferStatus.CONVERTED && handleCategoryEdit(r)}
                                   sx={{
                                     py: 0.5,
                                     px: 1,
                                     borderRadius: 1,
-                                    cursor: "pointer",
+                                    cursor: r.status !== TransferStatus.CONVERTED ? "pointer" : "default",
                                     "&:hover": {
-                                      backgroundColor: "action.hover",
+                                      backgroundColor: r.status !== TransferStatus.CONVERTED ? "action.hover" : "transparent",
                                     },
                                     minHeight: 36,
                                     display: "flex",
@@ -695,7 +698,7 @@ const TransferList: React.FC = () => {
                                   }}
                                 >
                                   {r.digikala_category_name ? (
-                                    <Tooltip title="برای ویرایش کلیک کنید">
+                                    <Tooltip title={r.status !== TransferStatus.CONVERTED ? "برای ویرایش کلیک کنید" : "تبدیل شده - غیرقابل ویرایش"}>
                                       <Typography variant="body2">
                                         {r.digikala_category_name}
                                       </Typography>

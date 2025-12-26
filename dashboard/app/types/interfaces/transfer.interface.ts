@@ -39,4 +39,5 @@ export enum TransferStatus {
   FETCHED = "data_fetched",
   ERROR = "error_fetching_data",
   NOT_FOUND = "asin_not_found",
+  CONVERTED = "converted",
 }

@@ -12,6 +12,7 @@ import {
   Divider,
   IconButton,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 import { Link, useLocation } from "react-router";
@@ -138,6 +139,12 @@ const Drawer = ({
 }: DrawerProps) => {
   const theme = useTheme();
   const location = useLocation();
+  
+  // Check if screen size is md or smaller (900px or less)
+  const isMdOrSmaller = useMediaQuery(theme.breakpoints.down('lg'));
+  
+  // Use auto-collapsed mode on md or smaller screens
+  const effectiveCollapsed = desktopCollapsed || isMdOrSmaller;
 
   // Helper function to check if a path is active
   const isPathActive = (path: string) => {
@@ -160,7 +167,7 @@ const Drawer = ({
 
   // Toggle a menu by id, respecting collapsed mode
   const toggleMenu = (itemId: string) => {
-    if (desktopCollapsed) return;
+    if (effectiveCollapsed) return;
     setOpenState((s) => ({ ...s, [itemId]: !s[itemId] }));
   };
 
@@ -186,9 +193,9 @@ const Drawer = ({
   const drawer = (
     <Box>
       <Toolbar
-        sx={{ justifyContent: desktopCollapsed ? "center" : "space-between" }}
+        sx={{ justifyContent: effectiveCollapsed ? "center" : "space-between" }}
       >
-        {!desktopCollapsed && (
+        {!effectiveCollapsed && (
           <Typography variant="h6" component="div" sx={{ fontWeight: "bold" }}>
             منو
           </Typography>
@@ -199,7 +206,7 @@ const Drawer = ({
             display: {
               xs: "none",
               sm: "flex",
-              marginLeft: desktopCollapsed ? 0 : "-5px",
+              marginLeft: effectiveCollapsed ? 0 : "-5px",
               cursor: "pointer",
               ":hover": { color: theme.palette.primary.main },
             },
@@ -237,14 +244,14 @@ const Drawer = ({
                   <ListItemIcon
                     sx={{
                       minWidth: "auto",
-                      ml: desktopCollapsed ? 0 : 1,
+                      ml: effectiveCollapsed ? 0 : 1,
                       justifyContent: "center",
                       color: isActive ? theme.palette.primary.main : "inherit",
                     }}
                   >
                     <ItemIcon />
                   </ListItemIcon>
-                  {!desktopCollapsed && (
+                  {!effectiveCollapsed && (
                     <>
                       <ListItemText
                         primary={item.title}
@@ -270,7 +277,7 @@ const Drawer = ({
               </ListItem>
 
               {/* Sub Items */}
-              {item.expandable && item.subItems && !desktopCollapsed && (
+              {item.expandable && item.subItems && !effectiveCollapsed && (
                 <Collapse in={isOpen} timeout="auto" unmountOnExit>
                   <List
                     component="div"
