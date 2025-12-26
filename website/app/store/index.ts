@@ -1,8 +1,18 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, createSlice } from "@reduxjs/toolkit";
+
+// Create a simple app slice to prevent empty reducer error
+const appSlice = createSlice({
+  name: "app",
+  initialState: {
+    initialized: true,
+  },
+  reducers: {},
+});
 
 export const store = configureStore({
   reducer: {
-    // Add your reducers here
+    app: appSlice.reducer,
+    // Add your other reducers here
   },
 });
 
