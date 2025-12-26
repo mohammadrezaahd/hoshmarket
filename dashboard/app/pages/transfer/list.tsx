@@ -35,6 +35,7 @@ import {
   RefreshIcon,
   DeleteIcon,
   ExportIcon,
+  EditIcon,
 } from "~/components/icons/IconComponents";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router";
@@ -676,21 +677,31 @@ const TransferList: React.FC = () => {
                                     }
                                     onCategoryChange={handleCategoryChange}
                                     title=""
-                                    enabled={r.status !== TransferStatus.CONVERTED}
+                                    enabled={
+                                      r.status !== TransferStatus.CONVERTED
+                                    }
                                     sx={{ p: 0 }}
-                                    
                                   />
                                 </Box>
                               ) : (
                                 <Box
-                                  onClick={() => r.status !== TransferStatus.CONVERTED && handleCategoryEdit(r)}
+                                  onClick={() =>
+                                    r.status !== TransferStatus.CONVERTED &&
+                                    handleCategoryEdit(r)
+                                  }
                                   sx={{
                                     py: 0.5,
                                     px: 1,
                                     borderRadius: 1,
-                                    cursor: r.status !== TransferStatus.CONVERTED ? "pointer" : "default",
+                                    cursor:
+                                      r.status !== TransferStatus.CONVERTED
+                                        ? "pointer"
+                                        : "default",
                                     "&:hover": {
-                                      backgroundColor: r.status !== TransferStatus.CONVERTED ? "action.hover" : "transparent",
+                                      backgroundColor:
+                                        r.status !== TransferStatus.CONVERTED
+                                          ? "action.hover"
+                                          : "transparent",
                                     },
                                     minHeight: 36,
                                     display: "flex",
@@ -698,7 +709,13 @@ const TransferList: React.FC = () => {
                                   }}
                                 >
                                   {r.digikala_category_name ? (
-                                    <Tooltip title={r.status !== TransferStatus.CONVERTED ? "برای ویرایش کلیک کنید" : "تبدیل شده - غیرقابل ویرایش"}>
+                                    <Tooltip
+                                      title={
+                                        r.status !== TransferStatus.CONVERTED
+                                          ? "برای ویرایش کلیک کنید"
+                                          : "تبدیل شده - غیرقابل ویرایش"
+                                      }
+                                    >
                                       <Typography variant="body2">
                                         {r.digikala_category_name}
                                       </Typography>
@@ -783,6 +800,20 @@ const TransferList: React.FC = () => {
                                 <ExportIcon size="small" />
                               </IconButton>
                             </Tooltip>
+
+                            {r.status === TransferStatus.CONVERTED && (
+                              <Tooltip title="ویرایش محصول">
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() =>
+                                    navigate(`/products/edit/${r.id}`)
+                                  }
+                                >
+                                  <EditIcon size="small" />
+                                </IconButton>
+                              </Tooltip>
+                            )}
 
                             <Tooltip title="حذف">
                               <IconButton
