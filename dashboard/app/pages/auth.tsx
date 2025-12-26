@@ -77,7 +77,7 @@ const Auth = () => {
 
     // فقط redirect کن اگر needsRegistration نباشد
     if (token && !state?.needsRegistration) {
-      navigate("/dashboard", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [navigate, location]);
 
@@ -132,7 +132,7 @@ const Auth = () => {
           variant: "success",
         });
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/");
         }, 1500);
       }
     } catch (err: any) {
@@ -156,7 +156,7 @@ const Auth = () => {
         variant: "success",
       });
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/");
       }, 1500);
     } catch (err: any) {
       enqueueSnackbar(
@@ -177,7 +177,7 @@ const Auth = () => {
         variant: "success",
       });
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/");
       }, 1500);
     } catch (err: any) {
       enqueueSnackbar(

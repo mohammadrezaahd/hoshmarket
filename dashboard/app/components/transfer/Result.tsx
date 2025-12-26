@@ -13,7 +13,7 @@ const TransferResult: React.FC<Props> = ({ message, onCreateAnother }) => {
   const theme = useTheme();
 
   const handleBackToDashboard = () => {
-    navigate("/dashboard");
+    navigate("/");
   };
 
   return (

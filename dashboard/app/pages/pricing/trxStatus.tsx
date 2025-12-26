@@ -49,7 +49,7 @@ const TrxStatusPage: React.FC = () => {
   useEffect(() => {
     if (!trxId || !trxIdNumber) {
       enqueueSnackbar("شناسه تراکنش یافت نشد", { variant: "error" });
-      navigate("/dashboard");
+      navigate("/");
     }
   }, [trxId, trxIdNumber, navigate, enqueueSnackbar]);
 
@@ -60,7 +60,7 @@ const TrxStatusPage: React.FC = () => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            navigate("/dashboard");
+            navigate("/");
             return 0;
           }
           return prev - 1;
@@ -108,11 +108,11 @@ const TrxStatusPage: React.FC = () => {
   };
 
   const handleGoHome = () => {
-    navigate("/dashboard");
+    navigate("/");
   };
 
   const handleGoToPricing = () => {
-    navigate("/dashboard");
+    navigate("/");
   };
 
   const handleRetry = () => {

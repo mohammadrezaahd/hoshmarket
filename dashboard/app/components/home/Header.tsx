@@ -128,7 +128,7 @@ const Header: React.FC = () => {
 
             <Button
               component={Link}
-              to="/dashboard"
+              to="/"
               variant="contained"
               sx={{
                 borderRadius: 3,

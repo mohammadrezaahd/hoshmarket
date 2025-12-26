@@ -189,7 +189,7 @@ const CTASection: React.FC = () => {
             >
               <Button
                 component={Link}
-                to="/dashboard"
+                to="/"
                 variant="contained"
                 size="large"
                 startIcon={<RocketIcon />}
