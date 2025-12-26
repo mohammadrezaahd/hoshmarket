@@ -601,7 +601,7 @@ const EditProductPage = () => {
             onActiveAttributesTabChange={handleActiveAttributesTabChange}
           />
         );
-      case TemplateSource.Quick:
+      case TemplateSource.Quick || TemplateSource.Transfer:
         return (
           <QuickEditProduct
             productData={productData}
@@ -656,13 +656,18 @@ const EditProductPage = () => {
                       <>
                         {(detailsTemplates.length === 0 ||
                           attributesTemplates.length === 0) && (
-                          <li>حداقل یک قالب برای جزئیات و ویژگی‌ها انتخاب کنید</li>
+                          <li>
+                            حداقل یک قالب برای جزئیات و ویژگی‌ها انتخاب کنید
+                          </li>
                         )}
                         {Object.keys(allDetailsValidationErrors).length > 0 && (
                           <li>فیلدهای الزامی در قالب‌های جزئیات را پر کنید</li>
                         )}
-                        {Object.keys(allAttributesValidationErrors).length > 0 && (
-                          <li>فیلدهای الزامی در قالب‌های ویژگی‌ها را پر کنید</li>
+                        {Object.keys(allAttributesValidationErrors).length >
+                          0 && (
+                          <li>
+                            فیلدهای الزامی در قالب‌های ویژگی‌ها را پر کنید
+                          </li>
                         )}
                       </>
                     )}
