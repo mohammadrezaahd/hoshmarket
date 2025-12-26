@@ -194,26 +194,13 @@ const createProductAttributesValidationSchema = (attributesData: ICategoryAttr |
   };
 
   const createInputValidation = (attr: any) => {
-    let validation: any;
+    let validation: any = yup.string();
     
-    if (attr.type === AttributeType.Input) {
-      validation = yup.number().typeError('مقدار وارد شده باید عدد باشد');
-      
-      if (attr.required) {
-        validation = validation.required(messages.required);
-      }
-      
-      validation = validation.min(0, messages.positiveNumber);
-    } else {
-      validation = yup.string();
-      
-      if (attr.required) {
-        validation = validation.required(messages.required);
-        validation = validation.min(3, messages.min);
-      }
-      
-      validation = validation.max(5000, messages.max);
+    if (attr.required) {
+      validation = validation.required(messages.required);
     }
+    
+    validation = validation.max(5000, messages.max);
     
     return validation;
   };

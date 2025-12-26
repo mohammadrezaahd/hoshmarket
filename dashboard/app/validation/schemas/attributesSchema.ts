@@ -74,30 +74,13 @@ const createCheckboxValidation = (attr: IAttr) => {
  * Create validation rule for input/text attributes
  */
 const createInputValidation = (attr: IAttr) => {
-  let validation: yup.StringSchema | yup.NumberSchema;
+  let validation: yup.StringSchema = yup.string();
   
-  if (attr.type === AttributeType.Input) {
-    // Numeric input
-    validation = yup.number().typeError('مقدار وارد شده باید عدد باشد');
-    
-    if (attr.required) {
-      validation = validation.required(messages.required);
-    }
-    
-    // Enforce non-negative number (>= 0)
-    validation = validation.min(0, 'عدد باید صفر یا بزرگتر باشد');
-  } else {
-    // Text input
-    validation = yup.string();
-    
-    if (attr.required) {
-      validation = validation.required(messages.required);
-      validation = validation.min(3, messages.min);
-    }
-    
-    // Add length validations if needed
-    validation = validation.max(5000, messages.max);
+  if (attr.required) {
+    validation = validation.required(messages.required);
   }
+  
+  validation = validation.max(5000, messages.max);
   
   return validation;
 };

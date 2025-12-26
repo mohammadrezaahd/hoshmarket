@@ -90,33 +90,15 @@ export default function AttributesField({
           <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
             <TextField
               fullWidth
-              type="number"
+              type="text"
               label={attr.title + (attr.required ? " *" : "")}
               helperText={error || attr.hint}
               value={value || ""}
-              onChange={(e) => {
-                // Accept only non-negative numbers (>= 0). Keep empty string as empty.
-                const inputVal = e.target.value;
-                if (inputVal === "") {
-                  onChange(fieldKey, "");
-                  return;
-                }
-
-                // Parse as float and enforce min 0
-                const parsed = parseFloat(inputVal);
-                if (isNaN(parsed)) {
-                  onChange(fieldKey, inputVal);
-                  return;
-                }
-
-                const safe = parsed < 0 ? 0 : parsed;
-                onChange(fieldKey, safe);
-              }}
+              onChange={(e) => onChange(fieldKey, e.target.value)}
               required={attr.required}
               error={!!error}
               InputProps={{
                 endAdornment: attr.postfix || attr.unit,
-                inputProps: { min: 0 },
               }}
             />
             {attr.Ai && <AIIcon attr={attr} />}
