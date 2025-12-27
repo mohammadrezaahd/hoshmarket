@@ -372,6 +372,10 @@ const TransferList: React.FC = () => {
       {[...Array(6)].map((_, i) => (
         <TableRow key={i}>
           <TableCell align="center">
+            <Skeleton variant="text" width={40} />
+          </TableCell>
+
+          <TableCell align="center">
             <Skeleton variant="circular" width={56} height={56} />
           </TableCell>
 
@@ -552,6 +556,9 @@ const TransferList: React.FC = () => {
               <Table sx={{ minWidth: 1200 }}>
                 <TableHead>
                   <TableRow>
+                    <TableCell sx={{ width: 50, fontWeight: "bold", textAlign: "center" }}>
+                      شناسه
+                    </TableCell>
                     <TableCell sx={{ width: 64, textAlign: "center" }}>
                       {/* تصویر */}
                     </TableCell>
@@ -584,6 +591,9 @@ const TransferList: React.FC = () => {
                   ) : filteredRows.length > 0 ? (
                     filteredRows.map((r) => (
                       <TableRow key={r.id} hover>
+                        <TableCell align="center" sx={{ width: 50 }}>
+                          {r.id}
+                        </TableCell>
                         <TableCell align="center" sx={{ width: 64 }}>
                           <Avatar
                             src={r.main_image}
