@@ -6,34 +6,15 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-import { Provider } from "react-redux";
 
 import { ThemeProvider } from "./theme";
-import { store } from "./store";
 import "./app.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SnackbarProvider, closeSnackbar } from "notistack";
-import { IconButton, Box, Typography, Button, Container } from "@mui/material";
+
+import { Box, Typography, Button, Container } from "@mui/material";
 
 export const links = () => [
-  { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
+  { rel: "icon", href: "/Hoshmarket.ico", type: "image/x-icon" },
 ];
-
-const queryClient = new QueryClient();
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -45,31 +26,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <Provider store={store}>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider>
-              <SnackbarProvider
-                maxSnack={3}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
-                }}
-                autoHideDuration={3000}
-                action={(snackbarId) => (
-                  <IconButton
-                    size="small"
-                    onClick={() => closeSnackbar(snackbarId)}
-                    sx={{ color: "white" }}
-                  >
-                    <span>✕</span>
-                  </IconButton>
-                )}
-              >
-                {children}
-              </SnackbarProvider>
-            </ThemeProvider>
-          </QueryClientProvider>
-        </Provider>
+        <ThemeProvider>{children}</ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
