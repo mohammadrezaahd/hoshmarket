@@ -111,11 +111,12 @@ const HeroSection = () => {
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={2}
-                sx={{ justifyContent: { xs: "center", lg: "flex-start" } }}
+                sx={{
+                  justifyContent: { xs: "center", lg: "flex-start", gap: 2 },
+                }}
               >
                 <Button
                   variant="contained"
-                  endIcon={<ArrowBack />}
                   sx={{
                     background: "#0EA5E9",
                     color: "white",
@@ -137,7 +138,6 @@ const HeroSection = () => {
 
                 <Button
                   variant="outlined"
-                  startIcon={<PlayCircleFilled />}
                   sx={{
                     color: "#1E293B",
                     borderColor: "#E2E8F0",

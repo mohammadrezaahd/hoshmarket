@@ -7,8 +7,11 @@ import {
   Telegram,
 } from "@mui/icons-material";
 import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
+import { useNavigate } from "react-router";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -20,9 +23,11 @@ const Footer = () => {
     >
       <Container maxWidth="lg">
         <Grid container spacing={6} sx={{ mb: 6 }}>
-          {/* Brand Section */}
           <Grid size={{ xs: 12, md: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+              onClick={() => navigate("/")}
+            >
               <Box
                 sx={{
                   width: 40,

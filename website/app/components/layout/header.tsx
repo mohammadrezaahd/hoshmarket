@@ -2,20 +2,21 @@ import {
   AppBar,
   Box,
   Button,
-  Menu,
   MenuItem,
   Stack,
   Toolbar,
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import { useNavigate } from "react-router";
 import { theme } from "~/theme";
 
 const Header = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const navigate = useNavigate();
 
   const navigationItems = [
-    { label: "درباره ما", href: "#" },
+    { label: "درباره ما", href: "/about" },
     { label: "تماس با ما", href: "#" },
     { label: "تعرفه ها", href: "#" },
   ];
@@ -32,7 +33,15 @@ const Header = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            cursor: "pointer",
+          }}
+          onClick={() => navigate("/")}
+        >
           <Box
             sx={{
               width: 40,

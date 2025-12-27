@@ -1,4 +1,10 @@
-import { Container, Typography, Box } from "@mui/material";
+import {
+  CTASection,
+  DetailsSection,
+  HeroSection,
+  StatsSection,
+  TeamSection,
+} from "~/components/about";
 
 export const meta = () => {
   return [
@@ -9,13 +15,16 @@ export const meta = () => {
 
 export default function About() {
   return (
-    <Container maxWidth="lg" sx={{ py: 8 }}>
-      <Typography variant="h2" component="h1" gutterBottom>
-        درباره ما
-      </Typography>
-      <Typography variant="body1" paragraph>
-        این صفحه درباره ما است.
-      </Typography>
-    </Container>
+    <>
+      <HeroSection />
+
+      <StatsSection />
+
+      <DetailsSection />
+
+      <TeamSection />
+
+      <CTASection />
+    </>
   );
 }

@@ -1,7 +1,9 @@
-import HeroSection from "~/components/home/Hero";
-import FeaturesSection from "~/components/home/Features";
-import StepsSection from "~/components/home/Steps";
-import TestimonialsSection from "~/components/home/Testimonials";
+import {
+  FeaturesSection,
+  HeroSection,
+  StepsSection,
+  TestimonialsSection,
+} from "~/components/home";
 
 export default function LandingPage() {
   return (
