@@ -1,11 +1,12 @@
-import {
-  FeaturesSection,
-  HeroSection,
-  StepsSection,
-  TestimonialsSection,
-} from "~/components/home";
+import { lazy, Suspense } from "react";
 
-export default function LandingPage() {
+import { FeaturesSection, HeroSection, StepsSection } from "~/components/home";
+
+const TestimonialsSection = lazy(
+  () => import("~/components/home/Testimonials")
+);
+
+const LandingPage = () => {
   return (
     <>
       <HeroSection />
@@ -14,7 +15,11 @@ export default function LandingPage() {
 
       <StepsSection />
 
-      <TestimonialsSection />
+      <Suspense fallback={null}>
+        <TestimonialsSection />
+      </Suspense>
     </>
   );
-}
+};
+
+export default LandingPage;
