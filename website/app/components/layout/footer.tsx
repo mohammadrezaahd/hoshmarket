@@ -25,19 +25,25 @@ const Footer = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
               <Box
                 sx={{
-                  width: 32,
-                  height: 32,
+                  width: 40,
+                  height: 40,
                   borderRadius: "50%",
-                  background: "#0EA5E9",
+                  background: "transparent",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   color: "white",
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  ا
-                </Typography>
+                <img
+                  src="/Hoshmarket.png"
+                  alt="Hoshmarket"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
               </Box>
               <Typography
                 sx={{
@@ -46,7 +52,7 @@ const Footer = () => {
                   color: "#1E293B",
                 }}
               >
-                آی‌پروداکت
+                هوش مارکت
               </Typography>
             </Box>
             <Typography
@@ -121,7 +127,7 @@ const Footer = () => {
                   sx={{
                     color: "#64748B",
                     textTransform: "none",
-                    justifyContent: "flex-end",
+                    justifyContent: "flex-start",
                     fontSize: "0.875rem",
                     p: 0,
                     "&:hover": {
@@ -157,7 +163,7 @@ const Footer = () => {
                   sx={{
                     color: "#64748B",
                     textTransform: "none",
-                    justifyContent: "flex-end",
+                    justifyContent: "flex-start",
                     fontSize: "0.875rem",
                     p: 0,
                     "&:hover": {
@@ -252,8 +258,8 @@ const Footer = () => {
             fontSize: "0.875rem",
           }}
         >
-          <Typography variant="body2">© ۱۴۰۲ تمامی حقوق محفوظ است.</Typography>
-          <Typography variant="body2">طراحی شده با ❤️ و هوش مصنوعی</Typography>
+          <Typography variant="body2">© 1404 تمامی حقوق محفوظ است.</Typography>
+          <Typography variant="body2">طراحی شده با ❤️</Typography>
         </Box>
       </Container>
     </Box>

@@ -337,3 +337,5 @@ const HeroSection = () => {
     </Box>
   );
 };
+
+export default HeroSection;

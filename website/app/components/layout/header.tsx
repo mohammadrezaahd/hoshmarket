@@ -38,14 +38,22 @@ const Header = () => {
               width: 40,
               height: 40,
               borderRadius: "50%",
-              background: "#0EA5E9",
+              background: "transparent",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "white",
             }}
           >
-            <Typography variant="h6">ا</Typography>
+            <img
+              src="/Hoshmarket.png"
+              alt="Hoshmarket"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+              }}
+            />
           </Box>
           <Typography
             variant="h6"
@@ -55,7 +63,7 @@ const Header = () => {
               color: "#1E293B",
             }}
           >
-            آی‌پروداکت
+            هوش مارکت
           </Typography>
         </Box>
 
