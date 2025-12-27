@@ -1,6 +1,12 @@
 import { lazy, Suspense } from "react";
 
 import { FeaturesSection, HeroSection, StepsSection } from "~/components/home";
+import {
+  HeroSkeleton,
+  FeaturesSkeleton,
+  StepsSkeleton,
+  TestimonialsSkeleton,
+} from "~/components/skeletons";
 
 const TestimonialsSection = lazy(
   () => import("~/components/home/Testimonials")
@@ -9,17 +15,23 @@ const TestimonialsSection = lazy(
 const LandingPage = () => {
   return (
     <>
-      <HeroSection />
+      <Suspense fallback={<HeroSkeleton />}>
+        <HeroSection />
+      </Suspense>
 
-      <FeaturesSection />
+      <Suspense fallback={<FeaturesSkeleton />}>
+        <FeaturesSection />
+      </Suspense>
 
-      <StepsSection />
+      <Suspense fallback={<StepsSkeleton />}>
+        <StepsSection />
+      </Suspense>
 
-      <Suspense fallback={null}>
+      <Suspense fallback={<TestimonialsSkeleton />}>
         <TestimonialsSection />
       </Suspense>
     </>
   );
 };
 
-export default LandingPage;
+export default LandingPage; 

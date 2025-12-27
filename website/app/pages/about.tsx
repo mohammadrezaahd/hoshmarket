@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import {
   CTASection,
   DetailsSection,
@@ -5,6 +6,13 @@ import {
   StatsSection,
   TeamSection,
 } from "~/components/about";
+import {
+  HeroSkeleton,
+  StatsSkeleton,
+  DetailsSkeleton,
+  TeamSkeleton,
+  CTASkeleton,
+} from "~/components/skeletons";
 
 export const meta = () => {
   return [
@@ -16,15 +24,25 @@ export const meta = () => {
 export default function About() {
   return (
     <>
-      <HeroSection />
+      <Suspense fallback={<HeroSkeleton />}>
+        <HeroSection />
+      </Suspense>
 
-      <StatsSection />
+      <Suspense fallback={<StatsSkeleton />}>
+        <StatsSection />
+      </Suspense>
 
-      <DetailsSection />
+      <Suspense fallback={<DetailsSkeleton />}>
+        <DetailsSection />
+      </Suspense>
 
-      <TeamSection />
+      <Suspense fallback={<TeamSkeleton />}>
+        <TeamSection />
+      </Suspense>
 
-      <CTASection />
+      <Suspense fallback={<CTASkeleton />}>
+        <CTASection />
+      </Suspense>
     </>
   );
 }
