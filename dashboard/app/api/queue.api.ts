@@ -4,7 +4,7 @@ import type {
 } from "~/types/interfaces/queue.interface";
 import { apiUtils } from "./apiUtils.api";
 import { authorizedGet } from "~/utils/authorizeReq";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useLiveWebSocket } from "~/hooks/useWebsocket";
 
@@ -40,6 +40,13 @@ const getQueueList = async ({
   });
 };
 
+const getQueueCount = async () => {
+  return apiUtils<{ count: number }>(async () => {
+    const response = await authorizedGet(`/v1/queue/jobs_count`);
+    return response.data;
+  });
+};
+
 export const useQueueList = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -50,6 +57,15 @@ export const useQueueList = () => {
     onError: (error) => {
       console.error("❌ Error fetching queue list:", error);
     },
+  });
+};
+
+export const useQueueCount = () => {
+  return useQuery({
+    queryKey: ["queue count"],
+    queryFn: () => getQueueCount(),
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -111,4 +127,39 @@ export const useQueueListSocket = (enabled: boolean) => {
   });
 
   return { queueList, loading };
+};
+
+export const useQueueCountSocket = (enabled: boolean = true) => {
+  const [queueCount, setQueueCount] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
+  const { data: initialCount } = useQueueCount();
+
+  const queueCountWsUrl =
+    (import.meta.env.VITE_QUEUE_COUNT_WS_URL as string) ||
+    (() => {
+      const loc = window.location;
+      const proto = loc.protocol === "https:" ? "wss:" : "ws:";
+      return `${proto}//${loc.host}/v1/queue/count_ws`;
+    })();
+
+  useEffect(() => {
+    if (initialCount?.data?.count !== undefined) {
+      setQueueCount(initialCount.data.count);
+    }
+  }, [initialCount]);
+
+  useLiveWebSocket<number, { count: number } | number>({
+    url: queueCountWsUrl,
+    enabled: Boolean(enabled),
+    setState: setQueueCount,
+    onMessage: (message) => {
+      if (typeof message === "number") {
+        return message;
+      }
+      return (message as { count: number }).count;
+    },
+    reconnectDelay: 3000,
+  });
+
+  return { queueCount, loading };
 };
