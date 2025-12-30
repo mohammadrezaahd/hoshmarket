@@ -1,4 +1,11 @@
-import { Container, Typography, Box } from "@mui/material";
+import { Container, Grid, useTheme } from "@mui/material";
+import {
+  FAQSection,
+  HeroSection,
+  InfoSection,
+  MapSection,
+  SocialSection,
+} from "~/components/contact";
 
 export const meta = () => {
   return [
@@ -8,14 +15,23 @@ export const meta = () => {
 };
 
 export default function Contact() {
+  const theme = useTheme();
+
   return (
-    <Container maxWidth="lg" sx={{ py: 8 }}>
-      <Typography variant="h2" component="h1" gutterBottom>
-        تماس با ما
-      </Typography>
-      <Typography variant="body1" paragraph>
-        این صفحه تماس با ما است.
-      </Typography>
+    <Container
+      sx={{ position: "relative", zIndex: 1, pt: { xs: 6, md: 10 }, pb: 8 }}
+    >
+      <HeroSection />
+
+      <InfoSection />
+
+      {/* Map & Social Media Section */}
+      <Grid container spacing={3} sx={{ mb: 10 }}>
+        <MapSection />
+        <SocialSection />
+      </Grid>
+
+      <FAQSection />
     </Container>
   );
 }

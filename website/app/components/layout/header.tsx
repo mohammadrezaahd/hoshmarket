@@ -17,7 +17,7 @@ const Header = () => {
 
   const navigationItems = [
     { label: "درباره ما", href: "/about" },
-    { label: "تماس با ما", href: "#" },
+    { label: "تماس با ما", href: "/contact" },
     { label: "تعرفه ها", href: "#" },
   ];
 
