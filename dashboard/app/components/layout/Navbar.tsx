@@ -3,26 +3,17 @@ import {
   Box,
   IconButton,
   Avatar,
-  Menu,
-  MenuItem,
-  Divider,
-  ListItemIcon,
-  Typography,
   Badge,
-  Chip,
   useTheme,
   alpha,
   Tooltip,
 } from "@mui/material";
 
 import {
-  SettingsIcon,
   NotificationIcon,
   HelpIcon,
-  LogoutIcon,
-  AccountIcon,
-  ShieldIcon,
   SupportIcon,
+  QueueIcon,
 } from "../icons/IconComponents";
 
 import { useNavigate } from "react-router";
@@ -31,6 +22,8 @@ import { useProfile } from "~/api/profile.api";
 import { useAppDispatch, useAppSelector } from "~/store/hooks";
 import { setUser, clearUser } from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
+import { useQueueListSocket } from "~/api/queue.api";
+import { ProfileMenu, QueueMenu, NotificationsMenu } from "./navbarItems";
 
 const Navbar: React.FC = () => {
   const theme = useTheme();
@@ -39,14 +32,12 @@ const Navbar: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
+  const [queueAnchorEl, setQueueAnchorEl] = useState<null | HTMLElement>(null);
 
-  // دریافت اطلاعات کاربر از store
   const currentUser = useAppSelector((state) => state.user.currentUser);
 
-  // دریافت اطلاعات کاربر از API
   const { data: userData, isSuccess } = useProfile();
 
-  // ذخیره اطلاعات کاربر در store
   useEffect(() => {
     if (isSuccess && userData?.data) {
       dispatch(setUser(userData.data));
@@ -63,6 +54,10 @@ const Navbar: React.FC = () => {
     setNotifAnchorEl(event.currentTarget);
   };
 
+  const handleQueueMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setQueueAnchorEl(event.currentTarget);
+  };
+
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
@@ -70,6 +65,13 @@ const Navbar: React.FC = () => {
   const handleNotifClose = () => {
     setNotifAnchorEl(null);
   };
+
+  const handleQueueClose = () => {
+    setQueueAnchorEl(null);
+  };
+
+  // use centralized socket hook for queue list while dropdown is open
+  const { queueList, loading } = useQueueListSocket(Boolean(queueAnchorEl));
 
   const handleLogout = async () => {
     handleMenuClose();
@@ -153,6 +155,21 @@ const Navbar: React.FC = () => {
         </IconButton>
       </Tooltip>
 
+      {/* Queue */}
+      <Tooltip title="صف" arrow>
+        <IconButton
+          onClick={handleQueueMenuOpen}
+          sx={{
+            color: "inherit",
+            "&:hover": {
+              backgroundColor: alpha(theme.palette.primary.main, 0.1),
+            },
+          }}
+        >
+          <QueueIcon />
+        </IconButton>
+      </Tooltip>
+
       {/* Profile */}
       <Tooltip title="پروفایل" arrow>
         <IconButton
@@ -181,242 +198,32 @@ const Navbar: React.FC = () => {
       </Tooltip>
 
       {/* Profile Menu */}
-      <Menu
+      <ProfileMenu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-        PaperProps={{
-          elevation: 8,
-          sx: {
-            mt: 1.5,
-            minWidth: 240,
-            borderRadius: 2,
-            overflow: "visible",
-            "&:before": {
-              content: '""',
-              display: "block",
-              position: "absolute",
-              top: 0,
-              left: 20,
-              width: 10,
-              height: 10,
-              bgcolor: "background.paper",
-              transform: "translateY(-50%) rotate(45deg)",
-              zIndex: 0,
-            },
-          },
-        }}
-      >
-        {/* User Info */}
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Avatar
-              sx={{
-                width: 48,
-                height: 48,
-                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-              }}
-            >
-              {currentUser?.first_name?.[0]?.toUpperCase() ||
-                currentUser?.email?.[0]?.toUpperCase() ||
-                "U"}
-            </Avatar>
-            <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                {currentUser?.first_name && currentUser?.last_name
-                  ? `${currentUser.first_name} ${currentUser.last_name}`
-                  : "کاربر محترم"}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: "0.75rem" }}
-              >
-                {currentUser?.email || currentUser?.phone || "بدون اطلاعات"}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+        currentUser={currentUser}
+        handleNavigation={handleNavigation}
+        isLoggingOut={isLoggingOut}
+        handleLogout={handleLogout}
+      />
 
-        <Divider />
-
-        {/* Menu Items */}
-        <MenuItem
-          onClick={() => handleNavigation("/profile")}
-          sx={{
-            py: 1.5,
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.primary.main, 0.08),
-            },
-          }}
-        >
-          <ListItemIcon>
-            <AccountIcon size={20} />
-          </ListItemIcon>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
-            <Typography>پروفایل من</Typography>
-          </Box>
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => handleNavigation("/settings")}
-          sx={{
-            py: 1.5,
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.primary.main, 0.08),
-            },
-          }}
-        >
-          <ListItemIcon>
-            <SettingsIcon size={20} />
-          </ListItemIcon>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
-            <Typography>تنظیمات</Typography>
-            <Chip label="به زودی" size="small" color="primary" />
-          </Box>
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => handleNavigation("/security")}
-          sx={{
-            py: 1.5,
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.primary.main, 0.08),
-            },
-          }}
-        >
-          <ListItemIcon>
-            <ShieldIcon size={20} />
-          </ListItemIcon>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
-            <Typography>امنیت و حریم خصوصی</Typography>
-            <Chip label="به زودی" size="small" color="primary" />
-          </Box>
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => handleNavigation("/pricing")}
-          sx={{
-            py: 1.5,
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.primary.main, 0.08),
-            },
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: 1 }}>
-            <Typography>اشتراک فعال ندارید</Typography>
-            <Chip label="برای خرید اشتراک" size="small" color="warning" />
-          </Box>
-        </MenuItem>
-
-        <Divider sx={{ my: 1 }} />
-
-        <MenuItem
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          sx={{
-            py: 1.5,
-            color: theme.palette.error.main,
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.error.main, 0.08),
-            },
-          }}
-        >
-          <ListItemIcon>
-            <LogoutIcon size={20} color="error" />
-          </ListItemIcon>
-          <Typography>
-            {isLoggingOut ? "در حال خروج..." : "خروج از حساب"}
-          </Typography>
-        </MenuItem>
-      </Menu>
+      {/* Queue Menu */}
+      <QueueMenu
+        anchorEl={queueAnchorEl}
+        open={Boolean(queueAnchorEl)}
+        onClose={handleQueueClose}
+        queueList={queueList}
+        loading={loading}
+        navigate={(path: string) => navigate(path)}
+      />
 
       {/* Notifications Menu */}
-      <Menu
+      <NotificationsMenu
         anchorEl={notifAnchorEl}
         open={Boolean(notifAnchorEl)}
         onClose={handleNotifClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "left",
-        }}
-        PaperProps={{
-          elevation: 8,
-          sx: {
-            mt: 1.5,
-            minWidth: 320,
-            maxWidth: 400,
-            borderRadius: 2,
-            maxHeight: 400,
-          },
-        }}
-      >
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-            اعلان‌ها
-          </Typography>
-        </Box>
-        <Divider />
-        <MenuItem
-          onClick={handleNotifClose}
-          sx={{
-            py: 2,
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <Typography variant="body2" sx={{ mb: 0.5, fontWeight: "bold" }}>
-            محصول جدید اضافه شد
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            2 ساعت پیش
-          </Typography>
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={handleNotifClose}
-          sx={{
-            py: 2,
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <Typography variant="body2" sx={{ mb: 0.5, fontWeight: "bold" }}>
-            قالب جدید ایجاد شد
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            5 ساعت پیش
-          </Typography>
-        </MenuItem>
-        <Divider />
-        <MenuItem
-          onClick={handleNotifClose}
-          sx={{
-            py: 2,
-            flexDirection: "column",
-            alignItems: "flex-start",
-          }}
-        >
-          <Typography variant="body2" sx={{ mb: 0.5, fontWeight: "bold" }}>
-            تصویر جدید آپلود شد
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            1 روز پیش
-          </Typography>
-        </MenuItem>
-      </Menu>
+      />
     </Box>
   );
 };

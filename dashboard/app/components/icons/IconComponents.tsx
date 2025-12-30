@@ -76,6 +76,7 @@ const iconGroups = {
     ReceiptIcon: "receipt",
     VerifiedIcon: "badge-check",
     SaveIcon: "floppy-disk",
+    QueueIcon: "bars-progress",
   },
   brands: {
     TelegramIcon: "telegram",
@@ -167,4 +168,5 @@ export const {
   VerifiedIcon,
   CameraIcon,
   SaveIcon,
+  QueueIcon,
 } = Icons;
