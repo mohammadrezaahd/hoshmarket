@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import type { IQueueList } from "~/types/interfaces/queue.interface";
 import { QueueStatus } from "~/types/interfaces/queue.interface";
+import { getRelativeTime } from "~/utils/timeUtils";
 
 type Props = {
   anchorEl: null | HTMLElement;
@@ -32,18 +33,6 @@ const QueueMenu: React.FC<Props> = ({
   loading,
 }) => {
   const theme = useTheme();
-
-  const timeAgo = (d?: string) => {
-    if (!d) return "نامشخص";
-    const diff = Date.now() - new Date(d).getTime();
-    const sec = Math.floor(diff / 1000);
-    if (sec < 60) return `${sec} ثانیه پیش`;
-    const min = Math.floor(sec / 60);
-    if (min < 60) return `${min} دقیقه پیش`;
-    const hr = Math.floor(min / 60);
-    if (hr < 24) return `${hr} ساعت پیش`;
-    return new Date(d).toLocaleDateString();
-  };
 
   const statusColor = (status: string): "success" | "error" | "warning" => {
     switch (status) {
@@ -218,11 +207,13 @@ const QueueMenu: React.FC<Props> = ({
                     )}
 
                     <Typography variant="caption" color="text.secondary">
-                      {timeAgo(
-                        typeof item.created_at === "string"
-                          ? item.created_at
-                          : item.created_at?.toISOString()
-                      )}
+                      {item.created_at
+                        ? getRelativeTime(
+                            typeof item.created_at === "string"
+                              ? item.created_at
+                              : item.created_at
+                          )
+                        : "نامشخص"}
                     </Typography>
                   </Box>
                 }

@@ -23,7 +23,9 @@ import { useAppDispatch, useAppSelector } from "~/store/hooks";
 import { setUser, clearUser } from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
 import { useQueueCount, useQueueListSocket } from "~/api/queue.api";
+import { useNotifList, useReadNotif, useReadNotifAll } from "~/api/notification.api";
 import { ProfileMenu, QueueMenu, NotificationsMenu } from "./navbarItems";
+import type { INotifList } from "~/types/interfaces/notification.interface";
 
 const Navbar: React.FC = () => {
   const theme = useTheme();
@@ -33,11 +35,15 @@ const Navbar: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
   const [queueAnchorEl, setQueueAnchorEl] = useState<null | HTMLElement>(null);
+  const [notifList, setNotifList] = useState<INotifList[]>([]);
 
   const currentUser = useAppSelector((state) => state.user.currentUser);
 
   const { data: userData, isSuccess } = useProfile();
   const { data: queueCount } = useQueueCount();
+  const { mutateAsync: fetchNotifications, isPending: isLoadingNotifications } = useNotifList();
+  const { mutateAsync: markAsRead } = useReadNotif();
+  const { mutateAsync: markAllAsRead } = useReadNotifAll();
 
   useEffect(() => {
     if (isSuccess && userData?.data) {
@@ -51,8 +57,18 @@ const Navbar: React.FC = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleNotifMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleNotifMenuOpen = async (event: React.MouseEvent<HTMLElement>) => {
     setNotifAnchorEl(event.currentTarget);
+    
+    // Fetch notifications when dropdown opens
+    try {
+      const response = await fetchNotifications({});
+      if (response?.data?.list) {
+        setNotifList(response.data.list);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
   };
 
   const handleQueueMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -65,6 +81,35 @@ const Navbar: React.FC = () => {
 
   const handleNotifClose = () => {
     setNotifAnchorEl(null);
+  };
+
+  const handleMarkAsRead = async (notifId: number) => {
+    try {
+      await markAsRead(notifId);
+      // Refetch notifications after marking as read
+      const response = await fetchNotifications({});
+      if (response?.data?.list) {
+        setNotifList(response.data.list);
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      enqueueSnackbar("خطا در علامت‌گذاری نوتیفیکیشن", { variant: "error" });
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+      // Refetch notifications after marking all as read
+      const response = await fetchNotifications({});
+      if (response?.data?.list) {
+        setNotifList(response.data.list);
+      }
+      enqueueSnackbar("همه نوتیفیکیشن‌ها خوانده شدند", { variant: "success" });
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      enqueueSnackbar("خطا در علامت‌گذاری همه نوتیفیکیشن‌ها", { variant: "error" });
+    }
   };
 
   const handleQueueClose = () => {
@@ -239,6 +284,10 @@ const Navbar: React.FC = () => {
         anchorEl={notifAnchorEl}
         open={Boolean(notifAnchorEl)}
         onClose={handleNotifClose}
+        notifList={notifList}
+        loading={isLoadingNotifications}
+        onMarkAsRead={handleMarkAsRead}
+        onMarkAllAsRead={handleMarkAllAsRead}
       />
     </Box>
   );
