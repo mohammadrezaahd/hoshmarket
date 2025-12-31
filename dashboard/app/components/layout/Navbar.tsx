@@ -72,7 +72,9 @@ const Navbar: React.FC = () => {
 
   // use centralized socket hook for queue list while dropdown is open
   const { queueList, loading } = useQueueListSocket(Boolean(queueAnchorEl));
-  
+  useEffect(() => {
+    console.log(queueList);
+  }, [queueList]);
   // use socket hook for queue count
   // const { queueCount } = useQueueCountSocket(true);
 

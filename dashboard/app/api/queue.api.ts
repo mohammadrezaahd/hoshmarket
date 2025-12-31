@@ -126,11 +126,19 @@ export const useQueueListSocket = (enabled: boolean) => {
     enabled,
     setState: setQueueList,
     onMessage: (message, prev) => {
+      // اگر لیست کامل آمده
       if ("list" in (message as any)) {
         return (message as any).list;
       }
 
-      const item = message as IQueueList;
+      // اگر event-based update آمده (مثل JOB_UPDATE)، فقط data را استخراج کن
+      let item: IQueueList;
+      if ("event" in (message as any) && "data" in (message as any)) {
+        item = (message as any).data;
+      } else {
+        item = message as IQueueList;
+      }
+
       const idx = prev.findIndex((p) => p.id === item.id);
 
       if (idx === -1) {
