@@ -124,43 +124,6 @@ const Footer = () => {
                 { label: "خانه", href: "#" },
                 { label: "درباره ما", href: "#" },
                 { label: "تعرفه‌ها", href: "#" },
-                { label: "بلاگ", href: "#" },
-              ].map((link) => (
-                <Button
-                  key={link.label}
-                  href={link.href}
-                  sx={{
-                    color: "#64748B",
-                    textTransform: "none",
-                    justifyContent: "flex-start",
-                    fontSize: "0.875rem",
-                    p: 0,
-                    "&:hover": {
-                      color: "#0EA5E9",
-                    },
-                  }}
-                >
-                  {link.label}
-                </Button>
-              ))}
-            </Stack>
-          </Grid>
-
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography
-              sx={{
-                fontWeight: "bold",
-                color: "#1E293B",
-                mb: 2,
-              }}
-            >
-              قوانین
-            </Typography>
-            <Stack spacing={1}>
-              {[
-                { label: "حریم خصوصی", href: "#" },
-                { label: "شرایط استفاده", href: "#" },
-                { label: "سوالات متداول", href: "#" },
               ].map((link) => (
                 <Button
                   key={link.label}
@@ -208,7 +171,7 @@ const Footer = () => {
                     color: "#64748B",
                   }}
                 >
-                  تهران، خیابان آزادی، برج فناوری
+                  تهران، چهارراه سرهنگ سخايي، خيابان حافظ، بن بست نادر،پلاك 2، طبقه1
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -226,7 +189,7 @@ const Footer = () => {
                     textAlign: "left",
                   }}
                 >
-                  021-12345678
+                  021-8280&nbsp;&nbsp;3484
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -242,7 +205,7 @@ const Footer = () => {
                     color: "#64748B",
                   }}
                 >
-                  info@aiproduct.ir
+                  info@hoshmarket.com
                 </Typography>
               </Box>
             </Stack>
