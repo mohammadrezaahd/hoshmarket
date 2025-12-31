@@ -11,6 +11,7 @@ import {
   ListItemText,
   useTheme,
   alpha,
+  LinearProgress,
 } from "@mui/material";
 import type { IQueueList } from "~/types/interfaces/queue.interface";
 import { QueueStatus } from "~/types/interfaces/queue.interface";
@@ -180,11 +181,44 @@ const QueueMenu: React.FC<Props> = ({
                 }
                 secondary={
                   <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}
+                    sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
                   >
                     <Typography variant="caption" color="text.secondary" noWrap>
                       {item.short_message || "بدون توضیحات"}
                     </Typography>
+
+                    {/* Progress Bar */}
+                    {(item.status === QueueStatus.STARTED ||
+                      item.status === QueueStatus.PROGRESS ||
+                      item.status === QueueStatus.PENDING ||
+                      item.status === QueueStatus.SUCCESS) && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <LinearProgress
+                          variant="determinate"
+                          value={item.progress}
+                          sx={{
+                            flex: 1,
+                            height: 6,
+                            borderRadius: 1,
+                            backgroundColor: statusColor(item.status),
+                            "& .MuiLinearProgress-bar": {
+                              borderRadius: 10,
+                              backgroundColor: statusColor(item.status),
+                            },
+                          }}
+                        />
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ minWidth: 32, textAlign: "left" }}
+                        >
+                          {item.progress}%
+                        </Typography>
+                      </Box>
+                    )}
+
                     <Typography variant="caption" color="text.secondary">
                       {timeAgo(
                         typeof item.created_at === "string"
