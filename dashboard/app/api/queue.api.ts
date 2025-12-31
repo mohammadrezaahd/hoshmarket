@@ -3,10 +3,12 @@ import type {
   QueueStatus,
 } from "~/types/interfaces/queue.interface";
 import { apiUtils } from "./apiUtils.api";
-import { authorizedGet } from "~/utils/authorizeReq";
+import { authorizedGet, getToken } from "~/utils/authorizeReq";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLiveWebSocket } from "~/hooks/useWebsocket";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const getQueueList = async ({
   status,
@@ -74,17 +76,25 @@ export const useQueueListSocket = (enabled: boolean) => {
   const [loading, setLoading] = useState(false);
   const { mutateAsync: fetchQueue } = useQueueList();
 
-  const queueWsUrl =
-    (import.meta.env.VITE_QUEUE_WS_URL as string) ||
-    (() => {
-      const loc = window.location;
-      const proto = loc.protocol === "https:" ? "wss:" : "ws:";
-      return `${proto}//${loc.host}/v1/queue/ws`;
-    })();
+  const queueWsUrl = useMemo(() => {
+    if (import.meta.env.VITE_QUEUE_WS_URL) {
+      return import.meta.env.VITE_QUEUE_WS_URL as string;
+    }
 
+    const token = getToken();
+    const loc = window.location;
+    const proto = loc.protocol === "https:" ? "wss:" : "ws:";
+
+    return `${proto}//${loc.host}/v1/queue/ws${
+      token ? `?access_token=${encodeURIComponent(token)}` : ""
+    }`;
+  }, []);
+
+  // initial fetch
   useEffect(() => {
-    let mounted = true;
     if (!enabled) return;
+
+    let mounted = true;
 
     (async () => {
       try {
@@ -94,7 +104,7 @@ export const useQueueListSocket = (enabled: boolean) => {
           setQueueList(res.data.list);
         }
       } catch (e) {
-        console.error("Error fetching queue list", e);
+        console.error("Fetch queue list error", e);
       } finally {
         setLoading(false);
       }
@@ -103,22 +113,25 @@ export const useQueueListSocket = (enabled: boolean) => {
     return () => {
       mounted = false;
     };
-  }, [enabled]);
+  }, [enabled, fetchQueue]);
 
+  // websocket live updates
   useLiveWebSocket<IQueueList[], IQueueList | { list: IQueueList[] }>({
     url: queueWsUrl,
-    enabled: Boolean(enabled),
+    enabled,
     setState: setQueueList,
     onMessage: (message, prev) => {
-      if ((message as any)?.list) {
-        return (message as any).list as IQueueList[];
+      if ("list" in (message as any)) {
+        return (message as any).list;
       }
 
       const item = message as IQueueList;
       const idx = prev.findIndex((p) => p.id === item.id);
+
       if (idx === -1) {
         return [item, ...prev].slice(0, 50);
       }
+
       const next = [...prev];
       next[idx] = { ...next[idx], ...item };
       return next;
@@ -137,9 +150,23 @@ export const useQueueCountSocket = (enabled: boolean = true) => {
   const queueCountWsUrl =
     (import.meta.env.VITE_QUEUE_COUNT_WS_URL as string) ||
     (() => {
+      const token = getToken();
+      if (apiUrl) {
+        try {
+          const parsed = new URL(apiUrl);
+          const proto = parsed.protocol === "https:" ? "wss:" : "ws:";
+          return `${proto}//${parsed.host}/v1/queue/count_ws${
+            token ? `?access_token=${encodeURIComponent(token)}` : ""
+          }`;
+        } catch (e) {
+          // fallthrough to window location
+        }
+      }
       const loc = window.location;
       const proto = loc.protocol === "https:" ? "wss:" : "ws:";
-      return `${proto}//${loc.host}/v1/queue/count_ws`;
+      return `${proto}//${loc.host}/v1/queue/count_ws${
+        token ? `?access_token=${encodeURIComponent(token)}` : ""
+      }`;
     })();
 
   useEffect(() => {

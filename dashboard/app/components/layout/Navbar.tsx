@@ -74,7 +74,7 @@ const Navbar: React.FC = () => {
   const { queueList, loading } = useQueueListSocket(Boolean(queueAnchorEl));
   
   // use socket hook for queue count
-  const { queueCount } = useQueueCountSocket(true);
+  // const { queueCount } = useQueueCountSocket(true);
 
   const handleLogout = async () => {
     handleMenuClose();
@@ -169,13 +169,13 @@ const Navbar: React.FC = () => {
             },
           }}
         >
-          <Badge 
+          {/* <Badge 
             badgeContent={queueCount > 0 ? queueCount : null} 
             color="primary"
             max={99}
           >
-            <QueueIcon />
-          </Badge>
+          </Badge> */}
+          <QueueIcon />
         </IconButton>
       </Tooltip>
 

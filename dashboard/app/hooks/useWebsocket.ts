@@ -16,45 +16,55 @@ export function useLiveWebSocket<TState, TMessage>({
   reconnectDelay = 3000,
 }: UseLiveWebSocketProps<TState, TMessage>) {
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeout = useRef<number | null>(null);
+  const reconnectTimeoutRef = useRef<number | null>(null);
+  const manuallyClosedRef = useRef(false);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !url) return;
 
-    let manuallyClosed = false;
+    manuallyClosedRef.current = false;
 
     const connect = () => {
       const ws = new WebSocket(url);
       wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log("WS connected:", url);
+      };
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data) as TMessage;
           setState((prev) => onMessage(data, prev));
         } catch (e) {
-          console.error("WS message error", e);
+          console.error("WS message parse error", e);
         }
       };
 
-      ws.onclose = () => {
-        if (!manuallyClosed) {
-          reconnectTimeout.current = window.setTimeout(connect, reconnectDelay);
+      ws.onclose = (e) => {
+        console.warn("WS closed:", e.code, e.reason);
+        if (!manuallyClosedRef.current) {
+          reconnectTimeoutRef.current = window.setTimeout(
+            connect,
+            reconnectDelay
+          );
         }
       };
 
-      ws.onerror = () => {
-        ws.close();
+      ws.onerror = (e) => {
+        console.error("WS error", e);
+        // ❌ close نکن
       };
     };
 
     connect();
 
     return () => {
-      manuallyClosed = true;
+      manuallyClosedRef.current = true;
       wsRef.current?.close();
-      if (reconnectTimeout.current) {
-        clearTimeout(reconnectTimeout.current);
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [url, enabled]);
+  }, [url, enabled, reconnectDelay, onMessage, setState]);
 }
