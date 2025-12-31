@@ -57,43 +57,51 @@ const palette = {
 
 // تنظیمات typography با فونت یکان بخ
 const typography = {
-  fontFamily: ["YekanBakhFaNum", "YekanBakh", "Arial", "sans-serif"].join(","),
+  fontFamily: ["Kalameh", "Kalameh-Medium", "Kalameh-Bold", "Arial", "sans-serif"].join(","),
   h1: {
+    fontFamily: ["Kalameh-Bold", "Kalameh-Medium", "Kalameh", "Arial", "sans-serif"].join(","),
     fontSize: "2.125rem",
     fontWeight: 300,
     lineHeight: 1.167,
   },
   h2: {
+    fontFamily: ["Kalameh-Bold", "Kalameh-Medium", "Kalameh", "Arial", "sans-serif"].join(","),
     fontSize: "1.5rem",
     fontWeight: 400,
     lineHeight: 1.2,
   },
   h3: {
+    fontFamily: ["Kalameh-Bold", "Kalameh-Medium", "Kalameh", "Arial", "sans-serif"].join(","),
     fontSize: "1.25rem",
     fontWeight: 400,
     lineHeight: 1.167,
   },
   h4: {
+    fontFamily: ["Kalameh-Medium", "Kalameh-Bold", "Kalameh", "Arial", "sans-serif"].join(","),
     fontSize: "1.125rem",
     fontWeight: 400,
     lineHeight: 1.235,
   },
   h5: {
+    fontFamily: ["Kalameh-Medium", "Kalameh-Bold", "Kalameh", "Arial", "sans-serif"].join(","),
     fontSize: "1rem",
     fontWeight: 400,
     lineHeight: 1.334,
   },
   h6: {
+    fontFamily: ["Kalameh", "Kalameh-Medium", "Kalameh-Bold", "Arial", "sans-serif"].join(","),
     fontSize: "0.875rem",
     fontWeight: 500,
     lineHeight: 1.6,
   },
   body1: {
+    fontFamily: ["Kalameh", "Kalameh-Medium", "Kalameh-Bold", "Arial", "sans-serif"].join(","),
     fontSize: "1rem",
     fontWeight: 400,
     lineHeight: 1.5,
   },
   body2: {
+    fontFamily: ["Kalameh", "Kalameh-Medium", "Kalameh-Bold", "Arial", "sans-serif"].join(","),
     fontSize: "0.875rem",
     fontWeight: 400,
     lineHeight: 1.43,

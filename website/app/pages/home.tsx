@@ -1,6 +1,9 @@
 import { lazy, Suspense } from "react";
 
 import { FeaturesSection, HeroSection, StepsSection } from "~/components/home";
+import HoshyarSectionWithRealBackground from "~/components/home/Hoshyar";
+import BulkProductSection from "~/components/home/BulkProduct";
+import HoshyarAILogsSection from "~/components/home/HoshyarAILogs";
 import {
   HeroSkeleton,
   FeaturesSkeleton,
@@ -21,6 +24,14 @@ const LandingPage = () => {
 
       <Suspense fallback={<FeaturesSkeleton />}>
         <FeaturesSection />
+      </Suspense>
+
+      <Suspense fallback={<HoshyarSectionWithRealBackground />}>
+        <HoshyarSectionWithRealBackground />
+      </Suspense>
+
+      <Suspense fallback={<BulkProductSection />}>
+        <BulkProductSection />
       </Suspense>
 
       <Suspense fallback={<StepsSkeleton />}>

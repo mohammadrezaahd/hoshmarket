@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "YekanBakh";
+  font-family: "Kalameh-Medium";
   src:
-    url("/fonts/yekan-bakh/YekanBakh-VF.woff2") format("woff2"),
-    url("/fonts/yekan-bakh/YekanBakh-VF.woff") format("woff");
+    url("/fonts/yekan-bakh/KalamehWebFaNum-Medium.woff2") format("woff2"),
+    url("/fonts/yekan-bakh/KalamehWebFaNum-Medium.woff") format("woff");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "YekanBakhFaNum";
+  font-family: "Kalameh";
   src:
-    url("/fonts/yekan-bakh/YekanBakhFaNum-VF.woff2") format("woff2"),
-    url("/fonts/yekan-bakh/YekanBakhFaNum-VF.woff") format("woff");
+    url("/fonts/yekan-bakh/KalamehWebFaNum-Regular.woff2") format("woff2"),
+    url("/fonts/yekan-bakh/KalamehWebFaNum-Regular.woff") format("woff");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "YekanBakhNoEn";
+  font-family: "Kalameh-Bold";
   src:
-    url("/fonts/yekan-bakh/YekanBakhNoEn-VF.woff2") format("woff2"),
-    url("/fonts/yekan-bakh/YekanBakhNoEn-VF.woff") format("woff");
+    url("/fonts/yekan-bakh/KalamehWebFaNum-Bold.woff2") format("woff2"),
+    url("/fonts/yekan-bakh/KalamehWebFaNum-Bold.woff") format("woff");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -32,7 +32,7 @@
 
 @theme {
   --font-sans:
-    "YekanBakhFaNum", "YekanBakh", ui-sans-serif, system-ui, sans-serif,
+    "Kalameh", "Kalameh-Medium", "Kalameh-Bold", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
