@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Grid,
-  Card,
-  CardContent,
   Typography,
   TextField,
   Box,
   Button,
   Alert,
-  Divider,
   Paper,
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  FormControl,
-  FormHelperText,
   Container,
 } from "@mui/material";
 import { ExpandIcon } from "~/components/icons/IconComponents";
@@ -39,6 +34,7 @@ import { TemplateSource } from "~/types/dtos/templates.dto";
 import { useImages } from "~/api/gallery.api";
 import { useQuickProductValidation } from "~/validation";
 import { ApiStatus } from "~/types";
+import { useRefreshQueueCount } from "~/hooks/useRefreshQueueCount";
 
 export function meta() {
   return [
@@ -55,6 +51,7 @@ interface FormData {
 const QuickProductPage = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const refreshQueueCount = useRefreshQueueCount();
 
   // State management
   const [searchTerm, setSearchTerm] = useState("");
@@ -182,6 +179,10 @@ const QuickProductPage = () => {
 
       if (result.status === ApiStatus.SUCCEEDED) {
         enqueueSnackbar("محصول با موفقیت ایجاد شد", { variant: "success" });
+        
+        // Refresh queue count after successful product creation
+        refreshQueueCount();
+        
         navigate("/products/list");
       } else {
         enqueueSnackbar("خطا در ایجاد محصول", { variant: "error" });

@@ -7,7 +7,6 @@ import {
   Typography,
   Skeleton,
   Chip,
-  Avatar,
   ListItemText,
   useTheme,
   alpha,
@@ -31,7 +30,6 @@ const QueueMenu: React.FC<Props> = ({
   onClose,
   queueList,
   loading,
-  navigate,
 }) => {
   const theme = useTheme();
 

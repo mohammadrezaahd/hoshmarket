@@ -22,7 +22,7 @@ import { useProfile } from "~/api/profile.api";
 import { useAppDispatch, useAppSelector } from "~/store/hooks";
 import { setUser, clearUser } from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
-import { useQueueListSocket, useQueueCountSocket } from "~/api/queue.api";
+import { useQueueCount, useQueueListSocket } from "~/api/queue.api";
 import { ProfileMenu, QueueMenu, NotificationsMenu } from "./navbarItems";
 
 const Navbar: React.FC = () => {
@@ -37,6 +37,7 @@ const Navbar: React.FC = () => {
   const currentUser = useAppSelector((state) => state.user.currentUser);
 
   const { data: userData, isSuccess } = useProfile();
+  const { data: queueCount } = useQueueCount();
 
   useEffect(() => {
     if (isSuccess && userData?.data) {
@@ -171,13 +172,17 @@ const Navbar: React.FC = () => {
             },
           }}
         >
-          {/* <Badge 
-            badgeContent={queueCount > 0 ? queueCount : null} 
+          <Badge
+            badgeContent={
+              queueCount?.data?.count && queueCount?.data?.count > 0
+                ? queueCount.data.count
+                : null
+            }
             color="primary"
             max={99}
           >
-          </Badge> */}
-          <QueueIcon />
+            <QueueIcon />
+          </Badge>
         </IconButton>
       </Tooltip>
 

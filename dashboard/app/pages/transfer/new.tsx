@@ -26,10 +26,12 @@ import { useSnackbar } from "notistack";
 import { AddIcon, CloseIcon } from "~/components/icons/IconComponents";
 import AppLayout from "~/components/layout/AppLayout";
 import { TitleCard } from "~/components/common";
+import { useRefreshQueueCount } from "~/hooks/useRefreshQueueCount";
 
 const NewTransferPage = () => {
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
+  const refreshQueueCount = useRefreshQueueCount();
   const { mutateAsync: createTransferMutate, isPending: isCreating } =
     useCreateTransfer();
 
@@ -81,6 +83,9 @@ const NewTransferPage = () => {
           variant: "success",
         });
         setSuccessPayload({ message: res.message });
+        
+        // Refresh queue count after successful transfer creation
+        refreshQueueCount();
       } else {
         enqueueSnackbar(res.message ?? "خطا در انجام عملیات", {
           variant: "error",

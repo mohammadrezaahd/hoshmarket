@@ -58,6 +58,7 @@ import {
   TitleCard,
 } from "~/components/common";
 import { ApiStatus } from "~/types";
+import { useRefreshQueueCount } from "~/hooks/useRefreshQueueCount";
 
 export function meta() {
   return [
@@ -89,6 +90,7 @@ const TransferList: React.FC = () => {
 
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const refreshQueueCount = useRefreshQueueCount();
 
   const {
     mutateAsync: getList,
@@ -272,6 +274,9 @@ const TransferList: React.FC = () => {
         enqueueSnackbar(res.message || "تبدیل با موفقیت انجام شد", {
           variant: "success",
         });
+
+        // Refresh queue count after successful conversion
+        refreshQueueCount();
 
         // Refresh current list to get server updates
         const listRes = await getList({
