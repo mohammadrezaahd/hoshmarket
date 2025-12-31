@@ -77,20 +77,25 @@ export const useQueueListSocket = (enabled: boolean) => {
   const { mutateAsync: fetchQueue } = useQueueList();
 
   const queueWsUrl = useMemo(() => {
-    if (import.meta.env.VITE_QUEUE_WS_URL) {
-      return import.meta.env.VITE_QUEUE_WS_URL as string;
+    if (!apiUrl) {
+      throw new Error("apiUrl is required for Queue WebSocket");
     }
 
     const token = getToken();
-    const loc = window.location;
-    const proto = loc.protocol === "https:" ? "wss:" : "ws:";
+    if (!token) {
+      throw new Error("JWT token not found");
+    }
 
-    return `${proto}//${loc.host}/v1/queue/ws${
-      token ? `?access_token=${encodeURIComponent(token)}` : ""
-    }`;
+    const parsed = new URL(apiUrl);
+    const wsProtocol = parsed.protocol === "https:" ? "wss:" : "ws:";
+
+    // 👇 دقیقاً مطابق بک‌اند
+    return `${wsProtocol}//${parsed.host}/api/v1/ws/queue/queue_ws/${encodeURIComponent(
+      token
+    )}`;
   }, []);
 
-  // initial fetch
+  // 🔹 fetch اولیه لیست
   useEffect(() => {
     if (!enabled) return;
 
@@ -115,7 +120,7 @@ export const useQueueListSocket = (enabled: boolean) => {
     };
   }, [enabled, fetchQueue]);
 
-  // websocket live updates
+  // 🔹 WebSocket live updates
   useLiveWebSocket<IQueueList[], IQueueList | { list: IQueueList[] }>({
     url: queueWsUrl,
     enabled,
