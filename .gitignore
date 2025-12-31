@@ -1,37 +1,48 @@
-# dependencies
+# =========================
+# Global Node / React
+# =========================
 node_modules/
-
-# production
-build/
-dist/
-
-# environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# logs
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 
-# runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# =========================
+# Build outputs
+# =========================
+dashboard/build/
+dashboard/dist/
+website/build/
+website/dist/
 
-# coverage
+# =========================
+# Vite / bundler cache
+# =========================
+.vite/
+dashboard/.vite/
+website/.vite/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!*.example
+
+dashboard/.env
+dashboard/.env.*
+website/.env
+website/.env.*
+
+# =========================
+# Coverage & cache
+# =========================
 coverage/
-
-# cache
 .cache/
 .parcel-cache/
 
-# editor directories and files
+# =========================
+# Editor / IDE
+# =========================
 .vscode/
 .idea/
 *.suo
@@ -39,15 +50,14 @@ coverage/
 *.njsproj
 *.sln
 
+# =========================
 # OS files
+# =========================
 .DS_Store
 Thumbs.db
 
-# optional eslint cache
+# =========================
+# Lint / tooling cache
+# =========================
 .eslintcache
-
-# optional stylelint cache
 .stylelintcache
-
-# vite
-.vite/
