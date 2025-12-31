@@ -3,26 +3,26 @@ import { Box, Container, Grid, Typography } from "@mui/material";
 const steps = [
   {
     number: "۱",
-    title: "وارد کردن اطلاعات",
-    description: "نام محصول یا لینک مرجع را وارد کنید.",
+    title: "وارد کردن لینک محصول",
+    description: "لینک محصول مرجع را وارد می‌کنید تا فرآیند شروع شود.",
     borderColor: "#0EA5E9",
   },
   {
     number: "۲",
-    title: "پردازش هوشمند",
-    description: "هوش مصنوعی محتوا را تولید می‌کند.",
+    title: "استخراج اطلاعات محصول",
+    description: "اطلاعات محصول به‌صورت خودکار به هوش مارکت منتقل می‌شود.",
     borderColor: "#14B8A6",
   },
   {
     number: "۳",
-    title: "بهینه‌سازی سئو",
-    description: "کلمات کلیدی و متاتگ‌ها تنظیم می‌شوند.",
+    title: "تبدیل هوشمند با هوشیار",
+    description: "هوش مصنوعی هوشیار محصول را برای استانداردهای دیجی‌کالا بهینه می‌کند.",
     borderColor: "#A855F7",
   },
   {
     number: "۴",
-    title: "خروجی نهایی",
-    description: "محصول آماده انتشار در دیجی‌کالا یا سایت شماست.",
+    title: "ویرایش و انتشار",
+    description: "در صورت نیاز ویرایش می‌کنید و سپس محصول را در دیجی‌کالا منتشر می‌کنید.",
     borderColor: "#22C55E",
   },
 ];
@@ -41,7 +41,7 @@ const StepsSection = () => {
               color: "#1E293B",
             }}
           >
-            چگونه کار می‌کند؟
+            انتقال محصول چگونه کار می‌کند؟
           </Typography>
           <Typography sx={{ color: "#64748B" }}>
             فقط در ۴ مرحله ساده، محصول خود را آماده فروش کنید
@@ -79,7 +79,7 @@ const StepsSection = () => {
                   {step.number}
                 </Box>
                 <Typography
-                  variant="h6"
+                  variant="h4"
                   sx={{
                     fontWeight: "bold",
                     mb: 1,
@@ -89,7 +89,7 @@ const StepsSection = () => {
                   {step.title}
                 </Typography>
                 <Typography
-                  variant="body2"
+                  variant="h6"
                   sx={{
                     color: "#64748B",
                     px: 1,

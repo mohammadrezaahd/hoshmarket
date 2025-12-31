@@ -1,187 +1,244 @@
-import { Box, Container, Rating, Typography } from "@mui/material";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
+import { Box, Container, Grid, Typography } from "@mui/material";
 
-const TestimonialsSection = () => {
-  const testimonials = [
-    {
-      name: "رضا محمدی",
-      rating: 5,
-      comment:
-        "سرعت کار من رو ۱۰ برابر کرده. قبلا برای هر محصول نیم ساعت وقت میذاشتم، الان تو چند ثانیه تمومه.",
-      avatar: "https://via.placeholder.com/48",
-    },
-    {
-      name: "سارا کریمی",
-      rating: 4.5,
-      comment:
-        "بخش سئو فوق‌العاده‌ست. ورودی گوگل سایتم بعد از استفاده از این ابزار رشد چشمگیری داشته.",
-      avatar: "https://via.placeholder.com/48",
-    },
-    {
-      name: "علی حسینی",
-      rating: 5,
-      comment:
-        "برای مدیریت فروشگاه‌های بزرگ عالیه. ایمپورت اکسل خیلی دقیق کار میکنه و خطا نداره.",
-      avatar: "https://via.placeholder.com/48",
-    },
-    {
-      name: "فاطمه احمدی",
-      rating: 5,
-      comment:
-        "بهترین ابزار برای کسب‌وکار آنلاین. مشتریان من خیلی بیشتر راضی‌اند از سرعت و کارایی.",
-      avatar: "https://via.placeholder.com/48",
-    },
-    {
-      name: "محمد علی رضایی",
-      rating: 4.5,
-      comment:
-        "تیم پشتیبانی فوق‌العاده باشه. هر سوالی داشتم فوری پاسخ دادن.",
-      avatar: "https://via.placeholder.com/48",
-    },
-    {
-      name: "نیلوفر نوری",
-      rating: 5,
-      comment:
-        "طراحی خیلی حرفه‌ای و کاربر‌پسند. هم من و هم کاربرانم خیلی راضی‌ایم.",
-      avatar: "https://via.placeholder.com/48",
-    },
-    {
-      name: "حسن شریفی",
-      rating: 4.5,
-      comment:
-        "قیمت خیلی رقابتی هست نسبت به امکانات. بدون شک بهترین انتخاب برای کسب‌وکار.",
-      avatar: "https://via.placeholder.com/48",
-    },
-    {
-      name: "زهرا یزدانی",
-      rating: 5,
-      comment:
-        "مشتریان جدید رو خیلی راحت‌تر پیدا میکنم. بازارکردن خیلی ساده شده.",
-      avatar: "https://via.placeholder.com/48",
-    },
-  ];
+/* --- Luxury minimal SVG --- */
+const LuxuryWave = () => (
+  <Box
+    sx={{
+      position: "absolute",
+      top: "-60px",
+      right: "-80px",
+      width: 420,
+      opacity: 0.08,
+      pointerEvents: "none",
+    }}
+  >
+    <svg viewBox="0 0 400 200" fill="none">
+      <path
+        d="M0 120 C 100 40, 300 40, 400 120"
+        stroke="#0F172A"
+        strokeWidth="1"
+      />
+      <path
+        d="M0 150 C 120 70, 280 70, 400 150"
+        stroke="#0F172A"
+        strokeWidth="1"
+      />
+    </svg>
+  </Box>
+);
 
+const ExclusiveAdminsSection = () => {
   return (
-    <Box sx={{ py: { xs: 10, md: 14 }, background: "#F0F9FF" }}>
-      <Container maxWidth="lg">
-        <Typography
-          variant="h3"
-          sx={{
-            fontSize: { xs: "1.875rem", md: "2.25rem" },
-            fontWeight: "bold",
-            textAlign: "center",
-            mb: 8,
-            color: "#1E293B",
-          }}
-        >
-          نظرات کاربران
-        </Typography>
+    <Box
+      sx={{
+        py: { xs: 18, md: 24 },
+        background: "linear-gradient(180deg, #FFFFFF, #F8FAFC)",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <LuxuryWave />
 
-        <Box sx={{ width: "100%", px: { xs: 2, md: 0 } }}>
-          <Swiper
-            centeredSlides={true}
-            slidesPerView="auto"
-            spaceBetween={20}
-            loop={true}
-            breakpoints={{
-              0: {
-                slidesPerView: 1.4,
-                spaceBetween: 16,
-                centeredSlides: true,
-                initialSlide: 0,
-              },
-              768: {
-                slidesPerView: 3,
-                spaceBetween: 20,
-                centeredSlides: true,
-              },
-            }}
-            style={{
-              paddingBottom: "20px",
+      <Container maxWidth="lg">
+        {/* Header */}
+        <Box sx={{ maxWidth: 720, mb: 14 }}>
+          <Typography
+            sx={{
+              fontSize: 13,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "#64748B",
+              mb: 3,
             }}
           >
-            {testimonials.map((testimonial, index) => (
-              <SwiperSlide
-                key={index}
-                style={{ height: "auto" }}
-              >
-                {({ isActive, isPrev, isNext }) => (
-                  <Box
-                    sx={{
-                      background: "white",
-                      border: "1px solid #E5E7EB",
-                      borderRadius: "1rem",
-                      p: 4,
-                      height: "100%",
-                      transition: "all 0.3s ease",
-                      transform: isActive 
-                        ? "scale(1)" 
-                        : "scale(0.85)",
-                      opacity: isActive ? 1 : 0.7,
-                      boxShadow: isActive
-                        ? "0 10px 40px rgba(0, 0, 0, 0.1)"
-                        : "0 4px 12px rgba(0, 0, 0, 0.05)",
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        mb: 3,
-                      }}
-                    >
-                      <Box
-                        component="img"
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                        }}
-                      />
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontWeight: isActive ? "bold" : "600",
-                            color: "#1E293B",
-                            fontSize: isActive ? "1rem" : "0.95rem",
-                          }}
-                        >
-                          {testimonial.name}
-                        </Typography>
-                        <Rating
-                          value={testimonial.rating}
-                          readOnly
-                          size="small"
-                          sx={{
-                            color: "#FBBF24",
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "#64748B",
-                        lineHeight: 1.6,
-                        fontSize: isActive ? "0.95rem" : "0.9rem",
-                      }}
-                    >
-                      "{testimonial.comment}"
-                    </Typography>
-                  </Box>
-                )}
-              </SwiperSlide>
-            ))}
-          </Swiper>
+            Exclusive service
+          </Typography>
+
+          <Typography
+            variant="h3"
+            sx={{
+              fontSize: { xs: 32, md: 40 },
+              fontWeight: 600,
+              letterSpacing: "-0.015em",
+              mb: 1,
+
+              /* Gradient text */
+              background: "linear-gradient(120deg, #312E81, #2563EB, #312E81)",
+
+              backgroundSize: "200% 200%",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+
+              /* Animation */
+              animation: "gradientMove 1.5s ease-in-out infinite",
+
+              "@keyframes gradientMove": {
+                "0%": {
+                  backgroundPosition: "0% 50%",
+                },
+                "50%": {
+                  backgroundPosition: "100% 50%",
+                },
+                "100%": {
+                  backgroundPosition: "0% 50%",
+                },
+              },
+            }}
+          >
+            ادمین اختصاصی،
+          </Typography>
+
+          <Typography
+            sx={{
+              fontSize: { xs: 32, md: 40 },
+              fontWeight: 400,
+              letterSpacing: "-0.015em",
+              color: "#020617",
+              mb: 4,
+            }}
+          >
+            برای زمانی که کیفیت مهم است
+          </Typography>
+
+
+
+          <Typography
+            sx={{
+              fontSize: 16,
+              color: "#475569",
+              lineHeight: 1.9,
+              maxWidth: 560,
+            }}
+          >
+            این قابلیت برای کسب‌وکارهایی طراحی شده که
+            ساخت محصول را به تیم، تجربه و فرآیند می‌سپارند;
+            نه به شانس.
+          </Typography>
         </Box>
+
+        {/* Glass Cards */}
+        <Grid container spacing={6}>
+          {[
+            {
+              title: "تصمیم‌محور",
+              text: "محصول بر اساس منطق بازار و مدل فروش شما ساخته می‌شود.",
+            },
+            {
+              title: "سریع اما کنترل‌شده",
+              text: "اتوماسیون سرعت را می‌آورد، ادمین کیفیت را حفظ می‌کند.",
+            },
+            {
+              title: "مقیاس‌پذیر",
+              text: "فرآیندی پایدار برای زمانی که تعداد محصولات بالا می‌رود.",
+            },
+          ].map((item, index) => (
+            <Grid key={index} size={{ xs: 12, md: 4 }}>
+              <Box
+                sx={{
+                  height: "100%",
+                  p: 4.5,
+                  borderRadius: "18px",
+                  background: "rgba(255,255,255,0.65)",
+                  backdropFilter: "blur(14px)",
+                  WebkitBackdropFilter: "blur(14px)",
+                  border: "1px solid rgba(15,23,42,0.08)",
+                  boxShadow:
+                    "0 20px 40px rgba(15,23,42,0.05)",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 17,
+                    fontWeight: 600,
+                    color: "#020617",
+                    mb: 1.5,
+                  }}
+                >
+                  {item.title}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 14.5,
+                    color: "#475569",
+                    lineHeight: 1.9,
+                  }}
+                >
+                  {item.text}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
+        </Grid>
+
+        {/* Signature */}
+        <Box sx={{ mt: 16 }}>
+          <Typography
+            sx={{
+              fontSize: 13,
+              color: "#94A3B8",
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+            }}
+          >
+            Managed with precision
+          </Typography>
+        </Box>
+        {/* Call CTA */}
+        <Box
+          sx={{
+            mt: 14,
+            p: 4,
+            borderRadius: "20px",
+            background: "rgba(255,255,255,0.6)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            border: "1px solid rgba(15,23,42,0.08)",
+            display: "flex",
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 3,
+            flexDirection: { xs: "column", md: "row" },
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 15,
+              color: "#475569",
+              lineHeight: 1.9,
+            }}
+          >
+            برای فعال‌سازی ادمین اختصاصی و بررسی نیاز کسب‌وکار شما تماس بگیرید
+          </Typography>
+
+          <Box
+            component="a"
+            href="tel:02182803484"
+            sx={{
+              direction: "ltr",
+              textDecoration: "none",
+              px: 4,
+              py: 1.8,
+              borderRadius: "999px",
+              background: "#020617",
+              color: "#FFFFFF",
+              fontSize: 15,
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+              transition: "all 0.25s ease",
+              "&:hover": {
+                background: "#0F172A",
+                transform: "translateY(-1px)",
+              },
+            }}
+          >
+            021 - 8280&nbsp;&nbsp;3484
+          </Box>
+        </Box>
+
       </Container>
     </Box>
   );
 };
 
-export default TestimonialsSection;
+export default ExclusiveAdminsSection;
