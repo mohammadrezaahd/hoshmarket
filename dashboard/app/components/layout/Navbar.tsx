@@ -23,7 +23,12 @@ import { useAppDispatch, useAppSelector } from "~/store/hooks";
 import { setUser, clearUser } from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
 import { useQueueCount, useQueueListSocket } from "~/api/queue.api";
-import { useNotifList, useReadNotif, useReadNotifAll } from "~/api/notification.api";
+import {
+  useNotifList,
+  useReadNotif,
+  useReadNotifAll,
+  useNotifCountSocket,
+} from "~/api/notification.api";
 import { ProfileMenu, QueueMenu, NotificationsMenu } from "./navbarItems";
 import type { INotifList } from "~/types/interfaces/notification.interface";
 
@@ -36,6 +41,7 @@ const Navbar: React.FC = () => {
   const [notifAnchorEl, setNotifAnchorEl] = useState<null | HTMLElement>(null);
   const [queueAnchorEl, setQueueAnchorEl] = useState<null | HTMLElement>(null);
   const [notifList, setNotifList] = useState<INotifList[]>([]);
+  const [isPulsing, setIsPulsing] = useState(false);
 
   const currentUser = useAppSelector((state) => state.user.currentUser);
 
@@ -44,12 +50,40 @@ const Navbar: React.FC = () => {
   const { mutateAsync: fetchNotifications, isPending: isLoadingNotifications } = useNotifList();
   const { mutateAsync: markAsRead } = useReadNotif();
   const { mutateAsync: markAllAsRead } = useReadNotifAll();
+  const { unreadCount } = useNotifCountSocket(true);
 
   useEffect(() => {
     if (isSuccess && userData?.data) {
       dispatch(setUser(userData.data));
     }
   }, [isSuccess, userData, dispatch]);
+
+  // Track previous unread count for detecting new notifications
+  const prevUnreadCountRef = React.useRef<number>(unreadCount);
+
+  useEffect(() => {
+    const prevCount = prevUnreadCountRef.current;
+    
+    // Check if count increased (new notification arrived)
+    if (unreadCount > prevCount && prevCount !== 0) {
+      // Trigger pulse animation
+      setIsPulsing(true);
+      setTimeout(() => setIsPulsing(false), 2000);
+
+      // Send browser push notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('نوتیفیکیشن جدید', {
+          body: `شما ${unreadCount} نوتیفیکیشن خوانده نشده دارید`,
+          icon: '/source_logo/logo-256.png',
+        });
+      } else if ('Notification' in window && Notification.permission === 'default') {
+        // Request permission if not yet requested
+        Notification.requestPermission();
+      }
+    }
+
+    prevUnreadCountRef.current = unreadCount;
+  }, [unreadCount]);
 
   const { mutateAsync: logout, isPending: isLoggingOut } = useLogout();
 
@@ -168,9 +202,39 @@ const Navbar: React.FC = () => {
             "&:hover": {
               backgroundColor: alpha(theme.palette.primary.main, 0.1),
             },
+            position: "relative",
+            "&::before": isPulsing ? {
+              content: '""',
+              position: "absolute",
+              top: -4,
+              left: -4,
+              right: -4,
+              bottom: -4,
+              borderRadius: "50%",
+              border: `2px solid ${theme.palette.error.main}`,
+              animation: "pulse 1.5s ease-in-out",
+              "@keyframes pulse": {
+                "0%": {
+                  transform: "scale(0.95)",
+                  opacity: 1,
+                },
+                "50%": {
+                  transform: "scale(1.1)",
+                  opacity: 0.5,
+                },
+                "100%": {
+                  transform: "scale(1.3)",
+                  opacity: 0,
+                },
+              },
+            } : {},
           }}
         >
-          <Badge badgeContent={3} color="error">
+          <Badge 
+            badgeContent={unreadCount > 0 ? unreadCount : null} 
+            color="error"
+            max={99}
+          >
             <NotificationIcon />
           </Badge>
         </IconButton>

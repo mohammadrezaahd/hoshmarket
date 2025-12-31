@@ -52,6 +52,13 @@ const notifReadAll = async () => {
   });
 };
 
+const getUnreadNotifsCount = async () => {
+  return apiUtils<{ count: number }>(async () => {
+    const response = await authorizedGet(`/v1/notification/unread-count`);
+    return response.data;
+  });
+};
+
 export const useNotifList = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -97,84 +104,90 @@ export const useReadNotifAll = () => {
   });
 };
 
-// export const useQueueListSocket = (enabled: boolean) => {
-//   const [queueList, setQueueList] = useState<INotifList[]>([]);
-//   const [loading, setLoading] = useState(false);
-//   const { mutateAsync: fetchQueue } = useQueueList();
+export const useUnreadNotifCount = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: getUnreadNotifsCount,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["Unread notifications count"],
+      });
+    },
+    onError: (error) => {
+      console.error("❌ Error fetching unread notifications count:", error);
+    },
+  });
+};
 
-//   const queueWsUrl = useMemo(() => {
-//     if (!apiUrl) {
-//       throw new Error("apiUrl is required for Queue WebSocket");
-//     }
+export const useNotifCountSocket = (enabled: boolean) => {
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
+  const { mutateAsync: fetchCount } = useUnreadNotifCount();
 
-//     const token = getToken();
-//     if (!token) {
-//       throw new Error("JWT token not found");
-//     }
+  const notifWsUrl = useMemo(() => {
+    if (!apiUrl) {
+      throw new Error("apiUrl is required for Notification WebSocket");
+    }
 
-//     const parsed = new URL(apiUrl);
-//     const wsProtocol = parsed.protocol === "https:" ? "wss:" : "ws:";
+    const token = getToken();
+    if (!token) {
+      throw new Error("JWT token not found");
+    }
 
-//     return `${wsProtocol}//${parsed.host}/api/v1/ws/notification/notifications_ws/${encodeURIComponent(
-//       token
-//     )}`;
-//   }, []);
+    const parsed = new URL(apiUrl);
+    const wsProtocol = parsed.protocol === "https:" ? "wss:" : "ws:";
 
-//   useEffect(() => {
-//     if (!enabled) return;
+    return `${wsProtocol}//${parsed.host}/api/v1/ws/notification/notifications_count/${encodeURIComponent(
+      token
+    )}`;
+  }, []);
 
-//     let mounted = true;
+  useEffect(() => {
+    if (!enabled) return;
 
-//     (async () => {
-//       try {
-//         setLoading(true);
-//         const res = await fetchQueue({});
-//         if (mounted && res?.data?.list) {
-//           setQueueList(res.data.list);
-//         }
-//       } catch (e) {
-//         console.error("Fetch queue list error", e);
-//       } finally {
-//         setLoading(false);
-//       }
-//     })();
+    let mounted = true;
 
-//     return () => {
-//       mounted = false;
-//     };
-//   }, [enabled, fetchQueue]);
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await fetchCount();
+        if (mounted && res?.data?.count !== undefined) {
+          setUnreadCount(res.data.count);
+        }
+      } catch (e) {
+        console.error("Fetch unread notification count error", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
 
-//   // 🔹 WebSocket live updates
-//   useLiveWebSocket<INotifList[], INotifList | { list: INotifList[] }>({
-//     url: queueWsUrl,
-//     enabled,
-//     setState: setQueueList,
-//     onMessage: (message, prev) => {
-//       // اگر لیست کامل آمده
-//       if ("list" in (message as any)) {
-//         return (message as any).list;
-//       }
+    return () => {
+      mounted = false;
+    };
+  }, [enabled, fetchCount]);
 
-//       // اگر event-based update آمده (مثل JOB_UPDATE)، فقط data را استخراج کن
-//       let item: INotifList;
-//       if ("event" in (message as any) && "data" in (message as any)) {
-//         item = (message as any).data;
-//       } else {
-//         item = message as INotifList;
-//       }
+  // 🔹 WebSocket live updates
+  useLiveWebSocket<number, { count: number } | number>({
+    url: notifWsUrl,
+    enabled,
+    setState: setUnreadCount,
+    onMessage: (message) => {
+      if (
+        typeof message === "object" &&
+        message !== null &&
+        "count" in message
+      ) {
+        return message.count;
+      }
 
-//       const idx = prev.findIndex((p) => p.id === item.id);
+      if (typeof message === "number") {
+        return message;
+      }
 
-//       if (idx === -1) {
-//         return [item, ...prev].slice(0, 50);
-//       }
+      return 0;
+    },
+    reconnectDelay: 3000,
+  });
 
-//       const next = [...prev];
-//       next[idx] = { ...next[idx], ...item };
-//       return next;
-//     },
-//     reconnectDelay: 3000,
-//   });
-
-//   return { queueList, loading };
-// };
+  return { unreadCount, loading };
+};
