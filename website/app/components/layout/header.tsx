@@ -101,6 +101,7 @@ const Header = () => {
           {!isMobile && (
             <Button
               variant="contained"
+              onClick={() => window.location.href = "https://pro.hoshmarket.com/"}
               sx={{
                 background: "#0EA5E9",
                 color: "white",
