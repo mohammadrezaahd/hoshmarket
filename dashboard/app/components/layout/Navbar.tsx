@@ -47,10 +47,15 @@ const Navbar: React.FC = () => {
 
   const { data: userData, isSuccess } = useProfile();
   const { data: queueCount } = useQueueCount();
-  const { mutateAsync: fetchNotifications, isPending: isLoadingNotifications } = useNotifList();
+  const { mutateAsync: fetchNotifications, isPending: isLoadingNotifications } =
+    useNotifList();
   const { mutateAsync: markAsRead } = useReadNotif();
   const { mutateAsync: markAllAsRead } = useReadNotifAll();
   const { unreadCount } = useNotifCountSocket(true);
+
+  useEffect(() => {
+    console.log(unreadCount);
+  }, [unreadCount]);
 
   useEffect(() => {
     if (isSuccess && userData?.data) {
@@ -63,7 +68,7 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const prevCount = prevUnreadCountRef.current;
-    
+
     // Check if count increased (new notification arrived)
     if (unreadCount > prevCount && prevCount !== 0) {
       // Trigger pulse animation
@@ -71,12 +76,15 @@ const Navbar: React.FC = () => {
       setTimeout(() => setIsPulsing(false), 2000);
 
       // Send browser push notification
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('نوتیفیکیشن جدید', {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("نوتیفیکیشن جدید", {
           body: `شما ${unreadCount} نوتیفیکیشن خوانده نشده دارید`,
-          icon: '/source_logo/logo-256.png',
+          icon: "/source_logo/logo-256.png",
         });
-      } else if ('Notification' in window && Notification.permission === 'default') {
+      } else if (
+        "Notification" in window &&
+        Notification.permission === "default"
+      ) {
         // Request permission if not yet requested
         Notification.requestPermission();
       }
@@ -93,7 +101,7 @@ const Navbar: React.FC = () => {
 
   const handleNotifMenuOpen = async (event: React.MouseEvent<HTMLElement>) => {
     setNotifAnchorEl(event.currentTarget);
-    
+
     // Fetch notifications when dropdown opens
     try {
       const response = await fetchNotifications({});
@@ -142,7 +150,9 @@ const Navbar: React.FC = () => {
       enqueueSnackbar("همه نوتیفیکیشن‌ها خوانده شدند", { variant: "success" });
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
-      enqueueSnackbar("خطا در علامت‌گذاری همه نوتیفیکیشن‌ها", { variant: "error" });
+      enqueueSnackbar("خطا در علامت‌گذاری همه نوتیفیکیشن‌ها", {
+        variant: "error",
+      });
     }
   };
 
@@ -203,35 +213,37 @@ const Navbar: React.FC = () => {
               backgroundColor: alpha(theme.palette.primary.main, 0.1),
             },
             position: "relative",
-            "&::before": isPulsing ? {
-              content: '""',
-              position: "absolute",
-              top: -4,
-              left: -4,
-              right: -4,
-              bottom: -4,
-              borderRadius: "50%",
-              border: `2px solid ${theme.palette.error.main}`,
-              animation: "pulse 1.5s ease-in-out",
-              "@keyframes pulse": {
-                "0%": {
-                  transform: "scale(0.95)",
-                  opacity: 1,
-                },
-                "50%": {
-                  transform: "scale(1.1)",
-                  opacity: 0.5,
-                },
-                "100%": {
-                  transform: "scale(1.3)",
-                  opacity: 0,
-                },
-              },
-            } : {},
+            "&::before": isPulsing
+              ? {
+                  content: '""',
+                  position: "absolute",
+                  top: -4,
+                  left: -4,
+                  right: -4,
+                  bottom: -4,
+                  borderRadius: "50%",
+                  border: `2px solid ${theme.palette.error.main}`,
+                  animation: "pulse 1.5s ease-in-out",
+                  "@keyframes pulse": {
+                    "0%": {
+                      transform: "scale(0.95)",
+                      opacity: 1,
+                    },
+                    "50%": {
+                      transform: "scale(1.1)",
+                      opacity: 0.5,
+                    },
+                    "100%": {
+                      transform: "scale(1.3)",
+                      opacity: 0,
+                    },
+                  },
+                }
+              : {},
           }}
         >
-          <Badge 
-            badgeContent={unreadCount > 0 ? unreadCount : null} 
+          <Badge
+            badgeContent={unreadCount > 0 ? unreadCount : null}
             color="error"
             max={99}
           >

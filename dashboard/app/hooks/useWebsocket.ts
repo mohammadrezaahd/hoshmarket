@@ -19,6 +19,13 @@ export function useLiveWebSocket<TState, TMessage>({
   const reconnectTimeoutRef = useRef<number | null>(null);
   const manuallyClosedRef = useRef(false);
 
+  // ✅ جلوگیری از reconnect به‌خاطر تغییر reference
+  const onMessageRef = useRef(onMessage);
+
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
   useEffect(() => {
     if (!enabled || !url) return;
 
@@ -35,7 +42,7 @@ export function useLiveWebSocket<TState, TMessage>({
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data) as TMessage;
-          setState((prev) => onMessage(data, prev));
+          setState((prev) => onMessageRef.current(data, prev));
         } catch (e) {
           console.error("WS message parse error", e);
         }
@@ -51,9 +58,9 @@ export function useLiveWebSocket<TState, TMessage>({
         }
       };
 
-      ws.onerror = (e) => {
-        console.error("WS error", e);
-        // ❌ close نکن
+      ws.onerror = () => {
+        // ✅ اطمینان از trigger شدن onclose
+        ws.close();
       };
     };
 
@@ -62,9 +69,11 @@ export function useLiveWebSocket<TState, TMessage>({
     return () => {
       manuallyClosedRef.current = true;
       wsRef.current?.close();
+      wsRef.current = null;
+
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [url, enabled, reconnectDelay, onMessage, setState]);
+  }, [url, enabled, reconnectDelay, setState]);
 }

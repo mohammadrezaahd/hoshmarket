@@ -124,7 +124,10 @@ export const useNotifCountSocket = (enabled: boolean) => {
   const [loading, setLoading] = useState(false);
   const { mutateAsync: fetchCount } = useUnreadNotifCount();
 
+  // ✅ URL امن و وابسته به enabled
   const notifWsUrl = useMemo(() => {
+    if (!enabled) return "";
+
     if (!apiUrl) {
       throw new Error("apiUrl is required for Notification WebSocket");
     }
@@ -140,8 +143,9 @@ export const useNotifCountSocket = (enabled: boolean) => {
     return `${wsProtocol}//${parsed.host}/api/v1/ws/notification/notifications_count/${encodeURIComponent(
       token
     )}`;
-  }, []);
+  }, [enabled]);
 
+  // ✅ initial fetch
   useEffect(() => {
     if (!enabled) return;
 
@@ -157,7 +161,7 @@ export const useNotifCountSocket = (enabled: boolean) => {
       } catch (e) {
         console.error("Fetch unread notification count error", e);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     })();
 
@@ -166,12 +170,31 @@ export const useNotifCountSocket = (enabled: boolean) => {
     };
   }, [enabled, fetchCount]);
 
-  // 🔹 WebSocket live updates
-  useLiveWebSocket<number, { count: number } | number>({
+  // ✅ WebSocket live updates
+  useLiveWebSocket<
+    number,
+    { event: string; data: { count: number } } | { count: number } | number
+  >({
     url: notifWsUrl,
     enabled,
     setState: setUnreadCount,
-    onMessage: (message) => {
+    onMessage: (message, prev) => {
+      console.log("Notification count WS message:", message);
+      console.log("Previous unread count:", prev);
+      // event wrapper
+      if (
+        typeof message === "object" &&
+        message !== null &&
+        "event" in message &&
+        "data" in message &&
+        typeof message.data === "object" &&
+        message.data !== null &&
+        "count" in message.data
+      ) {
+        return message.data.count;
+      }
+
+      // direct object
       if (
         typeof message === "object" &&
         message !== null &&
@@ -180,11 +203,13 @@ export const useNotifCountSocket = (enabled: boolean) => {
         return message.count;
       }
 
+      // direct number
       if (typeof message === "number") {
         return message;
       }
 
-      return 0;
+      // ✅ fallback امن
+      return prev;
     },
     reconnectDelay: 3000,
   });
