@@ -13,6 +13,7 @@ import { useProducts } from "~/api/product.api";
 import { useImages } from "~/api/gallery.api";
 import { useAttrs } from "~/api/attributes.api";
 import { useDetails } from "~/api/details.api";
+import { enqueueSnackbar } from "notistack";
 
 const Dashboard = () => {
   // Fetch data with React Query
@@ -98,6 +99,11 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="lg">
+      <button
+        onClick={() => enqueueSnackbar("sadsadasd", { variant: "error" })}
+      >
+        SNACK
+      </button>
       <Box sx={{ width: "100%" }}>
         {/* Welcome Section */}
         <Box sx={{ mb: 4 }}>

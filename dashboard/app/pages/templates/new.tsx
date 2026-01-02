@@ -256,11 +256,11 @@ const NewTemplatePage = () => {
 
   return (
     <AppLayout title="افزودن قالب جدید">
-      <TitleCard
-        title="افزودن قالب جدید"
-        description="ابتدا دسته بندی مورد نظر را انتخال کنید سپس قالب ویژگی و اطلاعات خود را بسازید"
-      />
       <Container maxWidth="lg">
+        <TitleCard
+          title="افزودن قالب جدید"
+          description="ابتدا دسته بندی مورد نظر را انتخال کنید سپس قالب ویژگی و اطلاعات خود را بسازید"
+        />
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, lg: 12 }}>
             <Grid container spacing={3}>

@@ -328,51 +328,51 @@ const Navbar: React.FC = () => {
       </Tooltip>
 
       {/* Profile */}
-      <Tooltip title="پروفایل" arrow>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {/* Subscription status button */}
-          {(() => {
-            const credit = currentUser?.subscription?.ai_credit ?? 0;
-            const active = credit > 0;
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        {/* Subscription status button */}
+        {(() => {
+          const credit = currentUser?.subscription?.ai_credit ?? 0;
+          const active = credit > 0;
 
-            return (
-              <Button
-                size="small"
-                onClick={() => navigate("/pricing")}
-                variant="contained"
-                sx={{
-                  textTransform: "none",
+          return (
+            <Button
+              size="small"
+              onClick={() => navigate("/pricing")}
+              variant="contained"
+              sx={{
+                textTransform: "none",
+                backgroundColor: active
+                  ? theme.palette.success?.main || "#00B894"
+                  : theme.palette.error?.main || "#D63031",
+                color: theme.palette.success?.contrastText || "#fff",
+                px: 1.25,
+                py: 0.5,
+                minWidth: 80,
+                "&:hover": {
                   backgroundColor: active
-                    ? theme.palette.success?.main || "#00B894"
-                    : theme.palette.error?.main || "#D63031",
-                  color: theme.palette.success?.contrastText || "#fff",
-                  px: 1.25,
-                  py: 0.5,
-                  minWidth: 80,
-                  "&:hover": {
-                    backgroundColor: active
-                      ? theme.palette.success?.dark || undefined
-                      : theme.palette.error?.dark || undefined,
-                  },
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
+                    ? theme.palette.success?.dark || undefined
+                    : theme.palette.error?.dark || undefined,
+                },
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  bgcolor: active ? "white" : "white",
+                  boxShadow: `0 0 0 6px ${active ? alpha(theme.palette.success.main, 0.12) : alpha(theme.palette.error.main, 0.12)}`,
                 }}
-              >
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    bgcolor: active ? "white" : "white",
-                    boxShadow: `0 0 0 6px ${active ? alpha(theme.palette.success.main, 0.12) : alpha(theme.palette.error.main, 0.12)}`,
-                  }}
-                />
-                {active ? "فعال" : "غیرفعال"}
-              </Button>
-            );
-          })()}
+              />
+              {active ? "فعال" : "غیرفعال"}
+            </Button>
+          );
+        })()}
 
+        <Tooltip title="پروفایل" arrow>
           <IconButton
             onClick={handleProfileMenuOpen}
             sx={{
@@ -396,8 +396,8 @@ const Navbar: React.FC = () => {
                 "U"}
             </Avatar>
           </IconButton>
-        </Box>
-      </Tooltip>
+        </Tooltip>
+      </Box>
 
       {/* Profile Menu */}
       <ProfileMenu

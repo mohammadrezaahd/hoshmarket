@@ -5,12 +5,7 @@ import AttributesField from "./AttributesField";
 
 const SectionCard = ({ title, children, ...props }: any) => (
   <Card sx={{ p: 2, ...props.sx }} {...props}>
-    <CardContent>
-      <Typography variant="h6" gutterBottom>
-        {title}
-      </Typography>
-      {children}
-    </CardContent>
+    <CardContent>{children}</CardContent>
   </Card>
 );
 
@@ -40,8 +35,11 @@ const AttributesFormFields: React.FC<AttributesFormFieldsProps> = ({
   }
 
   // Check if there are any attributes to display
-  const hasAttributes = Object.values(attributesData.category_group_attributes).some(
-    (categoryData) => categoryData.attributes && Object.keys(categoryData.attributes).length > 0
+  const hasAttributes = Object.values(
+    attributesData.category_group_attributes
+  ).some(
+    (categoryData) =>
+      categoryData.attributes && Object.keys(categoryData.attributes).length > 0
   );
 
   if (!hasAttributes) {
@@ -58,27 +56,31 @@ const AttributesFormFields: React.FC<AttributesFormFieldsProps> = ({
 
   return (
     <Grid container spacing={3}>
-      {Object.entries(attributesData.category_group_attributes).map(([categoryId, categoryData]) => (
-        <Grid size={{ xs: 12 }} key={categoryId}>
-          <SectionCard title={categoryData.group_title || `گروه ${categoryId}`}>
-            <Grid container spacing={2}>
-              {Object.values(categoryData.attributes).map((attr) => {
-                const fieldKey = attr.code || attr.id;
-                return (
-                  <Grid size={{ xs: 12, md: 6 }} key={attr.id}>
-                    <AttributesField
-                      attr={attr}
-                      value={formData[fieldKey]}
-                      onChange={onFormDataChange}
-                      error={validationErrors[fieldKey.toString()]}
-                    />
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </SectionCard>
-        </Grid>
-      ))}
+      {Object.entries(attributesData.category_group_attributes).map(
+        ([categoryId, categoryData]) => (
+          <Grid size={{ xs: 12 }} key={categoryId}>
+            <SectionCard
+              title={categoryData.group_title || `گروه ${categoryId}`}
+            >
+              <Grid container spacing={2}>
+                {Object.values(categoryData.attributes).map((attr) => {
+                  const fieldKey = attr.code || attr.id;
+                  return (
+                    <Grid size={{ xs: 12, md: 6 }} key={attr.id}>
+                      <AttributesField
+                        attr={attr}
+                        value={formData[fieldKey]}
+                        onChange={onFormDataChange}
+                        error={validationErrors[fieldKey.toString()]}
+                      />
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </SectionCard>
+          </Grid>
+        )
+      )}
     </Grid>
   );
 };

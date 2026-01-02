@@ -188,7 +188,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
         startIcon={<GalleryIcon />}
         onClick={() => setOpen(true)}
         fullWidth
-        sx={{ mb: 2, py: 1.5 }}
+        sx={{ mb: 2, py: 1.5, gap: 2 }}
       >
         {selectedImages.length > 0 ? `انتخاب تصویر` : label}
       </Button>

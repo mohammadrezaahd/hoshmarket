@@ -50,12 +50,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <QueryClientProvider client={queryClient}>
             <SnackbarProvider
               maxSnack={5}
-              autoHideDuration={4000}
+              autoHideDuration={400000}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              style={{ 
+                paddingRight: '40px',
+              }}
               action={(snackbarId) => (
                 <IconButton
                   onClick={() => closeSnackbar(snackbarId)}
                   size="small"
-                  sx={{ color: "primary.contrastText" }}
+                  sx={{
+                    color: "primary.contrastText",
+                    m: '0 !important',
+                    p: '0 !important',
+                    minWidth: '0 !important',
+                    minHeight: '0 !important',
+                    position: 'absolute !important',
+                    left: '8px !important',
+                    top: '50% !important',
+                    transform: 'translateY(-50%) !important',
+                  }}
                 >
                   <CloseIcon size={"small"} />
                 </IconButton>

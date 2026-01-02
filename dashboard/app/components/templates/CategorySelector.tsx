@@ -16,12 +16,7 @@ import { useCategoriesList } from "~/api/categories.api";
 
 const SectionCard = ({ title, children, ...props }: any) => (
   <Card sx={{ p: 2, ...props.sx }} {...props}>
-    <CardContent>
-      <Typography variant="h6" gutterBottom>
-        {title}
-      </Typography>
-      {children}
-    </CardContent>
+    <CardContent>{children}</CardContent>
   </Card>
 );
 
@@ -63,33 +58,40 @@ const CategorySelector = ({
   // Fetch categories based on search (autonomous mode only)
   const { data: categoriesData, isLoading: autonomousLoading } =
     useCategoriesList(isPropsMode ? "" : searchQuery, 1, 50);
-  
+
   // Use either external categories or fetched ones
-  const categories = isPropsMode ? externalCategories : (categoriesData?.data?.items ?? []);
-  const loadingCategories = isPropsMode ? (externalLoading ?? false) : autonomousLoading;
+  const categories = isPropsMode
+    ? externalCategories
+    : (categoriesData?.data?.items ?? []);
+  const loadingCategories = isPropsMode
+    ? (externalLoading ?? false)
+    : autonomousLoading;
 
   // Debounced search
-  const handleInputChange = useCallback((search: string) => {
-    setInputValue(search);
-    
-    // Call external onSearchChange if provided (props mode)
-    if (isPropsMode && externalOnSearchChange) {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
+  const handleInputChange = useCallback(
+    (search: string) => {
+      setInputValue(search);
+
+      // Call external onSearchChange if provided (props mode)
+      if (isPropsMode && externalOnSearchChange) {
+        if (searchTimeoutRef.current) {
+          clearTimeout(searchTimeoutRef.current);
+        }
+        searchTimeoutRef.current = setTimeout(() => {
+          externalOnSearchChange(search);
+        }, 300);
+      } else if (!isPropsMode) {
+        // Autonomous mode - update searchQuery
+        if (searchTimeoutRef.current) {
+          clearTimeout(searchTimeoutRef.current);
+        }
+        searchTimeoutRef.current = setTimeout(() => {
+          setSearchQuery(search);
+        }, 300);
       }
-      searchTimeoutRef.current = setTimeout(() => {
-        externalOnSearchChange(search);
-      }, 300);
-    } else if (!isPropsMode) {
-      // Autonomous mode - update searchQuery
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-      searchTimeoutRef.current = setTimeout(() => {
-        setSearchQuery(search);
-      }, 300);
-    }
-  }, [isPropsMode, externalOnSearchChange]);
+    },
+    [isPropsMode, externalOnSearchChange]
+  );
 
   const handleSuggestionClick = (suggestion: ICategoryList) => {
     onCategoryChange(suggestion);
@@ -167,13 +169,16 @@ const CategorySelector = ({
                         variant="outlined"
                         clickable={enabled}
                         disabled={!enabled}
-                        onClick={() => enabled && handleSuggestionClick(suggestion)}
+                        onClick={() =>
+                          enabled && handleSuggestionClick(suggestion)
+                        }
                         sx={{
                           fontSize: "0.875rem",
+                          transition: 'all 0.2s ease-in-out',
                           "&:hover": {
-                            backgroundColor: "primary.light",
-                            borderColor: "primary.main",
-                            color: "primary.contrastText",
+                            backgroundColor: "#6C5CE7 !important",
+                            borderColor: "#6C5CE7 !important",
+                            color: "#ffffff !important",
                           },
                         }}
                       />

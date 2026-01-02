@@ -4,12 +4,10 @@ import {
   Stepper,
   Step,
   StepLabel,
-  useTheme,
   StepConnector,
   stepConnectorClasses,
   styled,
-  StepIcon,
-  stepIconClasses,
+  useTheme,
 } from "@mui/material";
 import {
   CircleCheckIcon,
@@ -18,94 +16,111 @@ import {
 } from "../icons/IconComponents";
 import { FormStep } from "~/store/slices/productSlice";
 
+/* -------------------------------------------------------------------------- */
+/*                                   CONFIG                                   */
+/* -------------------------------------------------------------------------- */
+
+const ICON_SIZE = 24;
+
+/* -------------------------------------------------------------------------- */
+/*                                   TYPES                                    */
+/* -------------------------------------------------------------------------- */
+
 interface FormStepsProps {
   currentStep: FormStep;
-  stepValidationErrors: {
-    [FormStep.DETAILS_FORM]: boolean;
-    [FormStep.ATTRIBUTES_FORM]: boolean;
-    [FormStep.IMAGE_SELECTION]: boolean;
-    [FormStep.PRODUCT_INFO]: boolean;
-  };
+  stepValidationErrors: Partial<Record<FormStep, boolean>>;
 }
 
-// ✅ کانکتور دقیق و سازگار با RTL و وسط‌چین دایره
+interface CustomStepIconProps {
+  active?: boolean;
+  completed?: boolean;
+  visited?: boolean;
+  hasError?: boolean;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                CONNECTOR                                   */
+/* -------------------------------------------------------------------------- */
+
 const Connector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    // مقدار top رو طوری می‌ذاریم که خط از مرکز آیکون عبور کنه
-    top: 10, // برای آیکون‌های کوچکتر در موبایل
-    left: theme.direction === "rtl" ? "calc(50% + 8px)" : "calc(-50% + 8px)",
-    right: theme.direction === "rtl" ? "calc(-50% + 8px)" : "calc(50% + 8px)",
-    [theme.breakpoints.up("sm")]: {
-      top: 12,
-    },
-    [theme.breakpoints.up("md")]: {
-      top: 14,
-    },
+    top: ICON_SIZE / 2,
+    left:
+      theme.direction === "rtl"
+        ? `calc(50% + ${ICON_SIZE / 2}px)`
+        : `calc(-50% + ${ICON_SIZE / 2}px)`,
+    right:
+      theme.direction === "rtl"
+        ? `calc(-50% + ${ICON_SIZE / 2}px)`
+        : `calc(50% + ${ICON_SIZE / 2}px)`,
   },
+
   [`& .${stepConnectorClasses.line}`]: {
     borderTopWidth: 2,
     borderRadius: 1,
-      borderColor: theme.palette.divider,
-      zIndex: 0,
+    borderColor: theme.palette.divider,
   },
+
   [`&.${stepConnectorClasses.active} .${stepConnectorClasses.line}`]: {
     borderColor: theme.palette.primary.main,
   },
+
   [`&.${stepConnectorClasses.completed} .${stepConnectorClasses.line}`]: {
     borderColor: theme.palette.success.main,
   },
 }));
 
-// Custom Step Icon Component
-const CustomStepIcon = styled(StepIcon)(({ theme }) => ({
-  [`&.${stepIconClasses.root}`]: {
-    color: theme.palette.grey[400],
-    width: 28,
-    height: 28,
-  },
-  [`&.${stepIconClasses.active}`]: {
-    color: theme.palette.primary.main,
-  },
-  [`&.${stepIconClasses.completed}`]: {
-    color: theme.palette.success.main,
-  },
-  [`&.error`]: {
-    color: theme.palette.error.main,
-  },
-}));
+/* -------------------------------------------------------------------------- */
+/*                               STEP ICON                                    */
+/* -------------------------------------------------------------------------- */
 
-const StepIconComponent = (props: any) => {
-  const { active, completed, icon, hasError, hasBeenVisited } = props;
+const StepIconRoot = styled("div")<{
+  ownerState: CustomStepIconProps;
+}>(({ theme, ownerState }) => {
+  let color = theme.palette.grey[400];
 
-  const theme = useTheme();
-  const size = 28;
+  if (ownerState.completed && !ownerState.hasError) {
+    color = theme.palette.success.main;
+  } else if (ownerState.visited && ownerState.hasError) {
+    color = theme.palette.error.main;
+  } else if (ownerState.active) {
+    color = theme.palette.primary.main;
+  }
 
-  const wrapperStyle: React.CSSProperties = {
-    width: size,
-    height: size,
+  return {
+    width: ICON_SIZE,
+    height: ICON_SIZE,
     borderRadius: "50%",
-    display: "inline-flex",
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: theme.palette.background.paper,
+    color,
     zIndex: 2,
-    boxSizing: "content-box",
   };
+});
 
-  let iconElement = (
-    <RadioButtonIcon style={{ color: (theme.palette.grey as any)[400] }} />
+const CustomStepIcon: React.FC<CustomStepIconProps> = ({
+  active,
+  completed,
+  visited,
+  hasError,
+}) => {
+  let IconComponent = RadioButtonIcon;
+
+  if (completed && !hasError) IconComponent = CircleCheckIcon;
+  else if (visited && hasError) IconComponent = ErrorIcon;
+
+  return (
+    <StepIconRoot ownerState={{ active, completed, visited, hasError }}>
+      <IconComponent size={"small"} />
+    </StepIconRoot>
   );
-
-  if (completed && !hasError) {
-    iconElement = <CircleCheckIcon style={{ color: theme.palette.success.main }} />;
-  } else if (hasBeenVisited && hasError) {
-    iconElement = <ErrorIcon style={{ color: theme.palette.error.main }} />;
-  } else if (active) {
-    iconElement = <RadioButtonIcon style={{ color: theme.palette.primary.main }} />;
-  }
-
-  return <span style={wrapperStyle}>{iconElement}</span>;
 };
+
+/* -------------------------------------------------------------------------- */
+/*                               MAIN COMPONENT                               */
+/* -------------------------------------------------------------------------- */
 
 const FormSteps: React.FC<FormStepsProps> = ({
   currentStep,
@@ -123,112 +138,59 @@ const FormSteps: React.FC<FormStepsProps> = ({
     { key: FormStep.PRODUCT_INFO, label: "اطلاعات محصول" },
   ];
 
-  const getActiveStep = () => {
-    const idx = steps.findIndex((step) => step.key === currentStep);
-    return Math.max(0, idx);
-  };
-
-  const getCurrentStepIndex = () => {
-    return steps.findIndex((step) => step.key === currentStep);
-  };
-
-  // Check if a step has been visited (user has passed through it)
-  const hasStepBeenVisited = (stepKey: FormStep) => {
-    const currentIndex = getCurrentStepIndex();
-    const stepIndex = steps.findIndex((step) => step.key === stepKey);
-    return stepIndex < currentIndex;
-  };
-
-  // Check if a step has validation errors
-  const hasStepError = (stepKey: FormStep) => {
-    return (
-      stepValidationErrors[stepKey as keyof typeof stepValidationErrors] ||
-      false
-    );
-  };
+  const activeIndex = steps.findIndex((step) => step.key === currentStep);
 
   return (
     <Box sx={{ width: "100%", mb: 4, direction: "rtl", overflowX: "auto" }}>
       <Stepper
-        activeStep={getActiveStep()}
         alternativeLabel
+        activeStep={activeIndex}
         connector={<Connector />}
         sx={{
-          direction: "rtl",
           minWidth: { xs: "max-content", md: "100%" },
           px: { xs: 1, sm: 2 },
-          "& .MuiStepLabel-label": {
-            fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
-            fontWeight: 500,
-            whiteSpace: { xs: "normal", md: "nowrap" },
-            textAlign: "center",
-            maxWidth: { xs: "80px", sm: "100px", md: "none" },
-            lineHeight: 1.2,
-            mt: 0.5,
-          },
-          "& .MuiStepLabel-label.Mui-active": {
-            color: theme.palette.primary.main,
-            fontWeight: 700,
-          },
-          "& .MuiStepLabel-label.Mui-completed": {
-            color: theme.palette.success.main,
-            fontWeight: 500,
-          },
-          "& .MuiStepLabel-label.Mui-error": {
-            color: theme.palette.error.main,
-            fontWeight: 500,
-          },
-          "& .MuiStep-root": {
-            px: { xs: 0.5, sm: 1, md: 2 },
-          },
         }}
       >
         {steps.map((step, index) => {
-          const isCompleted = index < getCurrentStepIndex();
-          const isActive = step.key === currentStep;
-          const hasError = hasStepError(step.key);
-          const hasBeenVisited = hasStepBeenVisited(step.key);
+          const active = index === activeIndex;
+          const completed = index < activeIndex;
+          const visited = index < activeIndex;
+          const hasError = !!stepValidationErrors[step.key];
 
           return (
-            <Step key={String(step.key)} completed={isCompleted}>
+            <Step key={String(step.key)} completed={completed}>
               <StepLabel
-                StepIconComponent={(iconProps) => (
-                  <StepIconComponent
-                    {...iconProps}
+                StepIconComponent={() => (
+                  <CustomStepIcon
+                    active={active}
+                    completed={completed}
+                    visited={visited}
                     hasError={hasError}
-                    hasBeenVisited={hasBeenVisited}
                   />
                 )}
                 sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  "& .MuiStepLabel-labelContainer": {
+                    width: "100%",
+                  },
                   "& .MuiStepLabel-label": {
+                    mt: 1,
+                    textAlign: "center",
+                    fontSize: { xs: "0.7rem", sm: "0.8rem" },
+                    lineHeight: 1.3,
+                    maxWidth: 110,
+                    mx: "auto",
+                    whiteSpace: "normal",
                     color:
-                      hasBeenVisited && hasError
-                        ? theme.palette.error.main + " !important"
-                        : isActive
+                      visited && hasError
+                        ? theme.palette.error.main
+                        : active
                           ? theme.palette.primary.main
-                          : isCompleted
+                          : completed
                             ? theme.palette.success.main
                             : theme.palette.text.secondary,
-                    fontWeight:
-                      hasBeenVisited && hasError
-                        ? 600
-                        : isActive
-                          ? 700
-                          : isCompleted
-                            ? 500
-                            : 400,
-                  },
-                  "& .MuiStepLabel-label.Mui-active": {
-                    color:
-                      isActive && hasError && hasBeenVisited
-                        ? theme.palette.error.main + " !important"
-                        : theme.palette.primary.main + " !important",
-                  },
-                  "& .MuiStepLabel-label.Mui-completed": {
-                    color:
-                      hasError && hasBeenVisited
-                        ? theme.palette.error.main + " !important"
-                        : theme.palette.success.main + " !important",
                   },
                 }}
               >

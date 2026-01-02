@@ -79,9 +79,6 @@ const ProductImageSelection: React.FC<ProductImageSelectionProps> = ({
           مرحله قبل
         </Button>
         <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="body2" color="text.secondary">
-            {selectedImages.length > 0 && hasProductImage && " ✓"}
-          </Typography>
           <Button variant="contained" onClick={handleNext} disabled={!isValid}>
             مرحله بعد
           </Button>

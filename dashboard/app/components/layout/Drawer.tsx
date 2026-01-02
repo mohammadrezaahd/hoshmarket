@@ -104,14 +104,14 @@ const menuItems: MenuItem[] = [
     expandable: true,
     subItems: [
       {
-        id: "transfers-new",
-        title: "انتقال جدید",
-        path: "/transfer/new",
-      },
-      {
         id: "transfers-list",
         title: "تمام محصولات",
         path: "/transfers/list",
+      },
+      {
+        id: "transfers-new",
+        title: "انتقال جدید",
+        path: "/transfer/new",
       },
     ],
   },
@@ -197,15 +197,13 @@ const Drawer = ({
 
   const drawer = (
     <Box>
-      <Toolbar
-        sx={{ justifyContent: collapsed ? "center" : "space-between" }}
-      >
+      <Toolbar sx={{ justifyContent: collapsed ? "center" : "space-between" }}>
         {!collapsed && (
           <Typography variant="h6" component="div" sx={{ fontWeight: "bold" }}>
             منو
           </Typography>
         )}
-          <IconButton
+        <IconButton
           onClick={handleDesktopToggle}
           sx={{
             display: {
@@ -304,7 +302,11 @@ const Drawer = ({
                               : isActive
                                 ? theme.palette.primary.main
                                 : "inherit",
-                            fontWeight: item.important ? 700 : isActive ? 700 : 500,
+                            fontWeight: item.important
+                              ? 700
+                              : isActive
+                                ? 700
+                                : 500,
                             whiteSpace: "nowrap",
                           },
                         }}

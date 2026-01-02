@@ -18,18 +18,12 @@ import {
 } from "~/store/slices/attributesSlice";
 import { useAttributesValidation } from "~/validation";
 import AttributesField from "./AttributesField";
-import AttributesFormFields from "./AttributesFormFields";
 import ImageSelector from "../ImageSelector";
 import { MediaType } from "~/components/MediaManager/FileUpload";
 
 const SectionCard = ({ title, children, ...props }: any) => (
   <Card sx={{ p: 2, ...props.sx }} {...props}>
-    <CardContent>
-      <Typography variant="h6" gutterBottom>
-        {title}
-      </Typography>
-      {children}
-    </CardContent>
+    <CardContent>{children}</CardContent>
   </Card>
 );
 
@@ -107,7 +101,7 @@ export default function AttributesTab({
   }, [attributes, packagingAttributes]);
 
   const handleInputChange = (attrId: number | string, value: any) => {
-    const fieldKey = typeof attrId === 'number' ? attrId.toString() : attrId;
+    const fieldKey = typeof attrId === "number" ? attrId.toString() : attrId;
     form.setValue(fieldKey, value, { shouldValidate: true, shouldDirty: true });
     dispatch(updateFormField({ fieldId: fieldKey, value }));
   };

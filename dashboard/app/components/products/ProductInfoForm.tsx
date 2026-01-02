@@ -59,9 +59,6 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
     }
   };
 
-  // Check if any previous steps have validation errors
-  const hasPreviousStepErrors = Object.values(stepValidationErrors).some(hasError => hasError);
-
   return (
     <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
       <Typography variant="h5" component="h2" gutterBottom>
@@ -72,7 +69,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
         اطلاعات نهایی محصول را وارد کنید.
       </Typography>
 
-      {hasPreviousStepErrors && (
+      {hasValidationErrors && (
         <Alert severity="warning" sx={{ mb: 3 }}>
           <Typography variant="body2">
             لطفاً ابتدا خطاهای موجود در مراحل قبلی را رفع کنید. مراحل دارای خطا با علامت ضربدر مشخص شده‌اند.
@@ -133,7 +130,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={isSubmitting || hasPreviousStepErrors || (!!errors.title && !title.trim())}
+          disabled={isSubmitting || hasValidationErrors || (!!errors.title && !title.trim())}
           sx={{ minWidth: 120 }}
         >
           {isSubmitting ? `در حال ${submitButtonLabel}...` : submitButtonLabel}

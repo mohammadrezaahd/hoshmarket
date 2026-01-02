@@ -45,7 +45,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   };
 
   return (
-    <Box sx={sx}>
+    <Box sx={{ ...sx, mt: 2 }}>
       <TextField
         label={label}
         placeholder={placeholder}
@@ -61,6 +61,21 @@ const SearchInput: React.FC<SearchInputProps> = ({
               <SearchIcon />
             </InputAdornment>
           ),
+          sx: {
+            fontSize: '0.875rem',
+          },
+        }}
+        InputLabelProps={{
+          sx: {
+            fontSize: '0.875rem',
+          },
+        }}
+        sx={{
+          minWidth: fullWidth ? 'auto' : 320,
+          '& .MuiInputBase-input::placeholder': {
+            fontSize: '0.8125rem',
+            opacity: 0.7,
+          },
         }}
       />
     </Box>

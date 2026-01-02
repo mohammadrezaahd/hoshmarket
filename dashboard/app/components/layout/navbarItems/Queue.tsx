@@ -74,7 +74,7 @@ const QueueMenu: React.FC<Props> = ({
       anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       transformOrigin={{ vertical: "top", horizontal: "left" }}
       PaperProps={{
-        elevation: 8,
+        elevation: 0,
         sx: {
           mt: 1.5,
           minWidth: 360,
@@ -82,6 +82,9 @@ const QueueMenu: React.FC<Props> = ({
           borderRadius: 2,
           maxHeight: 480,
           p: 0,
+          border: '1px solid',
+          borderColor: 'divider',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
         },
       }}
     >

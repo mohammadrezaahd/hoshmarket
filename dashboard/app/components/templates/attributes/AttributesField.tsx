@@ -5,6 +5,7 @@ import {
   Chip,
   IconButton,
   Tooltip,
+  InputAdornment,
 } from "@mui/material";
 import React from "react";
 import {
@@ -98,7 +99,11 @@ export default function AttributesField({
               required={attr.required}
               error={!!error}
               InputProps={{
-                endAdornment: attr.postfix || attr.unit,
+                endAdornment: (attr.postfix || attr.unit) ? (
+                  <InputAdornment position="end" sx={{ marginLeft: 1, fontSize: '0.9em' }}>
+                    {attr.postfix || attr.unit}
+                  </InputAdornment>
+                ) : undefined,
               }}
             />
             {attr.Ai && <AIIcon attr={attr} />}

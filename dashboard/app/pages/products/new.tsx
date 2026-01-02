@@ -820,6 +820,16 @@ const NewProductPage = () => {
       });
   }, [productState.selectedDetailsTemplates]);
 
+  // Check if any previous steps (before PRODUCT_INFO) have validation errors
+  const hasPreviousStepErrors = useMemo(() => {
+    const errors = productState.stepValidationErrors;
+    return (
+      errors[FormStep.DETAILS_FORM] === true ||
+      errors[FormStep.ATTRIBUTES_FORM] === true ||
+      errors[FormStep.IMAGE_SELECTION] === true
+    );
+  }, [productState.stepValidationErrors]);
+
   // Render current step
   const renderCurrentStep = () => {
     const stepContent = (() => {
@@ -960,7 +970,7 @@ const NewProductPage = () => {
               }
               onSubmit={handleCreateProduct}
               onBack={handleBackToImageSelection}
-              hasValidationErrors={!productInfoValidation.isValid}
+              hasValidationErrors={hasPreviousStepErrors}
               isSubmitting={isSubmitting}
               stepValidationErrors={productState.stepValidationErrors}
               attributesData={getAllAttributesData}

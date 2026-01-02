@@ -4,12 +4,7 @@ import DetailsField from "./DetailsField";
 
 const SectionCard = ({ title, children, ...props }: any) => (
   <Card sx={{ p: 2, ...props.sx }} {...props}>
-    <CardContent>
-      <Typography variant="h6" gutterBottom>
-        {title}
-      </Typography>
-      {children}
-    </CardContent>
+    <CardContent>{children}</CardContent>
   </Card>
 );
 
@@ -129,20 +124,21 @@ const DetailsFormFields: React.FC<DetailsFormFieldsProps> = ({
         </Grid>
       )}
 
-      {bind?.category_product_types && bind.category_product_types.length > 0 && (
-        <Grid size={{ xs: 12, md: 6 }}>
-          <SectionCard title="نوع محصول">
-            <DetailsField
-              fieldName="category_product_type"
-              fieldData={bind.category_product_types}
-              label="نوع محصول"
-              value={formData.category_product_type || ""}
-              onChange={onFormDataChange}
-              error={validationErrors.category_product_type}
-            />
-          </SectionCard>
-        </Grid>
-      )}
+      {bind?.category_product_types &&
+        bind.category_product_types.length > 0 && (
+          <Grid size={{ xs: 12, md: 6 }}>
+            <SectionCard title="نوع محصول">
+              <DetailsField
+                fieldName="category_product_type"
+                fieldData={bind.category_product_types}
+                label="نوع محصول"
+                value={formData.category_product_type || ""}
+                onChange={onFormDataChange}
+                error={validationErrors.category_product_type}
+              />
+            </SectionCard>
+          </Grid>
+        )}
 
       {bind?.brand_model && (
         <Grid size={{ xs: 12, md: 6 }}>
