@@ -298,18 +298,13 @@ const Drawer = ({
                           textAlign: "start",
                           ml: item.important ? 1 : 0,
                           "& .MuiListItemText-primary": {
+                            // Ensure important items always show white text (overrides theme changes)
                             color: item.important
-                              ? isActive
-                                ? theme.palette.primary.contrastText
-                                : theme.palette.primary.main
+                              ? theme.palette.common.white
                               : isActive
                                 ? theme.palette.primary.main
                                 : "inherit",
-                            fontWeight: item.important
-                              ? 700
-                              : isActive
-                                ? 700
-                                : 500,
+                            fontWeight: item.important ? 700 : isActive ? 700 : 500,
                             whiteSpace: "nowrap",
                           },
                         }}

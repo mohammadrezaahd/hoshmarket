@@ -151,7 +151,7 @@ const ProfileMenu: React.FC<Props> = ({
             </ListItemIcon>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography>تنظیمات</Typography>
-              <Chip label="به زودی" size="small" color="primary" />
+              <Chip label="به زودی" size="small" color="default" />
             </Box>
           </MenuItem>
 
@@ -164,14 +164,11 @@ const ProfileMenu: React.FC<Props> = ({
             </ListItemIcon>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography>امنیت و حریم خصوصی</Typography>
-              <Chip label="به زودی" size="small" color="primary" />
+              <Chip label="به زودی" size="small" color="default" />
             </Box>
           </MenuItem>
 
-          <MenuItem
-            onClick={() => handleNavigation("/pricing")}
-            sx={{ py: 1.25 }}
-          >
+          <MenuItem onClick={() => handleNavigation("/pricing")} sx={{ py: 1.25 }}>
             <Box
               sx={{
                 display: "flex",
@@ -181,8 +178,20 @@ const ProfileMenu: React.FC<Props> = ({
                 justifyContent: "space-between",
               }}
             >
-              <Typography>اشتراک فعال ندارید</Typography>
-              <Chip label="برای خرید اشتراک" size="small" color="warning" />
+              <Typography>
+                {currentUser?.subscription
+                  ? currentUser.subscription.ai_model_title
+                  : "اشتراک فعال ندارید"}
+              </Typography>
+              {currentUser?.subscription ? (
+                <Chip
+                  label={`${currentUser.subscription.ai_credit} کردیت`}
+                  size="small"
+                  color="success"
+                />
+              ) : (
+                <Chip label="برای خرید اشتراک" size="small" color="warning" />
+              )}
             </Box>
           </MenuItem>
 

@@ -326,6 +326,34 @@ export const theme = createTheme({
             fontSize: "0.75rem",
           },
         },
+        // colored variants
+        colorSuccess: {
+          backgroundColor: palette.success.main,
+          color: palette.success.contrastText,
+          '& .MuiChip-deleteIcon, & .MuiChip-icon': {
+            color: palette.success.contrastText,
+          },
+        },
+        colorWarning: {
+          backgroundColor: palette.warning.main,
+          color: palette.warning.contrastText,
+          '& .MuiChip-deleteIcon, & .MuiChip-icon': {
+            color: palette.warning.contrastText,
+          },
+        },
+        outlined: {
+          backgroundColor: 'transparent',
+        },
+        outlinedSuccess: {
+          borderColor: palette.success.main,
+          color: palette.success.main,
+          backgroundColor: 'transparent',
+        },
+        outlinedWarning: {
+          borderColor: palette.warning.main,
+          color: palette.warning.main,
+          backgroundColor: 'transparent',
+        },
       },
     },
     MuiDrawer: {

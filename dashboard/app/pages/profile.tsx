@@ -69,11 +69,19 @@ const ProfilePage = () => {
   // ذخیره در store
   useEffect(() => {
     if (userData?.data) {
-      dispatch(setUser(userData.data));
+      // preserve any existing subscription info in the store when updating user
+      const merged = {
+        ...userData.data,
+        subscription: (currentUser as any)?.subscription ?? userData.data.subscription ?? null,
+      };
+      dispatch(setUser(merged));
     }
   }, [userData, dispatch]);
 
   const userInfo = currentUser || userData?.data;
+
+  // subscription info from store (set by Navbar credit fetch)
+  const subscription = (userInfo as any)?.subscription;
 
   // Initialize edit form when user data is available
   useEffect(() => {
@@ -385,7 +393,6 @@ const ProfilePage = () => {
                   }}
                 >
                   <Chip
-                    icon={<VerifiedIcon />}
                     label="تایید شده"
                     size="small"
                     sx={{
@@ -397,7 +404,6 @@ const ProfilePage = () => {
                     }}
                   />
                   <Chip
-                    icon={<ShieldIcon />}
                     label="امن"
                     size="small"
                     sx={{
@@ -409,7 +415,6 @@ const ProfilePage = () => {
                     }}
                   />
                   <Chip
-                    icon={<StarIcon />}
                     label="کاربر فعال"
                     size="small"
                     sx={{
@@ -809,7 +814,7 @@ const ProfilePage = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      پلن رایگان
+                      {subscription?.ai_model_title || "پلن رایگان"}
                     </Typography>
                   </Box>
 
@@ -834,11 +839,27 @@ const ProfilePage = () => {
                         fontSize: "1.25rem",
                       }}
                     >
-                      نامحدود
+                      {subscription?.subscription_expiry
+                        ? new Date(
+                            subscription.subscription_expiry
+                          ).toLocaleDateString("fa-IR")
+                        : "نامحدود"}
                     </Typography>
                   </Box>
 
                   <Box>
+                    {/* show credit if available above the upgrade button */}
+                    {typeof subscription?.ai_credit === "number" ? (
+                      <Box sx={{ mb: 2, display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                        <Chip
+                          label={`${subscription.ai_credit} کردیت`}
+                          color={subscription.ai_credit > 0 ? "success" : "warning"}
+                          size="small"
+                          sx={{ fontWeight: "bold" }}
+                        />
+                      </Box>
+                    ) : null}
+
                     <Button
                       fullWidth
                       variant="contained"

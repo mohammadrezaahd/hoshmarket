@@ -25,5 +25,4 @@ export enum SubscriptionType {
   STARTER = "starter",
   PROFESSIONAL = "professional",
   ENTERPRISE = "enterprise",
-  
 }

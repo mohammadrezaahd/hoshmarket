@@ -4,6 +4,7 @@ import {
   IconButton,
   Avatar,
   Badge,
+  Button,
   useTheme,
   alpha,
   Tooltip,
@@ -18,9 +19,13 @@ import {
 
 import { useNavigate } from "react-router";
 import { useLogout } from "~/api/auth.api";
-import { useProfile } from "~/api/profile.api";
+import { useProfile, useCredit } from "~/api/profile.api";
 import { useAppDispatch, useAppSelector } from "~/store/hooks";
-import { setUser, clearUser } from "~/store/slices/userSlice";
+import {
+  setUser,
+  clearUser,
+  setUserSubscription,
+} from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
 import { useQueueCount, useQueueListSocket } from "~/api/queue.api";
 import { useRefreshQueueCount } from "~/hooks/useRefreshQueueCount";
@@ -47,6 +52,7 @@ const Navbar: React.FC = () => {
   const currentUser = useAppSelector((state) => state.user.currentUser);
 
   const { data: userData, isSuccess } = useProfile();
+  const { data: creditData, isSuccess: isCreditSuccess } = useCredit();
   const { data: queueCount } = useQueueCount();
   const { mutateAsync: fetchNotifications, isPending: isLoadingNotifications } =
     useNotifList();
@@ -61,9 +67,20 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     if (isSuccess && userData?.data) {
-      dispatch(setUser(userData.data));
+      // preserve existing subscription on store when updating profile
+      const merged = {
+        ...userData.data,
+        subscription: (currentUser as any)?.subscription ?? userData.data.subscription ?? null,
+      };
+      dispatch(setUser(merged));
     }
   }, [isSuccess, userData, dispatch]);
+
+  useEffect(() => {
+    if (isCreditSuccess && creditData?.data) {
+      dispatch(setUserSubscription(creditData.data));
+    }
+  }, [isCreditSuccess, creditData, dispatch]);
 
   // Track previous unread count for detecting new notifications
   const prevUnreadCountRef = React.useRef<number>(unreadCount);
@@ -312,29 +329,74 @@ const Navbar: React.FC = () => {
 
       {/* Profile */}
       <Tooltip title="پروفایل" arrow>
-        <IconButton
-          onClick={handleProfileMenuOpen}
-          sx={{
-            ml: 1,
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.primary.main, 0.1),
-            },
-          }}
-        >
-          <Avatar
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Subscription status button */}
+          {(() => {
+            const credit = currentUser?.subscription?.ai_credit ?? 0;
+            const active = credit > 0;
+
+            return (
+              <Button
+                size="small"
+                onClick={() => navigate("/pricing")}
+                variant="contained"
+                sx={{
+                  textTransform: "none",
+                  backgroundColor: active
+                    ? theme.palette.success?.main || "#00B894"
+                    : theme.palette.error?.main || "#D63031",
+                  color: theme.palette.success?.contrastText || "#fff",
+                  px: 1.25,
+                  py: 0.5,
+                  minWidth: 80,
+                  "&:hover": {
+                    backgroundColor: active
+                      ? theme.palette.success?.dark || undefined
+                      : theme.palette.error?.dark || undefined,
+                  },
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    bgcolor: active ? "white" : "white",
+                    boxShadow: `0 0 0 6px ${active ? alpha(theme.palette.success.main, 0.12) : alpha(theme.palette.error.main, 0.12)}`,
+                  }}
+                />
+                {active ? "فعال" : "غیرفعال"}
+              </Button>
+            );
+          })()}
+
+          <IconButton
+            onClick={handleProfileMenuOpen}
             sx={{
-              width: 36,
-              height: 36,
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-              fontSize: "1rem",
-              fontWeight: "bold",
+              ml: 1,
+              "&:hover": {
+                backgroundColor: alpha(theme.palette.primary.main, 0.1),
+              },
             }}
           >
-            {currentUser?.first_name?.[0]?.toUpperCase() ||
-              currentUser?.email?.[0]?.toUpperCase() ||
-              "U"}
-          </Avatar>
-        </IconButton>
+            <Avatar
+              sx={{
+                width: 36,
+                height: 36,
+                background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                fontSize: "1rem",
+                fontWeight: "bold",
+              }}
+            >
+              {currentUser?.first_name?.[0]?.toUpperCase() ||
+                currentUser?.email?.[0]?.toUpperCase() ||
+                "U"}
+            </Avatar>
+          </IconButton>
+        </Box>
       </Tooltip>
 
       {/* Profile Menu */}

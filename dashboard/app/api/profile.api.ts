@@ -1,6 +1,9 @@
 import { authorizedGet, authorizedPatch } from "~/utils/authorizeReq";
 import { apiUtils } from "./apiUtils.api";
-import type { IUserProfile } from "~/types/interfaces/profile.interface";
+import type {
+  IUserCredit,
+  IUserProfile,
+} from "~/types/interfaces/profile.interface";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const getProfile = async () => {
@@ -10,11 +13,13 @@ const getProfile = async () => {
   });
 };
 
-const updateProfile = async (data: Partial<Pick<IUserProfile, 'email' | 'first_name' | 'last_name'>>) => {
+const updateProfile = async (
+  data: Partial<Pick<IUserProfile, "email" | "first_name" | "last_name">>
+) => {
   return apiUtils<IUserProfile>(async () => {
     // Build query parameters only for provided fields
     const queryParams: string[] = [];
-    
+
     if (data.email !== undefined) {
       queryParams.push(`email=${encodeURIComponent(data.email)}`);
     }
@@ -24,9 +29,16 @@ const updateProfile = async (data: Partial<Pick<IUserProfile, 'email' | 'first_n
     if (data.last_name !== undefined) {
       queryParams.push(`last_name=${encodeURIComponent(data.last_name)}`);
     }
-    
-    const queryString = queryParams.join('&');
+
+    const queryString = queryParams.join("&");
     const response = await authorizedPatch(`/v1/users/profile?${queryString}`);
+    return response.data;
+  });
+};
+
+const getUserCredit = async () => {
+  return apiUtils<IUserCredit>(async () => {
+    const response = await authorizedGet(`/v1/users/credit`);
     return response.data;
   });
 };
@@ -43,17 +55,27 @@ export const useProfile = () => {
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: updateProfile,
     onSuccess: (data) => {
       // Invalidate and refetch profile data
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      
+
       // Optionally update the cache directly
       if (data?.data) {
         queryClient.setQueryData(["profile"], data);
       }
     },
+  });
+};
+
+export const useCredit = () => {
+  return useQuery({
+    queryKey: ["credits"],
+    queryFn: () => getUserCredit(),
+    enabled: true,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: false,
   });
 };

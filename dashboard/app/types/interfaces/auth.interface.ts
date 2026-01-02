@@ -23,9 +23,13 @@ export interface ILoginWithPasswordResponse {
   access_token: string;
 }
 
+import type { IUserCredit } from "~/types/interfaces/profile.interface";
+
 export interface ICurrentUserResponse {
   email: string;
   phone?: string;
   first_name?: string;
   last_name?: string;
+  // optional subscription/credit info fetched separately
+  subscription?: IUserCredit | null;
 }

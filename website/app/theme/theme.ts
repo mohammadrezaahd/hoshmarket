@@ -211,6 +211,37 @@ export const theme = createTheme({
         },
       },
     },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 6,
+          '&.MuiChip-colorSuccess': {
+            backgroundColor: palette.success.main,
+            color: palette.success.contrastText,
+            '& .MuiChip-deleteIcon, & .MuiChip-icon': {
+              color: palette.success.contrastText,
+            },
+          },
+          '&.MuiChip-colorWarning': {
+            backgroundColor: palette.warning.main,
+            color: palette.warning.contrastText,
+            '& .MuiChip-deleteIcon, & .MuiChip-icon': {
+              color: palette.warning.contrastText,
+            },
+          },
+          '&.MuiChip-outlinedSuccess': {
+            borderColor: palette.success.main,
+            color: palette.success.main,
+            backgroundColor: 'transparent',
+          },
+          '&.MuiChip-outlinedWarning': {
+            borderColor: palette.warning.main,
+            color: palette.warning.main,
+            backgroundColor: 'transparent',
+          },
+        },
+      },
+    },
   },
 });
 
