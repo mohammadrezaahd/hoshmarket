@@ -6,23 +6,13 @@ import {
   TextField,
   IconButton,
   Button,
-  Divider,
   useTheme,
   Alert,
   Skeleton,
   Chip,
-  Avatar,
 } from "@mui/material";
 
-import {
-  CloseIcon,
-  LockIcon,
-  AttachIcon,
-  ExclamationIcon,
-  SendIcon,
-  ClockIcon,
-  BusinessIcon,
-} from "../icons/IconComponents";
+import { CloseIcon, AttachIcon, SendIcon } from "../icons/IconComponents";
 
 import { useSnackbar } from "notistack";
 import { useTicket, useNewMessage, useCloseTicket } from "~/api/ticketing.api";
@@ -32,7 +22,6 @@ import type {
   ITicketMessage,
 } from "~/types/interfaces/ticketing.interface";
 import type { IAddMessage } from "~/types/dtos/ticketing.dto";
-import { TicketPriority } from "~/types/dtos/ticketing.dto";
 import { TicketStatus } from "~/types/interfaces/ticketing.interface";
 import TicketMessage from "./TicketMessage";
 import TicketFileUpload from "./TicketFileUpload";
@@ -339,7 +328,6 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
               <Chip
-                icon={<ExclamationIcon />}
                 label={getPriorityText(ticket.priority)}
                 size="small"
                 sx={{
@@ -370,7 +358,6 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
               />
 
               <Chip
-                icon={<BusinessIcon />}
                 label={ticket.department?.name || "نامشخص"}
                 size="small"
                 sx={{
@@ -387,7 +374,6 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
               />
 
               <Chip
-                icon={<ClockIcon />}
                 label={new Date(ticket.created_at).toLocaleDateString("fa-IR")}
                 size="small"
                 sx={{
@@ -411,7 +397,6 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
                 variant="outlined"
                 size="small"
                 color="error"
-                startIcon={<LockIcon />}
                 onClick={handleCloseTicket}
                 disabled={closeTicketMutation.isPending}
                 sx={{ mr: 1 }}
@@ -511,7 +496,6 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
                 !replyForm.watch("message")?.trim() ||
                 newMessageMutation.isPending
               }
-              startIcon={<SendIcon />}
             >
               {newMessageMutation.isPending ? "در حال ارسال..." : "ارسال"}
             </Button>

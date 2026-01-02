@@ -14,7 +14,6 @@ import {
   Grid,
 } from "@mui/material";
 import TransferSources from "~/components/transfer/Sources";
-import TransferResult from "~/components/transfer/Result";
 import CategorySelector from "~/components/templates/CategorySelector";
 import { useCreateTransfer } from "~/api/transfer.api";
 import { useCategoriesList } from "~/api/categories.api";
@@ -22,15 +21,16 @@ import type { TransferSource, IPostTransfer } from "~/types/dtos/transfer.dto";
 import type { ICategoryList } from "~/types/interfaces/categories.interface";
 import { ApiStatus } from "~/types";
 import { useSnackbar } from "notistack";
-
 import { AddIcon, CloseIcon } from "~/components/icons/IconComponents";
 import AppLayout from "~/components/layout/AppLayout";
 import { TitleCard } from "~/components/common";
 import { useRefreshQueueCount } from "~/hooks/useRefreshQueueCount";
+import { useNavigate } from "react-router";
 
 const NewTransferPage = () => {
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const refreshQueueCount = useRefreshQueueCount();
   const { mutateAsync: createTransferMutate, isPending: isCreating } =
     useCreateTransfer();
@@ -40,9 +40,6 @@ const NewTransferPage = () => {
   );
   const [urls, setUrls] = useState<string[]>([""]);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
-  const [successPayload, setSuccessPayload] = useState<{
-    message?: string;
-  } | null>(null);
 
   // Category state
   const [selectedCategory, setSelectedCategory] =
@@ -82,10 +79,10 @@ const NewTransferPage = () => {
         enqueueSnackbar(res.message ?? "عملیات با موفقیت انجام شد", {
           variant: "success",
         });
-        setSuccessPayload({ message: res.message });
-        
+
         // Refresh queue count after successful transfer creation
         refreshQueueCount();
+        navigate("/transfers/list");
       } else {
         enqueueSnackbar(res.message ?? "خطا در انجام عملیات", {
           variant: "error",
@@ -96,23 +93,6 @@ const NewTransferPage = () => {
       enqueueSnackbar("خطا در ارتباط با سرور", { variant: "error" });
     }
   };
-
-  const handleCreateAnother = () => {
-    setSuccessPayload(null);
-    setSelectedSource(null);
-    setUrls([""]);
-    setSelectedCategory(null);
-    setAttemptedSubmit(false);
-  };
-
-  if (successPayload) {
-    return (
-      <TransferResult
-        message={successPayload.message}
-        onCreateAnother={handleCreateAnother}
-      />
-    );
-  }
 
   return (
     <AppLayout title="انتقال محصول">

@@ -162,7 +162,7 @@ const TicketingSidebar: React.FC<TicketingSidebarProps> = ({
           variant="contained"
           startIcon={<AddIcon />}
           onClick={onNewTicketClick}
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, gap: 1.5 }}
         >
           تیکت جدید
         </Button>
@@ -188,10 +188,13 @@ const TicketingSidebar: React.FC<TicketingSidebarProps> = ({
           variant="outlined"
           onClick={() => setFiltersOpen(!filtersOpen)}
           endIcon={filtersOpen ? <CompressIcon /> : <ExpandIcon />}
-          startIcon={<FilterIcon />}
           size="small"
+          sx={{ justifyContent: "space-between" }}
         >
-          فیلترها
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            <FilterIcon />
+            فیلترها
+          </Box>
         </Button>
 
         {/* Filters */}

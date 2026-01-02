@@ -8,6 +8,7 @@ import {
   Skeleton,
   IconButton,
   Tooltip,
+  Button,
 } from "@mui/material";
 import { CircleCheckIcon } from "~/components/icons/IconComponents";
 import type {
@@ -59,7 +60,7 @@ const NotificationsMenu: React.FC<Props> = ({
     onMarkAllAsRead();
   };
 
-  const hasUnreadNotifs = notifList.some(notif => notif.status === "UNREAD");
+  const hasUnreadNotifs = notifList.some((notif) => notif.status === "UNREAD");
 
   return (
     <Menu
@@ -79,25 +80,32 @@ const NotificationsMenu: React.FC<Props> = ({
         },
       }}
     >
-      <Box sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <Box
+        sx={{
+          px: 2,
+          py: 1.5,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <Typography variant="h6" sx={{ fontWeight: "bold" }}>
           اعلان‌ها
         </Typography>
         {hasUnreadNotifs && !loading && (
-          <Tooltip title="خواندن همه" arrow>
-            <IconButton
-              size="small"
-              onClick={handleMarkAllAsRead}
-              sx={{
-                color: "primary.main",
-                "&:hover": {
-                  backgroundColor: "primary.light",
-                },
-              }}
-            >
-              <CircleCheckIcon size="small" />
-            </IconButton>
-          </Tooltip>
+          <Button
+            size="small"
+            onClick={handleMarkAllAsRead}
+            sx={{
+              textTransform: "none",
+              color: "primary.main",
+              "&:hover": {
+                backgroundColor: "primary.light",
+              },
+            }}
+          >
+            خواندن همه
+          </Button>
         )}
       </Box>
       <Divider />
@@ -106,7 +114,12 @@ const NotificationsMenu: React.FC<Props> = ({
           {[1, 2, 3].map((i) => (
             <Box key={i} sx={{ mb: 2 }}>
               <Skeleton variant="text" width="70%" height={24} />
-              <Skeleton variant="text" width="50%" height={20} sx={{ mt: 0.5 }} />
+              <Skeleton
+                variant="text"
+                width="50%"
+                height={20}
+                sx={{ mt: 0.5 }}
+              />
             </Box>
           ))}
         </Box>
@@ -132,7 +145,8 @@ const NotificationsMenu: React.FC<Props> = ({
                   notif.status === "READ" ? "action.hover" : "transparent",
                 opacity: notif.status === "READ" ? 0.6 : 1,
                 position: "relative",
-                textDecoration: notif.status === "READ" ? "line-through" : "none",
+                textDecoration:
+                  notif.status === "READ" ? "line-through" : "none",
                 "&:hover": {
                   opacity: notif.status === "READ" ? 0.7 : 1,
                 },

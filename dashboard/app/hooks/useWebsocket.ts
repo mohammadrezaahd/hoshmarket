@@ -19,7 +19,6 @@ export function useLiveWebSocket<TState, TMessage>({
   const reconnectTimeoutRef = useRef<number | null>(null);
   const manuallyClosedRef = useRef(false);
 
-  // ✅ جلوگیری از reconnect به‌خاطر تغییر reference
   const onMessageRef = useRef(onMessage);
 
   useEffect(() => {
@@ -59,7 +58,6 @@ export function useLiveWebSocket<TState, TMessage>({
       };
 
       ws.onerror = () => {
-        // ✅ اطمینان از trigger شدن onclose
         ws.close();
       };
     };

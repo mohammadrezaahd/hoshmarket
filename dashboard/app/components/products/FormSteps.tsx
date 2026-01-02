@@ -45,7 +45,8 @@ const Connector = styled(StepConnector)(({ theme }) => ({
   [`& .${stepConnectorClasses.line}`]: {
     borderTopWidth: 2,
     borderRadius: 1,
-    borderColor: theme.palette.divider,
+      borderColor: theme.palette.divider,
+      zIndex: 0,
   },
   [`&.${stepConnectorClasses.active} .${stepConnectorClasses.line}`]: {
     borderColor: theme.palette.primary.main,
@@ -76,21 +77,34 @@ const CustomStepIcon = styled(StepIcon)(({ theme }) => ({
 const StepIconComponent = (props: any) => {
   const { active, completed, icon, hasError, hasBeenVisited } = props;
 
-  const iconSize = { xs: 20, sm: 24, md: 28 };
+  const theme = useTheme();
+  const size = 28;
+
+  const wrapperStyle: React.CSSProperties = {
+    width: size,
+    height: size,
+    borderRadius: "50%",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.palette.background.paper,
+    zIndex: 2,
+    boxSizing: "content-box",
+  };
+
+  let iconElement = (
+    <RadioButtonIcon style={{ color: (theme.palette.grey as any)[400] }} />
+  );
 
   if (completed && !hasError) {
-    return <CircleCheckIcon style={{ color: "success.main" }} />;
+    iconElement = <CircleCheckIcon style={{ color: theme.palette.success.main }} />;
+  } else if (hasBeenVisited && hasError) {
+    iconElement = <ErrorIcon style={{ color: theme.palette.error.main }} />;
+  } else if (active) {
+    iconElement = <RadioButtonIcon style={{ color: theme.palette.primary.main }} />;
   }
 
-  if (hasBeenVisited && hasError) {
-    return <ErrorIcon style={{ color: "error.main" }} />;
-  }
-
-  if (active) {
-    return <RadioButtonIcon style={{ color: "primary.main" }} />;
-  }
-
-  return <RadioButtonIcon style={{ color: "grey.400" }} />;
+  return <span style={wrapperStyle}>{iconElement}</span>;
 };
 
 const FormSteps: React.FC<FormStepsProps> = ({

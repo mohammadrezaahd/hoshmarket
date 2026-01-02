@@ -117,20 +117,19 @@ const TransferList: React.FC = () => {
     title: "",
   });
 
-  // Initial load
+  // Fetch when paging, limit or filters change
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getList({
-          page: 1,
-          limit: 10,
-          status_filter: undefined,
-          source: undefined,
+          page,
+          limit,
+          status_filter: statusFilter,
+          source: sourceFilter,
         });
 
         if (res.status === ApiStatus.SUCCEEDED && res.data) {
           setItems(res.data.list || []);
-          setTotalItems(res.data.list?.length || 0);
           setMetaData(res.meta_data || null);
           setTotalItems(
             res.meta_data?.total_items ?? res.data.list?.length ?? 0
@@ -148,44 +147,7 @@ const TransferList: React.FC = () => {
     };
 
     fetchData();
-  }, []);
-
-  // Fetch when filters change
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getList({
-          page: 1,
-          limit,
-          status_filter: statusFilter,
-          source: sourceFilter,
-        });
-
-        if (res.status === ApiStatus.SUCCEEDED && res.data) {
-          setItems(res.data.list || []);
-          setTotalItems(res.data.list?.length || 0);
-          setMetaData(res.meta_data || null);
-          setTotalItems(
-            res.meta_data?.total_items ?? res.data.list?.length ?? 0
-          );
-        } else {
-          enqueueSnackbar(res.message || "خطا در دریافت لیست انتقالات", {
-            variant: "error",
-          });
-        }
-      } catch (err: any) {
-        enqueueSnackbar(err.message || "خطا در دریافت لیست انتقالات", {
-          variant: "error",
-        });
-      }
-    };
-
-    // فقط وقتی filter واقعا تغییر کرده باشد
-    if (statusFilter !== undefined || sourceFilter !== undefined) {
-      setPage(1); // Reset to page 1
-      fetchData();
-    }
-  }, [statusFilter, sourceFilter, limit, getList, enqueueSnackbar]);
+  }, [page, limit, statusFilter, sourceFilter, getList, enqueueSnackbar]);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) =>
     setPage(value);
@@ -489,11 +451,12 @@ const TransferList: React.FC = () => {
                   <Select
                     value={statusFilter ?? ""}
                     label="وضعیت"
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setStatusFilter(
                         e.target.value ? String(e.target.value) : undefined
-                      )
-                    }
+                      );
+                      setPage(1);
+                    }}
                     sx={{ minWidth: 140 }}
                   >
                     <MenuItem value="">همه</MenuItem>
@@ -513,11 +476,12 @@ const TransferList: React.FC = () => {
                   <Select
                     value={sourceFilter ?? ""}
                     label="منبع"
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setSourceFilter(
                         e.target.value ? String(e.target.value) : undefined
-                      )
-                    }
+                      );
+                      setPage(1);
+                    }}
                     sx={{ minWidth: 140 }}
                   >
                     <MenuItem value="">همه</MenuItem>
@@ -561,7 +525,13 @@ const TransferList: React.FC = () => {
               <Table sx={{ minWidth: 1200 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: 50, fontWeight: "bold", textAlign: "center" }}>
+                    <TableCell
+                      sx={{
+                        width: 50,
+                        fontWeight: "bold",
+                        textAlign: "center",
+                      }}
+                    >
                       شناسه
                     </TableCell>
                     <TableCell sx={{ width: 64, textAlign: "center" }}>
@@ -860,7 +830,7 @@ const TransferList: React.FC = () => {
             </TableContainer>
 
             {total > 0 && totalPages > 1 && (
-              <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
                 <PaginationControls
                   currentPage={page}
                   totalPages={totalPages}
