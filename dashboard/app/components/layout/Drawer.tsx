@@ -41,7 +41,8 @@ interface MenuItem {
   id: string;
   title: string;
   path?: string;
-  icon: ComponentType<any>;
+  icon?: ComponentType<any>;
+  important?: boolean;
   expandable?: boolean;
   subItems?: SubMenuItem[];
 }
@@ -93,13 +94,9 @@ const menuItems: MenuItem[] = [
         title: "افزودن محصول جدید",
         path: "/products/new",
       },
-      {
-        id: "quick-product",
-        title: "ساخت محصول سریع !",
-        path: "/products/quick",
-      },
     ],
   },
+
   {
     id: "transfer",
     title: "اننتقال محصول",
@@ -117,6 +114,12 @@ const menuItems: MenuItem[] = [
         path: "/transfers/list",
       },
     ],
+  },
+  {
+    id: "quick-product",
+    title: "ساخت محصول سریع !",
+    path: "/products/quick",
+    important: true,
   },
 ];
 
@@ -139,12 +142,13 @@ const Drawer = ({
 }: DrawerProps) => {
   const theme = useTheme();
   const location = useLocation();
-  
+
   // Check if screen size is md or smaller (900px or less)
-  const isMdOrSmaller = useMediaQuery(theme.breakpoints.down('lg'));
-  
-  // Use auto-collapsed mode on md or smaller screens
-  const effectiveCollapsed = desktopCollapsed || isMdOrSmaller;
+  const isMdOrSmaller = useMediaQuery(theme.breakpoints.down("lg"));
+
+  // Collapse only when desktopCollapsed is true and we're NOT on small screens.
+  // On mobile (isMdOrSmaller) we want the temporary drawer to show full items.
+  const collapsed = desktopCollapsed && !isMdOrSmaller;
 
   // Helper function to check if a path is active
   const isPathActive = (path: string) => {
@@ -167,7 +171,8 @@ const Drawer = ({
 
   // Toggle a menu by id, respecting collapsed mode
   const toggleMenu = (itemId: string) => {
-    if (effectiveCollapsed) return;
+    // Prevent toggling only when desktop is explicitly collapsed.
+    if (collapsed) return;
     setOpenState((s) => ({ ...s, [itemId]: !s[itemId] }));
   };
 
@@ -193,20 +198,20 @@ const Drawer = ({
   const drawer = (
     <Box>
       <Toolbar
-        sx={{ justifyContent: effectiveCollapsed ? "center" : "space-between" }}
+        sx={{ justifyContent: collapsed ? "center" : "space-between" }}
       >
-        {!effectiveCollapsed && (
+        {!collapsed && (
           <Typography variant="h6" component="div" sx={{ fontWeight: "bold" }}>
             منو
           </Typography>
         )}
-        <IconButton
+          <IconButton
           onClick={handleDesktopToggle}
           sx={{
             display: {
               xs: "none",
               sm: "flex",
-              marginLeft: effectiveCollapsed ? 0 : "-5px",
+              marginLeft: collapsed ? 0 : "-5px",
               cursor: "pointer",
               ":hover": { color: theme.palette.primary.main },
             },
@@ -216,7 +221,7 @@ const Drawer = ({
         </IconButton>
       </Toolbar>
       <Divider />
-      <List>
+      <List sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {menuItems.map((item) => {
           const ItemIcon = item.icon;
           const isActive = isMenuItemActive(item);
@@ -232,36 +237,80 @@ const Drawer = ({
                     item.expandable ? () => toggleMenu(item.id) : undefined
                   }
                   sx={{
-                    backgroundColor: isActive
-                      ? theme.palette.action.selected
-                      : "transparent",
+                    backgroundColor: item.important
+                      ? theme.palette.primary.main
+                      : isActive && !item.important
+                        ? theme.palette.action.selected
+                        : "transparent",
+                    color: item.important
+                      ? theme.palette.common.white
+                      : "inherit",
+                    borderRadius: item.important ? 2 : 0,
+                    border: item.important
+                      ? `1px solid ${theme.palette.primary.main}`
+                      : "none",
+                    px: item.important ? 2.5 : 1,
+                    py: item.important ? 0.7 : 0,
+                    margin: item.important ? "10px 8px" : "4px",
+                    boxShadow: item.important
+                      ? "0 6px 18px rgba(16,24,40,0.06)"
+                      : "none",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    transition: "all 150ms ease",
                     "&:hover": {
-                      backgroundColor: theme.palette.action.hover,
+                      // Hover: become bordered / transparent and show primary text
+                      backgroundColor: item.important
+                        ? "transparent"
+                        : theme.palette.action.hover,
+                      color: item.important
+                        ? theme.palette.common.black
+                        : undefined,
+                      boxShadow: item.important
+                        ? "0 4px 12px rgba(16,24,40,0.04)"
+                        : undefined,
                     },
-                    margin: "4px",
+                    "&:hover .MuiListItemText-primary": {
+                      color: item.important
+                        ? theme.palette.common.black
+                        : undefined,
+                    },
                   }}
                 >
                   <ListItemIcon
                     sx={{
-                      minWidth: "auto",
-                      ml: effectiveCollapsed ? 0 : 1,
+                      minWidth: ItemIcon ? "auto" : 0,
+                      ml: collapsed ? 0 : 1,
                       justifyContent: "center",
                       color: isActive ? theme.palette.primary.main : "inherit",
+                      // keep icon space compact when there is no icon
+                      width: ItemIcon ? undefined : 0,
+                      overflow: "hidden",
                     }}
                   >
-                    <ItemIcon />
+                    {ItemIcon ? <ItemIcon /> : null}
                   </ListItemIcon>
-                  {!effectiveCollapsed && (
+                  {!collapsed && (
                     <>
                       <ListItemText
                         primary={item.title}
                         sx={{
                           textAlign: "start",
+                          ml: item.important ? 1 : 0,
                           "& .MuiListItemText-primary": {
-                            color: isActive
-                              ? theme.palette.primary.main
-                              : "inherit",
-                            fontWeight: isActive ? "bold" : "normal",
+                            color: item.important
+                              ? isActive
+                                ? theme.palette.primary.contrastText
+                                : theme.palette.primary.main
+                              : isActive
+                                ? theme.palette.primary.main
+                                : "inherit",
+                            fontWeight: item.important
+                              ? 700
+                              : isActive
+                                ? 700
+                                : 500,
+                            whiteSpace: "nowrap",
                           },
                         }}
                       />
@@ -277,7 +326,7 @@ const Drawer = ({
               </ListItem>
 
               {/* Sub Items */}
-              {item.expandable && item.subItems && !effectiveCollapsed && (
+              {item.expandable && item.subItems && !collapsed && (
                 <Collapse in={isOpen} timeout="auto" unmountOnExit>
                   <List
                     component="div"

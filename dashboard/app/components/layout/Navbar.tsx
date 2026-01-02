@@ -23,6 +23,7 @@ import { useAppDispatch, useAppSelector } from "~/store/hooks";
 import { setUser, clearUser } from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
 import { useQueueCount, useQueueListSocket } from "~/api/queue.api";
+import { useRefreshQueueCount } from "~/hooks/useRefreshQueueCount";
 import {
   useNotifList,
   useReadNotif,
@@ -52,6 +53,7 @@ const Navbar: React.FC = () => {
   const { mutateAsync: markAsRead } = useReadNotif();
   const { mutateAsync: markAllAsRead } = useReadNotifAll();
   const { unreadCount } = useNotifCountSocket(true);
+  const refreshQueueCount = useRefreshQueueCount();
 
   useEffect(() => {
     console.log(unreadCount);
@@ -158,6 +160,7 @@ const Navbar: React.FC = () => {
 
   const handleQueueClose = () => {
     setQueueAnchorEl(null);
+    refreshQueueCount();
   };
 
   // use centralized socket hook for queue list while dropdown is open
@@ -253,7 +256,7 @@ const Navbar: React.FC = () => {
       </Tooltip>
 
       {/* Help */}
-      <Tooltip title="راهنما" arrow>
+      {/* <Tooltip title="راهنما" arrow>
         <IconButton
           onClick={() => navigate("/help")}
           sx={{
@@ -265,7 +268,7 @@ const Navbar: React.FC = () => {
         >
           <HelpIcon />
         </IconButton>
-      </Tooltip>
+      </Tooltip> */}
 
       {/* Support */}
       <Tooltip title="پشتیبانی" arrow>
@@ -299,7 +302,7 @@ const Navbar: React.FC = () => {
                 ? queueCount.data.count
                 : null
             }
-            color="primary"
+            color="error"
             max={99}
           >
             <QueueIcon />
