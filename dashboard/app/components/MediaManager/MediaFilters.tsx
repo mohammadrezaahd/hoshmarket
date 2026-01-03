@@ -90,13 +90,14 @@ const MediaFilters: React.FC<MediaFiltersProps> = ({
             onChange={handleTypeChange}
             label="نوع فایل"
             MenuProps={{
-              disablePortal: true,
+              disablePortal: false,
               PaperProps: {
                 sx: {
                   borderRadius: 2,
                   mt: 1,
                   maxHeight: 240,
                   overflow: "auto",
+                  zIndex: 9999,
                 },
               },
               anchorOrigin: {
@@ -106,13 +107,6 @@ const MediaFilters: React.FC<MediaFiltersProps> = ({
               transformOrigin: {
                 vertical: "top",
                 horizontal: "left",
-              },
-              slotProps: {
-                backdrop: {
-                  sx: {
-                    backgroundColor: "transparent",
-                  },
-                },
               },
             }}
           >

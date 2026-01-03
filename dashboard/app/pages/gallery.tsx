@@ -17,6 +17,7 @@ import { MediaManager } from "~/components/MediaManager";
 import { useImages, useRemoveImage } from "~/api/gallery.api";
 import { ApiStatus } from "~/types";
 import type { IGallery } from "~/types/interfaces/gallery.interface";
+import type { IMediaQueryParams } from "~/types";
 import { fixImageUrl } from "~/utils/imageUtils";
 import TitleCard from "~/components/common/TitleCard";
 
@@ -36,8 +37,15 @@ const GalleryPage = () => {
   const [error, setError] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(12);
-  const [apiSearchValue, setApiSearchValue] = useState<string>(""); // فقط مقدار برای API
   const [editImageId, setEditImageId] = useState<number | null>(null);
+  
+  // Filters state
+  const [filters, setFilters] = useState<IMediaQueryParams>({
+    page: 1,
+    pageSize: 12,
+    search: "",
+    type: "none",
+  });
 
   // Delete confirmation dialog state
   const [deleteDialog, setDeleteDialog] = useState<{
@@ -62,7 +70,9 @@ const GalleryPage = () => {
   } = useImages({
     skip,
     limit: pageSize,
-    search_title: apiSearchValue,
+    search_title: filters.search || "",
+    packaging: filters.type === "none" ? true : filters.type === "packaging",
+    product: filters.type === "none" ? true : filters.type === "product",
   });
 
   // Delete mutation
@@ -80,6 +90,7 @@ const GalleryPage = () => {
     const newPageSize = event.target.value as number;
     setPageSize(newPageSize);
     setPage(1);
+    setFilters({ ...filters, pageSize: newPageSize, page: 1 });
   };
 
   const handleUploadSuccess = () => {
@@ -90,9 +101,12 @@ const GalleryPage = () => {
     setError(errorMessage);
   };
 
-  const handleSearchChange = (searchValue: string) => {
-    setApiSearchValue(searchValue);
-    setPage(1); // Reset to first page when searching
+  const handleFiltersChange = (newFilters: IMediaQueryParams) => {
+    setFilters(newFilters);
+    setPage(newFilters.page || 1);
+    if (newFilters.pageSize) {
+      setPageSize(newFilters.pageSize);
+    }
   };
 
   const handleEdit = (id: string) => {
@@ -191,11 +205,10 @@ const GalleryPage = () => {
             onUploadError={handleUploadError}
             editImageId={editImageId}
             onEditComplete={handleEditComplete}
-            // SearchInput props
-            onSearchChange={handleSearchChange}
-            searchLabel="جستجو در عناوین"
-            searchPlaceholder="عنوان تصویر را جستجو کنید..."
-            showSearch={true}
+            // Filter props
+            showFilters={true}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
           />
         )}
 
@@ -218,11 +231,10 @@ const GalleryPage = () => {
             onUploadError={handleUploadError}
             editImageId={editImageId}
             onEditComplete={handleEditComplete}
-            // SearchInput props
-            onSearchChange={handleSearchChange}
-            searchLabel="جستجو در عناوین"
-            searchPlaceholder="عنوان تصویر را جستجو کنید..."
-            showSearch={true}
+            // Filter props
+            showFilters={true}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
           />
         )}
       </Container>

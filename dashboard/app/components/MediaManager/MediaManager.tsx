@@ -2,9 +2,10 @@ import React from "react";
 import { Box } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material";
 import MediaGrid from "./MediaGrid";
+import MediaFilters from "./MediaFilters";
 import { FileUpload } from "./";
-import { SearchInput } from "~/components/common";
 import type { MediaType } from "./FileUpload";
+import type { IMediaQueryParams } from "~/types";
 
 // Media file interface
 interface IMediaFile {
@@ -42,11 +43,10 @@ interface MediaManagerProps {
   editImageId?: number | null;
   onEditComplete?: () => void;
   allowMultiple?: boolean;
-  // SearchInput props
-  onSearchChange?: (searchValue: string) => void;
-  searchPlaceholder?: string;
-  searchLabel?: string;
-  showSearch?: boolean;
+  // Filter props
+  showFilters?: boolean;
+  filters?: IMediaQueryParams;
+  onFiltersChange?: (filters: IMediaQueryParams) => void;
   defaultType?: MediaType;
 }
 
@@ -73,11 +73,10 @@ const MediaManager: React.FC<MediaManagerProps> = ({
   editImageId = null,
   onEditComplete,
   allowMultiple = false,
-  // SearchInput props
-  onSearchChange,
-  searchPlaceholder = "جستجو در عناوین...",
-  searchLabel = "جستجو",
-  showSearch = true,
+  // Filter props
+  showFilters = false,
+  filters,
+  onFiltersChange,
   defaultType,
 }) => {
   return (
@@ -95,13 +94,12 @@ const MediaManager: React.FC<MediaManagerProps> = ({
         />
       )}
 
-      {/* Search Filter */}
-      {showSearch && onSearchChange && (
-        <SearchInput
-          onSearchChange={onSearchChange}
-          label={searchLabel}
-          placeholder={searchPlaceholder}
-          sx={{ mb: 2, maxWidth: 300 }}
+      {/* Media Filters */}
+      {showFilters && filters && onFiltersChange && (
+        <MediaFilters
+          filters={filters}
+          onFiltersChange={onFiltersChange}
+          totalItems={totalItems}
         />
       )}
 

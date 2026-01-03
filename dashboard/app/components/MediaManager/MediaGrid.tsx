@@ -300,7 +300,8 @@ const MediaGrid: React.FC<MediaGridProps> = ({
                       left: 0,
                       width: "100%",
                       height: "100%",
-                      objectFit: "cover",
+                      objectFit: "scale-down",
+                      background: "white",
                     }}
                     onError={(e) => {
                       // Fallback to icon if image fails to load

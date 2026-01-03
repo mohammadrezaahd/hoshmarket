@@ -10,6 +10,7 @@ export interface IMediaFile {
 
 export interface IMediaQueryParams {
   page?: number;
+  pageSize?: number;
   limit?: number;
   search?: string;
   type?: "packaging" | "product" | "none";
