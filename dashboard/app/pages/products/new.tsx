@@ -40,7 +40,6 @@ import { useAttrs, useAttr } from "~/api/attributes.api";
 import { useSelectedImages } from "~/api/gallery.api";
 import {
   useProductDetailsValidation,
-  useProductAttributesValidation,
   useProductInfoValidation,
   validateAllDetailsTemplates,
   validateAllAttributesTemplates,
@@ -63,7 +62,6 @@ import type { ICategoryAttr } from "~/types/interfaces/attributes.interface";
 import type { ICategoryDetails } from "~/types/interfaces/details.interface";
 import { TitleCard } from "~/components/common";
 import { useAddProduct } from "~/api/product.api";
-import ResultPage from "~/components/products/ResultPage";
 
 export function meta() {
   return [
@@ -83,13 +81,12 @@ const NewProductPage = () => {
   const [selectedCategory, setSelectedCategoryLocal] =
     useState<ICategoryList | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showResultPage, setShowResultPage] = useState(false);
 
   // Category queries
   const { data: categoriesData, isLoading: categoriesLoading } =
     useCategoriesList(categorySearch, 1, 50);
 
-  // استخراج categories و suggestions از response
+  // Extract categories و suggestions از response
   const categories = categoriesData?.data?.items || [];
   const suggestedCategories = categoriesData?.data?.suugest || [];
   const {
@@ -776,7 +773,8 @@ const NewProductPage = () => {
         });
         // Show result page after a short delay
         setTimeout(() => {
-          setShowResultPage(true);
+          navigate("/products/list");
+
           setIsSubmitting(false);
         }, 500);
       } else {
@@ -964,6 +962,7 @@ const NewProductPage = () => {
             <ProductInfoForm
               title={productState.productTitle}
               description={productState.productDescription}
+              categoryId={selectedCategory?.id}
               onTitleChange={(title) => dispatch(setProductTitle(title))}
               onDescriptionChange={(description) =>
                 dispatch(setProductDescription(description))
@@ -1001,79 +1000,73 @@ const NewProductPage = () => {
     <Layout title="افزودن محصول جدید">
       <Container maxWidth="lg">
         <Box sx={{ p: 3 }}>
-          {showResultPage ? (
-            <ResultPage />
-          ) : (
-            <>
-              <TitleCard
-                title="ایجاد محصول جدید"
-                description="محصول جدید را بر اساس قالب‌های انتخاب شده ایجاد کنید."
-              />
-              <FormSteps
-                currentStep={productState.currentStep}
-                stepValidationErrors={productState.stepValidationErrors}
-              />
+          <TitleCard
+            title="ایجاد محصول جدید"
+            description="محصول جدید را بر اساس قالب‌های انتخاب شده ایجاد کنید."
+          />
+          <FormSteps
+            currentStep={productState.currentStep}
+            stepValidationErrors={productState.stepValidationErrors}
+          />
 
-              {renderCurrentStep()}
+          {renderCurrentStep()}
 
-              {productState.finalProductData && !isSubmitting && (
-                <Alert severity="success" sx={{ mt: 3 }}>
-                  <Typography variant="body2">
-                    محصول با موفقیت ایجاد شد! داده‌های نهایی در کنسول مرورگر
-                    قابل مشاهده است.
-                  </Typography>
-                </Alert>
-              )}
+          {productState.finalProductData && !isSubmitting && (
+            <Alert severity="success" sx={{ mt: 3 }}>
+              <Typography variant="body2">
+                محصول با موفقیت ایجاد شد! داده‌های نهایی در کنسول مرورگر قابل
+                مشاهده است.
+              </Typography>
+            </Alert>
+          )}
 
-              {/* Backdrop overlay when submitting */}
-              <Backdrop
+          {/* Backdrop overlay when submitting */}
+          <Backdrop
+            sx={{
+              color: "#fff",
+              zIndex: (theme) => theme.zIndex.drawer + 1,
+            }}
+            open={isSubmitting}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <Paper
                 sx={{
-                  color: "#fff",
-                  zIndex: (theme) => theme.zIndex.drawer + 1,
+                  p: 3,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 2,
                 }}
-                open={isSubmitting}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 2,
+                <Typography variant="h6" color="primary" fontWeight="bold">
+                  در حال ذخیره محصول...
+                </Typography>
+                <div
+                  style={{
+                    width: 60,
+                    height: 60,
+                    border: "4px solid rgba(0, 0, 0, 0.1)",
+                    borderTop: "4px solid #1976d2",
+                    borderRadius: "50%",
+                    animation: "spin 1s linear infinite",
                   }}
-                >
-                  <Paper
-                    sx={{
-                      p: 3,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: 2,
-                    }}
-                  >
-                    <Typography variant="h6" color="primary" fontWeight="bold">
-                      در حال ذخیره محصول...
-                    </Typography>
-                    <div
-                      style={{
-                        width: 60,
-                        height: 60,
-                        border: "4px solid rgba(0, 0, 0, 0.1)",
-                        borderTop: "4px solid #1976d2",
-                        borderRadius: "50%",
-                        animation: "spin 1s linear infinite",
-                      }}
-                    />
-                  </Paper>
-                </Box>
-              </Backdrop>
-              <style>{`
+                />
+              </Paper>
+            </Box>
+          </Backdrop>
+          <style>{`
               @keyframes spin {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
               }
             `}</style>
-            </>
-          )}
         </Box>
       </Container>
     </Layout>

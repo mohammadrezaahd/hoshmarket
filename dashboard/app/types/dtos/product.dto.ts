@@ -13,3 +13,8 @@ export interface IPostProduct {
   source: TemplateSource;
   tag: string;
 }
+
+export interface IProductSuggestion {
+  data?: ICategoryAttr;
+  categoryId: number;
+}

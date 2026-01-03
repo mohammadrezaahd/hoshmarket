@@ -1,0 +1,158 @@
+import type { ICategoryAttr } from "~/types/interfaces/attributes.interface";
+import type { ICategoryDetails } from "~/types/interfaces/details.interface";
+
+/**
+ * Parse AI suggested title and extract badge selections
+ * Format: "text {\"field_name\":\"field_value\"} more text"
+ * Returns: { parsedText: string, selectedBadges: { [key: string]: string } }
+ */
+export const parseTitleWithBadges = (
+  suggestedTitle: string,
+  attributesData: ICategoryAttr[],
+  detailsData: ICategoryDetails[]
+): {
+  parsedText: string;
+  selectedBadges: { [key: string]: string };
+} => {
+  const selectedBadges: { [key: string]: string } = {};
+  let parsedText = suggestedTitle;
+
+  // Find all JSON objects in the title (format: {"field":"value"})
+  const jsonMatches = suggestedTitle.match(/\{[^}]+\}/g);
+
+  if (!jsonMatches) {
+    return { parsedText, selectedBadges };
+  }
+
+  // Process each JSON match
+  jsonMatches.forEach((jsonStr) => {
+    try {
+      const parsed = JSON.parse(jsonStr);
+      const key = Object.keys(parsed)[0];
+      const value = parsed[key];
+
+      // Find the field in attributes or details
+      let fieldId: string | null = null;
+
+      // Search in attributes
+      for (const attrData of attributesData) {
+        if (attrData.category_group_attributes) {
+          for (const group of Object.values(attrData.category_group_attributes)) {
+            for (const attr of Object.values(group.attributes)) {
+              // Check if attribute title matches
+              if (attr.title === key || attr.code === key) {
+                fieldId = attr.code || attr.id.toString();
+                
+                // Find matching value ID
+                if (attr.values) {
+                  for (const [valueId, valueData] of Object.entries(attr.values)) {
+                    if (valueData.text === value) {
+                      selectedBadges[fieldId] = valueId;
+                      break;
+                    }
+                  }
+                }
+                break;
+              }
+            }
+            if (fieldId) break;
+          }
+        }
+        if (fieldId) break;
+      }
+
+      // Search in details if not found in attributes
+      if (!fieldId) {
+        for (const detailData of detailsData) {
+          if (detailData.bind) {
+            const bind = detailData.bind;
+            
+            // Check brand
+            if ((key === "brand" || key === "برند") && bind.brands) {
+              const brand = bind.brands.find((b) => b.text === value || b.id.toString() === value.toString());
+              if (brand) {
+                fieldId = "brand";
+                selectedBadges[fieldId] = brand.id.toString();
+              }
+              break;
+            }
+
+            // Check status
+            if ((key === "status" || key === "وضعیت") && bind.statuses) {
+              const status = bind.statuses.find((s) => s.text === value || s.value === value);
+              if (status) {
+                fieldId = "status";
+                selectedBadges[fieldId] = status.value;
+              }
+              break;
+            }
+
+            // Check platform
+            if ((key === "platform" || key === "پلتفرم") && bind.platforms) {
+              const platform = bind.platforms.find((p) => p.text === value || p.value === value);
+              if (platform) {
+                fieldId = "platform";
+                selectedBadges[fieldId] = platform.value;
+              }
+              break;
+            }
+
+            // Check product_class
+            if ((key === "product_class" || key === "کلاس محصول") && bind.product_classes) {
+              const productClass = bind.product_classes.find((pc) => pc.text === value || pc.value === value);
+              if (productClass) {
+                fieldId = "product_class";
+                selectedBadges[fieldId] = productClass.value;
+              }
+              break;
+            }
+
+            // Check category_product_type
+            if ((key === "category_product_type" || key === "نوع محصول") && bind.category_product_types) {
+              const productType = bind.category_product_types.find((pt) => pt.text === value || pt.value === value);
+              if (productType) {
+                fieldId = "category_product_type";
+                selectedBadges[fieldId] = productType.value;
+              }
+              break;
+            }
+          }
+        }
+      }
+
+      // Remove the JSON part from the title and replace with placeholder
+      // Use fieldId if found, otherwise use key
+      if (fieldId) {
+        parsedText = parsedText.replace(jsonStr, `{${fieldId}}`);
+      } else {
+        // If no fieldId found, just remove the JSON part
+        parsedText = parsedText.replace(jsonStr, value);
+      }
+    } catch (error) {
+      console.warn("Failed to parse JSON in title:", jsonStr, error);
+    }
+  });
+
+  return { parsedText, selectedBadges };
+};
+
+/**
+ * Reverse function: build title from badges
+ * Used when user selects badges manually
+ */
+export const buildTitleFromBadges = (
+  baseText: string,
+  selectedBadges: { [key: string]: { label: string; value: string } }
+): string => {
+  let title = baseText;
+
+  // Replace placeholders with badge values
+  Object.entries(selectedBadges).forEach(([key, badge]) => {
+    const placeholder = `{${key}}`;
+    if (title.includes(placeholder)) {
+      title = title.replace(placeholder, badge.label);
+    }
+  });
+
+  return title;
+};

@@ -1,4 +1,7 @@
-import type { IPostProduct } from "~/types/dtos/product.dto";
+import type {
+  IPostProduct,
+  IProductSuggestion,
+} from "~/types/dtos/product.dto";
 import { apiUtils } from "./apiUtils.api";
 import {
   authorizedPost,
@@ -60,7 +63,7 @@ const getProductsList = async ({
       url += `&category_id=${categoryId}`;
     }
     const response = await authorizedPost(url);
-    
+
     // Return response with meta_data from server
     return {
       status: response.data.status,
@@ -117,7 +120,38 @@ const publishProduct = async (id: number) => {
   });
 };
 
+const titleSuggest = async (Inp: IProductSuggestion) => {
+  return apiUtils<{ force: boolean; title: string }>(async () => {
+    const { data, categoryId } = Inp;
+    const response = await authorizedPost(
+      `/v1/suggest/title?category_id=${categoryId}`,
+      data ? data : {}
+    );
 
+    return {
+      status: "true" as any,
+      code: response.status as any,
+      data: response.data.data,
+    };
+  });
+};
+
+const DescSuggest = async (Inp: IProductSuggestion) => {
+  return apiUtils<{ description: string }>(async () => {
+    const { data, categoryId } = Inp;
+
+    const response = await authorizedPost(
+      `/v1/suggest/description?category_id=${categoryId}`,
+      data ? data : {}
+    );
+
+    return {
+      status: "true" as any,
+      code: response.status as any,
+      data: response.data.data,
+    };
+  });
+};
 
 export const useAddProduct = () => {
   const queryClient = useQueryClient();
@@ -230,6 +264,38 @@ export const usePublishProduct = () => {
     },
     onError: (error) => {
       console.error("❌ Error publishing product:", error);
+    },
+  });
+};
+
+export const useTitleSuggest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: titleSuggest,
+    onSuccess: (id) => {
+      // Invalidate related queries after successful creation
+      queryClient.invalidateQueries({ queryKey: ["title suggest"] });
+      console.log("✅ Product title suggested successfully:", id);
+    },
+    onError: (error) => {
+      console.error("❌ Error suggesting product title:", error);
+    },
+  });
+};
+
+export const useDescSuggest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: DescSuggest,
+    onSuccess: (id) => {
+      // Invalidate related queries after successful creation
+      queryClient.invalidateQueries({ queryKey: ["Description suggest"] });
+      console.log("✅ Product description suggested successfully:", id);
+    },
+    onError: (error) => {
+      console.error("❌ Error suggesting product description:", error);
     },
   });
 };

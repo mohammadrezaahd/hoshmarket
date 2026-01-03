@@ -1,5 +1,6 @@
 import React, { useRef, useMemo, useEffect, useCallback } from "react";
-import { Box, Typography, Chip, Paper } from "@mui/material";
+import { Box, Typography, Chip, Paper, IconButton, Tooltip, CircularProgress } from "@mui/material";
+import { AiIcon } from "~/components/icons/IconComponents";
 import type {
   ICategoryAttr,
   IAttr,
@@ -27,6 +28,10 @@ interface DynamicTitleBuilderProps {
   detailsData?: ICategoryDetails[];
   placeholder?: string;
   label?: string;
+  showAiButton?: boolean;
+  onAiSuggest?: () => void;
+  isAiLoading?: boolean;
+  aiDisabled?: boolean;
 }
 
 const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
@@ -36,6 +41,10 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
   detailsData = [],
   placeholder = "عنوان محصول را وارد کنید...",
   label = "عنوان محصول",
+  showAiButton = false,
+  onAiSuggest,
+  isAiLoading = false,
+  aiDisabled = false,
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInternalUpdate = useRef(false);
@@ -350,39 +359,77 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
   };
   return (
     <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        {label}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Typography variant="h6">
+          {label}
+        </Typography>
+      </Box>
 
-      <Box
-        ref={ref}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={handleInput}
-        onKeyDown={(e) => {
-          // Prevent any issues with special keys
-          if (e.key === "Enter") {
-            e.preventDefault();
-          }
-        }}
-        sx={{
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          padding: "8px",
-          minHeight: "80px",
-          cursor: "text",
-          direction: "rtl",
-          textAlign: "right",
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          "&:focus": { outline: "2px solid #1976d2" },
-          "&:empty:before": {
-            content: `"${placeholder}"`,
-            color: "#999",
-            fontStyle: "italic",
-          },
-        }}
-      />
+      <Box sx={{ position: "relative" }}>
+        <Box
+          ref={ref}
+          contentEditable
+          suppressContentEditableWarning
+          onInput={handleInput}
+          onKeyDown={(e) => {
+            // Prevent any issues with special keys
+            if (e.key === "Enter") {
+              e.preventDefault();
+            }
+          }}
+          sx={{
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            padding: "8px",
+            paddingLeft: showAiButton ? "44px" : "8px",
+            minHeight: "80px",
+            cursor: "text",
+            direction: "rtl",
+            textAlign: "right",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            "&:focus": { outline: "2px solid #1976d2" },
+            "&:empty:before": {
+              content: `"${placeholder}"`,
+              color: "#999",
+              fontStyle: "italic",
+            },
+          }}
+        />
+
+        {showAiButton && (
+          <Box sx={{ position: "absolute", bottom: 10, left: 10 }}>
+            <Tooltip title="دریافت پیشنهاد از هوش مصنوعی" placement="top">
+              <span>
+                <IconButton
+                  onClick={onAiSuggest}
+                  disabled={aiDisabled || isAiLoading}
+                  sx={{
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    color: "white",
+                    width: 24,
+                    height: 24,
+                    padding: 0,
+                    "&:hover": {
+                      background: "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
+                    },
+                    "&.Mui-disabled": {
+                      background: "#e0e0e0",
+                      color: "#9e9e9e",
+                    },
+                  }}
+                >
+                  {isAiLoading ? (
+                    <CircularProgress size={12} sx={{ color: "white" }} />
+                  ) : (
+                    <AiIcon style={{ fontSize: 12 }} />
+                  )}
+                </IconButton>
+              </span>
+            </Tooltip>
+          </Box>
+        )}
+      </Box>
       <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
         {badges
           .filter((b) => !usedTags.includes(b.id.toString()))
