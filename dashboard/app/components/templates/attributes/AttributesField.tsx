@@ -88,26 +88,36 @@ export default function AttributesField({
     case AttributeType.Input:
       return (
         <Box>
-          <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
-            <TextField
-              fullWidth
-              type="text"
-              label={attr.title + (attr.required ? " *" : "")}
-              helperText={error || attr.hint}
-              value={value || ""}
-              onChange={(e) => onChange(fieldKey, e.target.value)}
-              required={attr.required}
-              error={!!error}
-              InputProps={{
-                endAdornment: (attr.postfix || attr.unit) ? (
-                  <InputAdornment position="end" sx={{ marginLeft: 1, fontSize: '0.9em' }}>
-                    {attr.postfix || attr.unit}
-                  </InputAdornment>
-                ) : undefined,
-              }}
-            />
-            {attr.Ai && <AIIcon attr={attr} />}
-          </Box>
+          <TextField
+            fullWidth
+            type="text"
+            label={attr.title + (attr.required ? " *" : "")}
+            helperText={error || attr.hint}
+            value={value || ""}
+            onChange={(e) => onChange(fieldKey, e.target.value)}
+            required={attr.required}
+            error={!!error}
+            InputProps={{
+              endAdornment: (
+                <Box sx={{ display: "flex", alignItems: "end", gap: 0.5 }}>
+                  {(attr.postfix || attr.unit) && (
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: "0.7rem",
+                        color: "text.secondary",
+                        whiteSpace: "nowrap",
+                        marginLeft: ".5rem",
+                      }}
+                    >
+                      {attr.postfix || attr.unit}
+                    </Box>
+                  )}
+                  {attr.Ai && <AIIcon attr={attr} />}
+                </Box>
+              ),
+            }}
+          />
           <SuggestedValues
             attr={attr}
             currentValue={value}
@@ -135,33 +145,43 @@ export default function AttributesField({
 
           return (
             <Box>
-              <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
-                <Autocomplete
-                  fullWidth
-                  openOnFocus
-                  options={options}
-                  getOptionLabel={(option) => option.label}
-                  value={selectedOption}
-                  onChange={(_, newValue) => {
-                    onChange(fieldKey, newValue?.id || "");
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label={attr.title + (attr.required ? " *" : "")}
-                      required={attr.required}
-                      helperText={error || attr.hint}
-                      placeholder="انتخاب کنید..."
-                      error={!!error}
-                    />
-                  )}
-                  noOptionsText="گزینه‌ای یافت نشد"
-                  isOptionEqualToValue={(option, value) =>
-                    option.id === value.id
-                  }
-                />
-                {attr.Ai && <AIIcon attr={attr} />}
-              </Box>
+              <Autocomplete
+                fullWidth
+                openOnFocus
+                options={options}
+                getOptionLabel={(option) => option.label}
+                value={selectedOption}
+                onChange={(_, newValue) => {
+                  onChange(fieldKey, newValue?.id || "");
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={attr.title + (attr.required ? " *" : "")}
+                    required={attr.required}
+                    helperText={error || attr.hint}
+                    placeholder="انتخاب کنید..."
+                    error={!!error}
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                          }}
+                        >
+                          {params.InputProps.endAdornment}
+                          {attr.Ai && <AIIcon attr={attr} />}
+                        </Box>
+                      ),
+                    }}
+                  />
+                )}
+                noOptionsText="گزینه‌ای یافت نشد"
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+              />
               <SuggestedValues
                 attr={attr}
                 currentValue={value}
@@ -178,51 +198,60 @@ export default function AttributesField({
 
           return (
             <Box>
-              <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
-                <Autocomplete
-                  multiple
-                  fullWidth
-                  openOnFocus
-                  options={options}
-                  getOptionLabel={(option) => option.label}
-                  value={selectedOptions}
-                  onChange={(_, newValues) => {
-                    const selectedIds = newValues.map((item) => item.id);
-                    onChange(fieldKey, selectedIds);
-                  }}
-                  disableCloseOnSelect
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Chip
-                        variant="outlined"
-                        label={option.label}
-                        {...getTagProps({ index })}
-                        key={option.id}
-                        size="small"
-                        sx={{ zIndex: "9" }}
-                      />
-                    ))
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label={attr.title + (attr.required ? " *" : "")}
-                      required={attr.required}
-                      helperText={error || attr.hint}
-                      placeholder="انتخاب کنید..."
-                      error={!!error}
+              <Autocomplete
+                multiple
+                fullWidth
+                openOnFocus
+                options={options}
+                getOptionLabel={(option) => option.label}
+                value={selectedOptions}
+                onChange={(_, newValues) => {
+                  const selectedIds = newValues.map((item) => item.id);
+                  onChange(fieldKey, selectedIds);
+                }}
+                disableCloseOnSelect
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip
+                      variant="outlined"
+                      label={option.label}
+                      {...getTagProps({ index })}
+                      key={option.id}
+                      size="small"
+                      sx={{ zIndex: "9" }}
                     />
-                  )}
-                  noOptionsText="گزینه‌ای یافت نشد"
-                  isOptionEqualToValue={(option, value) =>
-                    option.id === value.id
-                  }
-                  filterSelectedOptions
-                  limitTags={3}
-                  getLimitTagsText={(more) => `+${more} بیشتر`}
-                />
-                {attr.Ai && <AIIcon attr={attr} />}
-              </Box>
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={attr.title + (attr.required ? " *" : "")}
+                    required={attr.required}
+                    helperText={error || attr.hint}
+                    error={!!error}
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 0.5,
+                          }}
+                        >
+                          {params.InputProps.endAdornment}
+                          {attr.Ai && <AIIcon attr={attr} />}
+                        </Box>
+                      ),
+                    }}
+                  />
+                )}
+                noOptionsText="گزینه‌ای یافت نشد"
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                filterSelectedOptions
+                limitTags={3}
+                getLimitTagsText={(more) => `+${more} بیشتر`}
+              />
               <SuggestedValues
                 attr={attr}
                 currentValue={value}
@@ -256,18 +285,18 @@ export default function AttributesField({
     case AttributeType.Text:
       return (
         <Box>
-          <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
-            <TextField
-              fullWidth
-              label={attr.title + (attr.required ? " *" : "")}
-              helperText={error || attr.hint}
-              value={value || ""}
-              onChange={(e) => onChange(fieldKey, e.target.value)}
-              required={attr.required}
-              error={!!error}
-            />
-            {attr.Ai && <AIIcon attr={attr} />}
-          </Box>
+          <TextField
+            fullWidth
+            label={attr.title + (attr.required ? " *" : "")}
+            helperText={error || attr.hint}
+            value={value || ""}
+            onChange={(e) => onChange(fieldKey, e.target.value)}
+            required={attr.required}
+            error={!!error}
+            InputProps={{
+              endAdornment: attr.Ai ? <AIIcon attr={attr} /> : undefined,
+            }}
+          />
           <SuggestedValues
             attr={attr}
             currentValue={value}
@@ -279,20 +308,24 @@ export default function AttributesField({
     case AttributeType.MultiText:
       return (
         <Box>
-          <Box sx={{ display: "flex", alignItems: "flex-end", gap: 1 }}>
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              label={attr.title + (attr.required ? " *" : "")}
-              helperText={error || attr.hint}
-              value={value || ""}
-              onChange={(e) => onChange(fieldKey, e.target.value)}
-              required={attr.required}
-              error={!!error}
-            />
-            {attr.Ai && <AIIcon attr={attr} />}
-          </Box>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            label={attr.title + (attr.required ? " *" : "")}
+            helperText={error || attr.hint}
+            value={value || ""}
+            onChange={(e) => onChange(fieldKey, e.target.value)}
+            required={attr.required}
+            error={!!error}
+            InputProps={{
+              endAdornment: attr.Ai ? (
+                <Box sx={{ alignSelf: "flex-end" }}>
+                  <AIIcon attr={attr} />
+                </Box>
+              ) : undefined,
+            }}
+          />
           <SuggestedValues
             attr={attr}
             currentValue={value}

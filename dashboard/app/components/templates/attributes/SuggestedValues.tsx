@@ -115,11 +115,11 @@ const SuggestedValues: React.FC<SuggestedValuesProps> = ({
   };
 
   return (
-    <Box sx={{ mt: 1 }}>
-      <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+      <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
         پیشنهادات:
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, flex: 1 }}>
         {Object.entries(suggestValues).map(([valueId, valueData]) => {
           const selected = isSelected(valueId, valueData);
           return (

@@ -117,6 +117,8 @@ const publishProduct = async (id: number) => {
   });
 };
 
+
+
 export const useAddProduct = () => {
   const queryClient = useQueryClient();
 

@@ -235,6 +235,7 @@ const Drawer = ({
                     item.expandable ? () => toggleMenu(item.id) : undefined
                   }
                   sx={{
+                    padding: "0.5rem 1rem",
                     backgroundColor: item.important
                       ? theme.palette.primary.main
                       : isActive && !item.important
@@ -243,12 +244,10 @@ const Drawer = ({
                     color: item.important
                       ? theme.palette.common.white
                       : "inherit",
-                    borderRadius: item.important ? 2 : 0,
+                    borderRadius: item.important ? 2 : 1,
                     border: item.important
                       ? `1px solid ${theme.palette.primary.main}`
                       : "none",
-                    px: item.important ? 2.5 : 1,
-                    py: item.important ? 0.7 : 0,
                     margin: item.important ? "10px 8px" : "4px",
                     boxShadow: item.important
                       ? "0 6px 18px rgba(16,24,40,0.06)"
