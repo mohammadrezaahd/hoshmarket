@@ -136,6 +136,7 @@ const GalleryPage = () => {
   };
 
   const galleryData = imagesData?.data?.list || [];
+  const metaData = imagesData?.meta_data;
 
   // بررسی خطا در دریافت لیست عکس‌ها
   const hasImagesFetchError =
@@ -153,7 +154,7 @@ const GalleryPage = () => {
     product: item.product,
   }));
 
-  const totalItems = mediaFiles.length;
+  const totalItems = metaData?.total_items || 0;
 
   return (
     <AppLayout title="مدیریت رسانه">
@@ -182,6 +183,7 @@ const GalleryPage = () => {
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            pageSizeOptions={[6, 12, 24, 48]}
             showUpload={true}
             // FileUpload props
             allowedType="none"
@@ -208,6 +210,7 @@ const GalleryPage = () => {
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            pageSizeOptions={[6, 12, 24, 48]}
             showUpload={true}
             // FileUpload props
             allowedType="none"

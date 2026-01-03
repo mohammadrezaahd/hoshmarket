@@ -60,7 +60,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({
   pageSize,
   onPageChange,
   onPageSizeChange,
-  pageSizeOptions = [12, 24, 48],
+  pageSizeOptions = [6, 12, 24, 48],
   selectionMode = false,
   selectedItems = [],
   onSelectionChange,
@@ -77,7 +77,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({
   const getImageTypeInfo = (media: IMediaFile) => {
     if (media.packaging) {
       return {
-        label: "عکس دسته‌بندی",
+        label: "عکس بسته‌بندی",
         color: "secondary" as const,
       };
     } else if (media.product) {
@@ -429,7 +429,7 @@ const MediaGrid: React.FC<MediaGridProps> = ({
       </Grid>
 
       {/* Pagination Controls */}
-      {totalPages > 1 && (
+      {totalItems > 0 && (
         <PaginationControls
           currentPage={currentPage}
           totalPages={totalPages}

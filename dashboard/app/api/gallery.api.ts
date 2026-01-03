@@ -54,7 +54,15 @@ const getImages = async ({
     const response = await authorizedPost(
       `/v1/images/list?skip=${skip}&limit=${limit}&search_title=${search_title}&source=${source}&packaging=${packaging}&product=${product}`
     );
-    return response.data;
+    
+    // Return response with meta_data from server
+    return {
+      status: response.data.status,
+      code: response.status as any,
+      data: response.data.data,
+      meta_data: response.data.meta_data,
+      message: response.data.message,
+    };
   });
 };
 

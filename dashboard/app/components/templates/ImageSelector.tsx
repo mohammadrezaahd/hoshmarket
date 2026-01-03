@@ -75,6 +75,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
   });
 
   const galleryData = imagesData?.data?.list || [];
+  const metaData = imagesData?.meta_data;
 
   // Convert gallery data to media files format
   const mediaFiles: IMediaFile[] = galleryData.map((item: IGallery) => ({
@@ -88,7 +89,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
     product: item.product,
   }));
 
-  const totalItems = mediaFiles.length;
+  const totalItems = metaData?.totalItems || 0;
 
   // Initialize temp selection when dialog opens
   useEffect(() => {
@@ -275,6 +276,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            pageSizeOptions={[6, 12, 24, 48]}
             showUpload={showUpload}
             selectionMode={true}
             selectedItems={tempSelectedImages}
