@@ -394,7 +394,7 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
   };
 
   useEffect(() => {
-    console.log("Merged Badges:", mergedBadges);
+    // mergedBadges updated
   }, [mergedBadges]);
 
   return (

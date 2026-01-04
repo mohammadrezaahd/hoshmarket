@@ -62,7 +62,6 @@ const Auth = () => {
   useEffect(() => {
     const state = location.state as any;
     if (state?.needsRegistration && state?.step === "register") {
-      console.log("📝 هدایت مستقیم به فرم ثبت‌نام (422 error)");
       setStep("register");
       enqueueSnackbar("لطفاً اطلاعات خود را تکمیل کنید", { variant: "info" });
       // پاک کردن state بعد از استفاده

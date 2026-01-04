@@ -19,13 +19,7 @@ import { AiIcon } from "~/components/icons/IconComponents";
 // کامپوننت آیکون AI
 const AIIcon: React.FC<{ attr: IAttr }> = ({ attr }) => {
   const handleAIClick = () => {
-    console.log(`AI clicked for field: ${attr.title} (ID: ${attr.id})`);
-    console.log("Field details:", {
-      title: attr.title,
-      type: attr.type,
-      required: attr.required,
-      hint: attr.hint,
-    });
+    // AI helper clicked for field - removed debug logs
   };
 
   return (

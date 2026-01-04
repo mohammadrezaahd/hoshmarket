@@ -161,7 +161,6 @@ export const useAddProduct = () => {
     onSuccess: (data) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      console.log("✅ Product added successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error adding product:", error);
@@ -199,7 +198,6 @@ export const useRemoveProduct = () => {
     mutationFn: removeProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products list"] });
-      console.log("✅ Product removed successfully");
     },
     onError: (error) => {
       console.error("❌ Error removing product:", error);
@@ -217,7 +215,6 @@ export const useUpdateProduct = () => {
       // Invalidate related queries after successful update
       queryClient.invalidateQueries({ queryKey: ["product", variables.id] });
       queryClient.invalidateQueries({ queryKey: ["products list"] });
-      console.log("✅ Product updated successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error updating product:", error);
@@ -260,7 +257,6 @@ export const usePublishProduct = () => {
     mutationFn: publishProduct,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products list"] });
-      console.log("✅ Product published successfully");
     },
     onError: (error) => {
       console.error("❌ Error publishing product:", error);
@@ -276,7 +272,6 @@ export const useTitleSuggest = () => {
     onSuccess: (id) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["title suggest"] });
-      console.log("✅ Product title suggested successfully:", id);
     },
     onError: (error) => {
       console.error("❌ Error suggesting product title:", error);
@@ -292,7 +287,6 @@ export const useDescSuggest = () => {
     onSuccess: (id) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["Description suggest"] });
-      console.log("✅ Product description suggested successfully:", id);
     },
     onError: (error) => {
       console.error("❌ Error suggesting product description:", error);

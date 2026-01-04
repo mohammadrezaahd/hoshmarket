@@ -23,15 +23,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       const axiosError = error as any;
       const statusCode = axiosError?.response?.status;
 
-      console.log("🔒 ProtectedRoute Error:", statusCode, axiosError);
-
       if (statusCode === 401) {
-        console.log("❌ 401: توکن نامعتبر - هدایت به صفحه ورود");
         safeLocalStorage.removeItem("access_token");
         setRedirectPath("/auth");
       } else if (statusCode === 422) {
-        console.log("⚠️ 422: کاربر register نکرده - هدایت به فرم ثبت‌نام");
-
         navigate("/auth", {
           state: {
             step: "register",
@@ -41,7 +36,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         });
         return;
       } else {
-        console.log("❌ خطای احراز هویت - هدایت به صفحه ورود");
         safeLocalStorage.removeItem("access_token");
         setRedirectPath("/auth");
       }

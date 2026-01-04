@@ -80,7 +80,6 @@ export const useReadNotif = () => {
     onSuccess: (data) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["Read Notification"] });
-      console.log("✅ Notification read successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error reading notification:", error);
@@ -96,7 +95,6 @@ export const useReadNotifAll = () => {
     onSuccess: (data) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["Read All Notifications"] });
-      console.log("✅ All Notification read successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error reading All notification:", error);
@@ -179,8 +177,6 @@ export const useNotifCountSocket = (enabled: boolean) => {
     enabled,
     setState: setUnreadCount,
     onMessage: (message, prev) => {
-      console.log("Notification count WS message:", message);
-      console.log("Previous unread count:", prev);
       // event wrapper
       if (
         typeof message === "object" &&

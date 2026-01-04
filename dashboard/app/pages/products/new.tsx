@@ -139,17 +139,13 @@ const NewProductPage = () => {
     }
 
     // Auto-select images that aren't already selected
-    if (newImages.length > 0) {
+      if (newImages.length > 0) {
       const currentImages = new Set(productState.selectedImages);
       const imagesToAdd = newImages.filter(
         (imgId) => !currentImages.has(imgId)
       );
 
       if (imagesToAdd.length > 0) {
-        console.log(
-          `🖼️ Auto-selecting ${imagesToAdd.length} images from templates:`,
-          imagesToAdd
-        );
         dispatch(
           setSelectedImages([...productState.selectedImages, ...imagesToAdd])
         );
@@ -166,17 +162,11 @@ const NewProductPage = () => {
   // Log when templates change for debugging
   useEffect(() => {
     if (activeDetailsTemplate) {
-      console.log(
-        `📋 Active details template changed to: ${activeDetailsTemplate.title} (ID: ${activeDetailsTemplate.id})`
-      );
     }
   }, [activeDetailsTemplate?.id, activeDetailsTemplate?.title]);
 
   useEffect(() => {
     if (activeAttributesTemplate) {
-      console.log(
-        `🏷️ Active attributes template changed to: ${activeAttributesTemplate.title} (ID: ${activeAttributesTemplate.id})`
-      );
     }
   }, [activeAttributesTemplate?.id, activeAttributesTemplate?.title]);
 
@@ -310,16 +300,11 @@ const NewProductPage = () => {
 
   // Load template data when activeDetailsTemplate changes
   useEffect(() => {
-    if (
-      activeDetailsTemplate &&
-      (!activeDetailsTemplate.data ||
-        Object.keys(activeDetailsTemplate.data).length === 0)
-    ) {
-      // Load the template data if it's not already loaded
-      console.log(
-        "Loading details template data for:",
-        activeDetailsTemplate.id
-      );
+      if (
+        activeDetailsTemplate &&
+        (!activeDetailsTemplate.data ||
+          Object.keys(activeDetailsTemplate.data).length === 0)
+      ) {
     }
   }, [activeDetailsTemplate]);
 
@@ -330,11 +315,6 @@ const NewProductPage = () => {
       (!activeAttributesTemplate.data ||
         Object.keys(activeAttributesTemplate.data).length === 0)
     ) {
-      // Load the template data if it's not already loaded
-      console.log(
-        "Loading attributes template data for:",
-        activeAttributesTemplate.id
-      );
     }
   }, [activeAttributesTemplate]);
 

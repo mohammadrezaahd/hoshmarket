@@ -50,10 +50,7 @@ const verifyOtp = async (data: IVerifyOtp): Promise<IVerifyOtpResponse> => {
 const register = async (data: IRegister): Promise<IRegisterResponse> => {
   // بررسی وجود توکن OTP قبل از ارسال
   const otpToken = localStorage.getItem("access_token");
-  console.log(
-    "🔐 Register - OTP Token:",
-    otpToken ? "موجود است" : "موجود نیست"
-  );
+  // OTP token presence checked
 
   // اگر API شما از query string استفاده می‌کند:
   // const response = await authorizedPost(
@@ -68,7 +65,7 @@ const register = async (data: IRegister): Promise<IRegisterResponse> => {
     password: data.password,
   });
 
-  console.log("✅ Register Response:", response.data);
+  // Register response received
 
   // ذخیره توکن نهایی (پس از register) در localStorage
   if (response.data.access_token) {
@@ -115,7 +112,6 @@ export const useCheckNumber = () => {
     mutationFn: checkNumber,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["checkNumber"] });
-      console.log("✅ Number checked successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error checking number:", error);
@@ -130,7 +126,6 @@ export const useSendOtp = () => {
     mutationFn: sendOtp,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["sendOtp"] });
-      console.log("✅ OTP sent successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error sending OTP:", error);
@@ -146,7 +141,6 @@ export const useVerifyOtp = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["verifyOtp"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      console.log("✅ OTP verified successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error verifying OTP:", error);
@@ -162,7 +156,6 @@ export const useRegister = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["register"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      console.log("✅ Registered successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error registering:", error);
@@ -178,7 +171,6 @@ export const useLoginWithPassword = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["loginWithPassword"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      console.log("✅ Logged in successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error logging in:", error);
@@ -215,7 +207,6 @@ export const useLogout = () => {
     onSuccess: () => {
       // پاک کردن تمام cache ها
       queryClient.clear();
-      console.log("✅ Logged out successfully");
     },
     onError: (error) => {
       console.error("❌ Error logging out:", error);

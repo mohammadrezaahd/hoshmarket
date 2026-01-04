@@ -76,7 +76,6 @@ export const useAddDetail = () => {
     onSuccess: (data) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["categories"] });
-      console.log("✅ Detail added successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error adding detail:", error);

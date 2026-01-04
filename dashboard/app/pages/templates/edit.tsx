@@ -135,7 +135,6 @@ const EditTemplatePage = () => {
       detailData.data
     ) {
       // Set template data in store
-      console.log("🔍 Setting details title:", detailData.data.title);
 
       // Load images from template
       if (detailData.data.images && Array.isArray(detailData.data.images)) {

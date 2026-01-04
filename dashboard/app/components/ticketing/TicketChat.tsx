@@ -45,28 +45,16 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
   const closeTicketMutation = useCloseTicket();
   const replyForm = useReplyMessageValidation();
 
-  // Debug log for form validation
+  // Debug log for form validation (removed in production)
   const messageValue = replyForm.watch("message");
   const isButtonDisabled =
     !messageValue?.trim() || newMessageMutation.isPending;
-
-  console.log("Form validation debug:", {
-    messageValue: messageValue,
-    messageLength: messageValue?.length || 0,
-    hasMessageText: !!messageValue?.trim(),
-    isButtonDisabled: isButtonDisabled,
-    isPending: newMessageMutation.isPending,
-    formValid: replyForm.isFormValid,
-    formErrors: replyForm.formState.errors,
-  });
+  
 
   // Load ticket data
   useEffect(() => {
-    console.log("useEffect triggered with ticketId:", ticketId);
     if (ticketId) {
       loadTicket();
-    } else {
-      console.log("No ticketId provided, not loading ticket");
     }
   }, [ticketId]);
 
@@ -81,7 +69,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
       const response = await ticketMutation.mutateAsync({
         ticket_id: ticketId,
       });
-      console.log("Full ticket response:", JSON.stringify(response, null, 2));
+      // Full ticket response received
 
       // تلاش برای پیدا کردن ticket data در ساختارهای مختلف
       let ticketData: any = null;
@@ -89,23 +77,18 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
       if (response?.data?.list) {
         // ساختار: { data: { list: ITicket } }
         ticketData = response.data.list;
-        console.log("Found ticket in response.data.list");
       } else if ((response as any)?.list) {
         // ساختار: { list: ITicket }
         ticketData = (response as any).list;
-        console.log("Found ticket in response.list");
       } else if (response?.data && (response.data as any).id) {
         // ساختار: { data: ITicket }
         ticketData = response.data;
-        console.log("Found ticket in response.data");
       } else if ((response as any)?.id) {
         // ساختار مستقیم: ITicket
         ticketData = response;
-        console.log("Found ticket in response");
       }
 
       if (ticketData && ticketData.id) {
-        console.log("Setting ticket data:", ticketData);
         setTicket(ticketData as ITicket);
 
         // پردازش messages
@@ -113,10 +96,8 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
           const messagesList = Array.isArray(ticketData.messages)
             ? ticketData.messages
             : [ticketData.messages];
-          console.log("Setting messages:", messagesList);
           setMessages(messagesList);
         } else {
-          console.log("No messages found");
           setMessages([]);
         }
       } else {
@@ -200,19 +181,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
         ...(validFiles.length > 0 && { files: validFiles }),
       };
 
-      console.log("Sending message payload:", {
-        ticket_id: payload.ticket_id,
-        message: payload.message,
-        files: validFiles.map((f) => ({
-          name: f.name,
-          size: f.size,
-          type: f.type,
-        })),
-      });
-
       const response = await newMessageMutation.mutateAsync(payload);
-
-      console.log("Send message response:", response);
 
       // Check for success
       if (response?.status === "true") {
@@ -244,8 +213,6 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
 
     try {
       const response = await closeTicketMutation.mutateAsync(ticket.id);
-
-      console.log("Close ticket response:", response);
 
       if (response?.status === "true") {
         enqueueSnackbar("تیکت با موفقیت بسته شد", { variant: "success" });

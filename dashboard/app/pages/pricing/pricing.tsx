@@ -20,10 +20,8 @@ const PricingPage: React.FC = () => {
   const handlePurchase = async (planId: number) => {
     try {
       await new Promise((resolve) => {
-        initPayment(planId, {
+          initPayment(planId, {
           onSuccess: (response) => {
-            console.log("Payment initiated:", response);
-
             if (response?.data?.payment_url) {
               window.location.href = response.data.payment_url;
             } else {

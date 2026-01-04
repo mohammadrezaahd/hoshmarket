@@ -35,7 +35,6 @@ export function useLiveWebSocket<TState, TMessage>({
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log("WS connected:", url);
       };
 
       ws.onmessage = (event) => {

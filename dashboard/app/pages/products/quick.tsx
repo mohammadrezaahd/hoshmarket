@@ -473,14 +473,9 @@ const QuickProductPage = () => {
                           pageSize={50}
                           onPageChange={(event, page) => {
                             // Handle page change if needed in future
-                            console.log("Page changed to:", page);
                           }}
                           onPageSizeChange={(event) => {
                             // Handle page size change if needed in future
-                            console.log(
-                              "Page size changed to:",
-                              event.target.value
-                            );
                           }}
                           showUpload={true}
                           onUploadSuccess={() => {

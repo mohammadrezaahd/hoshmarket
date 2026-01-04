@@ -119,7 +119,7 @@ const TicketMessage: React.FC<TicketMessageProps> = ({
   const renderAttachments = () => {
     if (!message.attachments || message.attachments.length === 0) return null;
 
-    console.log(message);
+    // message attachments rendering
 
     // جدا کردن تصاویر از فایل‌های دیگر
     const messageImages = message.attachments.filter(
@@ -388,7 +388,7 @@ const TicketMessage: React.FC<TicketMessageProps> = ({
     );
   };
   useEffect(() => {
-    console.log("isAdmin:", isAdmin);
+    // isAdmin state changed
   }, [isAdmin]);
   return (
     <Box

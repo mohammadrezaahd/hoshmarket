@@ -49,14 +49,7 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
   // Get loading state from mutation
   const isLoading = newTicketMutation.isPending;
 
-  // Debug validation state
-  console.log("Form validation state:", {
-    isValid: form.formState.isValid,
-    isDirty: form.formState.isDirty,
-    isSubmitting: form.formState.isSubmitting,
-    errors: form.formState.errors,
-    values: form.watch(),
-  });
+  // Debug validation state removed for production
 
   // Load departments
   useEffect(() => {
@@ -110,11 +103,8 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
   const handleSubmit = async () => {
     // Trigger validation manually before submit
     const isValid = await form.trigger();
-    console.log("Manual validation result:", isValid);
-    console.log("Form state before submit:", form.formState);
 
     if (!isValid) {
-      console.log("Form is not valid, errors:", form.formState.errors);
       return;
     }
 
@@ -135,23 +125,11 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
         ...(validFiles.length > 0 && { files: validFiles }),
       };
 
-      console.log("Submitting payload:", {
-        subject: payload.subject,
-        department_id: payload.department_id,
-        priority: payload.priority,
-        first_message: payload.first_message,
-        files: validFiles.map((f) => ({
-          name: f.name,
-          size: f.size,
-          type: f.type,
-        })),
-      });
-      console.log("Actual File objects count:", validFiles.length);
-      console.log("Will send as FormData with all fields included");
+      // Submitting payload
 
       const response = await newTicketMutation.mutateAsync(payload);
 
-      console.log("Create ticket response:", response);
+      // Create ticket response received
 
       // Check for success using ApiStatus
       if (response?.status === "true") {

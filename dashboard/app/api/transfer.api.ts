@@ -94,7 +94,6 @@ export const useCreateTransfer = () => {
     onSuccess: (data) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["Transfer"] });
-      console.log("✅ Transfer created successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error creating transfer:", error);
@@ -132,7 +131,6 @@ export const useDeleteTransfer = () => {
     mutationFn: deleteTransfer,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transfer delete"] });
-      console.log("✅ transfer deleted successfully");
     },
     onError: (error) => {
       console.error("❌ Error deleting transfer:", error);
@@ -163,7 +161,6 @@ export const useConvertTransfer = () => {
     onSuccess: (data) => {
       // Invalidate related queries after successful creation
       queryClient.invalidateQueries({ queryKey: ["Conver Transfer"] });
-      console.log("✅ Transfer converted successfully:", data);
     },
     onError: (error) => {
       console.error("❌ Error converting transfer:", error);
