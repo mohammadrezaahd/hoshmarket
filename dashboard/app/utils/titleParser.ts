@@ -13,15 +13,17 @@ export const parseTitleWithBadges = (
 ): {
   parsedText: string;
   selectedBadges: { [key: string]: string };
+  selectedBadgesLabels: { [key: string]: string };
 } => {
   const selectedBadges: { [key: string]: string } = {};
+  const selectedBadgesLabels: { [key: string]: string } = {};
   let parsedText = suggestedTitle;
 
   // Find all JSON objects in the title (format: {"field":"value"})
   const jsonMatches = suggestedTitle.match(/\{[^}]+\}/g);
 
   if (!jsonMatches) {
-    return { parsedText, selectedBadges };
+    return { parsedText, selectedBadges, selectedBadgesLabels };
   }
 
   // Process each JSON match
@@ -44,13 +46,22 @@ export const parseTitleWithBadges = (
                 fieldId = attr.code || attr.id.toString();
                 
                 // Find matching value ID
+                let foundValue = false;
                 if (attr.values) {
                   for (const [valueId, valueData] of Object.entries(attr.values)) {
-                    if (valueData.text === value) {
+                    if (valueData.text === value || valueData.code === value) {
                       selectedBadges[fieldId] = valueId;
+                      selectedBadgesLabels[fieldId] = valueData.text;
+                      foundValue = true;
                       break;
                     }
                   }
+                }
+
+                // If attribute matched by key but value not found, still mark badge with suggested label
+                if (!foundValue) {
+                  selectedBadges[fieldId] = "";
+                  selectedBadgesLabels[fieldId] = value;
                 }
                 break;
               }
@@ -70,9 +81,14 @@ export const parseTitleWithBadges = (
             // Check brand
             if ((key === "brand" || key === "برند") && bind.brands) {
               const brand = bind.brands.find((b) => b.text === value || b.id.toString() === value.toString());
+              fieldId = "brand";
               if (brand) {
-                fieldId = "brand";
                 selectedBadges[fieldId] = brand.id.toString();
+                selectedBadgesLabels[fieldId] = brand.text;
+              } else {
+                // No matching brand value found, still mark brand badge with suggested label
+                selectedBadges[fieldId] = "";
+                selectedBadgesLabels[fieldId] = value;
               }
               break;
             }
@@ -80,9 +96,13 @@ export const parseTitleWithBadges = (
             // Check status
             if ((key === "status" || key === "وضعیت") && bind.statuses) {
               const status = bind.statuses.find((s) => s.text === value || s.value === value);
-              if (status) {
-                fieldId = "status";
+              fieldId = "status";
+                if (status) {
                 selectedBadges[fieldId] = status.value;
+                selectedBadgesLabels[fieldId] = status.text || value;
+              } else {
+                selectedBadges[fieldId] = "";
+                selectedBadgesLabels[fieldId] = value;
               }
               break;
             }
@@ -90,9 +110,13 @@ export const parseTitleWithBadges = (
             // Check platform
             if ((key === "platform" || key === "پلتفرم") && bind.platforms) {
               const platform = bind.platforms.find((p) => p.text === value || p.value === value);
+              fieldId = "platform";
               if (platform) {
-                fieldId = "platform";
                 selectedBadges[fieldId] = platform.value;
+                selectedBadgesLabels[fieldId] = platform.text || value;
+              } else {
+                selectedBadges[fieldId] = "";
+                selectedBadgesLabels[fieldId] = value;
               }
               break;
             }
@@ -100,9 +124,13 @@ export const parseTitleWithBadges = (
             // Check product_class
             if ((key === "product_class" || key === "کلاس محصول") && bind.product_classes) {
               const productClass = bind.product_classes.find((pc) => pc.text === value || pc.value === value);
+              fieldId = "product_class";
               if (productClass) {
-                fieldId = "product_class";
                 selectedBadges[fieldId] = productClass.value;
+                selectedBadgesLabels[fieldId] = productClass.text || value;
+              } else {
+                selectedBadges[fieldId] = "";
+                selectedBadgesLabels[fieldId] = value;
               }
               break;
             }
@@ -110,9 +138,13 @@ export const parseTitleWithBadges = (
             // Check category_product_type
             if ((key === "category_product_type" || key === "نوع محصول") && bind.category_product_types) {
               const productType = bind.category_product_types.find((pt) => pt.text === value || pt.value === value);
+              fieldId = "category_product_type";
               if (productType) {
-                fieldId = "category_product_type";
                 selectedBadges[fieldId] = productType.value;
+                selectedBadgesLabels[fieldId] = productType.text || value;
+              } else {
+                selectedBadges[fieldId] = "";
+                selectedBadgesLabels[fieldId] = value;
               }
               break;
             }
@@ -133,7 +165,7 @@ export const parseTitleWithBadges = (
     }
   });
 
-  return { parsedText, selectedBadges };
+  return { parsedText, selectedBadges, selectedBadgesLabels };
 };
 
 /**

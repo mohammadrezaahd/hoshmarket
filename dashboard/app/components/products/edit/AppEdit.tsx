@@ -10,7 +10,6 @@ import {
   Divider,
   Grid,
   IconButton,
-  Stack,
   Tab,
   Tabs,
   TextField,
@@ -19,7 +18,6 @@ import {
 } from "@mui/material";
 import DynamicTitleBuilder from "../DynamicTitleBuilder";
 import { DeleteIcon, AiIcon } from "~/components/icons/IconComponents";
-import { useTitleSuggest, useDescSuggest } from "~/api/product.api";
 import { useSnackbar } from "notistack";
 import { parseTitleWithBadges } from "~/utils/titleParser";
 import ImageSelector from "~/components/templates/ImageSelector";
@@ -89,12 +87,13 @@ const AppEditProduct: React.FC<AppEditProductProps> = ({
   // All useState hooks first
   const [selectedCategory, setSelectedCategory] =
     useState<ICategoryList | null>(null);
+  const [suggestedBadgeLabels, setSuggestedBadgeLabels] = useState<{
+    [key: string]: string;
+  }>({});
   const { enqueueSnackbar } = useSnackbar();
 
   // All API hooks
   const { data: categoriesData } = useCategoriesList("", 1, 50);
-  const { mutateAsync: suggestTitle, isPending: isTitleSuggesting } = useTitleSuggest();
-  const { mutateAsync: suggestDesc, isPending: isDescSuggesting } = useDescSuggest();
 
   // Template references
   const activeDetailsTemplate = detailsTemplates[activeDetailsTab];
@@ -136,54 +135,6 @@ const AppEditProduct: React.FC<AppEditProductProps> = ({
       setSelectedCategory(category);
     }
   }, [productData?.data?.category_id, categoriesData?.data]);
-
-  // AI suggestion handlers
-  const handleTitleSuggest = async () => {
-    if (!productData?.data?.category_id) {
-      enqueueSnackbar("دسته‌بندی محصول یافت نشد", { variant: "warning" });
-      return;
-    }
-
-    try {
-      const response = await suggestTitle({ categoryId: productData.data.category_id });
-      if (response?.data?.title) {
-        // Parse title to extract badges
-        const parsed = parseTitleWithBadges(
-          response.data.title,
-          getAllAttributesData,
-          getAllDetailsData
-        );
-        
-        console.log('💡 AI Title Suggestion:', {
-          original: response.data.title,
-          parsed,
-          selectedBadges: parsed.selectedBadges
-        });
-        
-        onProductTitleChange(parsed.parsedText);
-        enqueueSnackbar("عنوان با موفقیت پیشنهاد شد", { variant: "success" });
-      }
-    } catch (error: any) {
-      enqueueSnackbar(`خطا در دریافت پیشنهاد عنوان: ${error.message}`, { variant: "error" });
-    }
-  };
-
-  const handleDescSuggest = async () => {
-    if (!productData?.data?.category_id) {
-      enqueueSnackbar("دسته‌بندی محصول یافت نشد", { variant: "warning" });
-      return;
-    }
-
-    try {
-      const response = await suggestDesc({ categoryId: productData.data.category_id });
-      if (response?.data?.description) {
-        onProductDescriptionChange(response.data.description);
-        enqueueSnackbar("توضیحات با موفقیت پیشنهاد شد", { variant: "success" });
-      }
-    } catch (error: any) {
-      enqueueSnackbar(`خطا در دریافت پیشنهاد توضیحات: ${error.message}`, { variant: "error" });
-    }
-  };
 
   // Handle form data changes
   const handleDetailsFormDataChange = (fieldName: string, value: any) => {
@@ -236,12 +187,9 @@ const AppEditProduct: React.FC<AppEditProductProps> = ({
                   onChange={onProductTitleChange}
                   attributesData={getAllAttributesData}
                   detailsData={getAllDetailsData}
+                  suggestedBadgeLabels={suggestedBadgeLabels}
                   label="عنوان محصول"
                   placeholder="عنوان محصول را وارد کنید..."
-                  showAiButton={true}
-                  onAiSuggest={handleTitleSuggest}
-                  isAiLoading={isTitleSuggesting}
-                  aiDisabled={!productData?.data?.category_id}
                 />
                 {productInfoValidation.errors.title && (
                   <Typography
@@ -265,37 +213,6 @@ const AppEditProduct: React.FC<AppEditProductProps> = ({
                     error={!!productInfoValidation.errors.description}
                     helperText={productInfoValidation.errors.description}
                   />
-
-                  <Box sx={{ position: "absolute", bottom: 12, left: 12 }}>
-                    <Tooltip title="دریافت پیشنهاد از هوش مصنوعی" placement="top">
-                      <span>
-                        <IconButton
-                          onClick={handleDescSuggest}
-                          disabled={isDescSuggesting || !productData?.data?.category_id}
-                          sx={{
-                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                            color: "white",
-                            width: 24,
-                            height: 24,
-                            padding: 0,
-                            "&:hover": {
-                              background: "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
-                            },
-                            "&.Mui-disabled": {
-                              background: "#e0e0e0",
-                              color: "#9e9e9e",
-                            },
-                          }}
-                        >
-                          {isDescSuggesting ? (
-                            <CircularProgress size={12} sx={{ color: "white" }} />
-                          ) : (
-                            <AiIcon style={{ fontSize: 12 }} />
-                          )}
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Box>
                 </Box>
               </Grid>
               <Grid size={{ xs: 12 }}>

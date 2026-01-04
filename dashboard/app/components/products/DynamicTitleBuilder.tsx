@@ -1,5 +1,13 @@
 import React, { useRef, useMemo, useEffect, useCallback } from "react";
-import { Box, Typography, Chip, Paper, IconButton, Tooltip, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Chip,
+  Paper,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+} from "@mui/material";
 import { AiIcon } from "~/components/icons/IconComponents";
 import type {
   ICategoryAttr,
@@ -28,10 +36,8 @@ interface DynamicTitleBuilderProps {
   detailsData?: ICategoryDetails[];
   placeholder?: string;
   label?: string;
-  showAiButton?: boolean;
-  onAiSuggest?: () => void;
-  isAiLoading?: boolean;
-  aiDisabled?: boolean;
+  locked?: boolean;
+  suggestedBadgeLabels?: { [key: string]: string };
 }
 
 const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
@@ -41,10 +47,8 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
   detailsData = [],
   placeholder = "عنوان محصول را وارد کنید...",
   label = "عنوان محصول",
-  showAiButton = false,
-  onAiSuggest,
-  isAiLoading = false,
-  aiDisabled = false,
+  locked = false,
+  suggestedBadgeLabels = {},
 }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInternalUpdate = useRef(false);
@@ -105,6 +109,22 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
     return allBadges;
   }, [attributesData, detailsData]);
 
+  // Include suggested badge labels (from AI) as badges if they're not defined in templates
+  const mergedBadges = useMemo(() => {
+    const map = new Map<string, TagItem>();
+    badges.forEach((b) => map.set(b.id.toString(), b));
+    Object.entries(suggestedBadgeLabels || {}).forEach(([id, label]) => {
+      if (!map.has(id)) {
+        map.set(id, {
+          id: id as any,
+          title: label,
+          type: "detail",
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [badges, suggestedBadgeLabels]);
+
   // Convert value to HTML and update the contentEditable div
   useEffect(() => {
     if (!ref.current) return;
@@ -122,23 +142,27 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
           !badgeContainer.hasAttribute("data-listeners-attached")
         ) {
           badgeContainer.setAttribute("data-listeners-attached", "true");
+          if (!locked) {
+            btn.addEventListener("mouseenter", () => {
+              (btn as HTMLElement).style.backgroundColor = "rgba(0,0,0,0.1)";
+            });
+            btn.addEventListener("mouseleave", () => {
+              (btn as HTMLElement).style.backgroundColor = "transparent";
+            });
 
-          btn.addEventListener("mouseenter", () => {
-            (btn as HTMLElement).style.backgroundColor = "rgba(0,0,0,0.1)";
-          });
-          btn.addEventListener("mouseleave", () => {
-            (btn as HTMLElement).style.backgroundColor = "transparent";
-          });
+            const removeBadge = (e: Event) => {
+              e.preventDefault();
+              e.stopPropagation();
+              badgeContainer.remove();
+              handleInput();
+            };
 
-          const removeBadge = (e: Event) => {
-            e.preventDefault();
-            e.stopPropagation();
-            badgeContainer.remove();
-            handleInput();
-          };
-
-          btn.addEventListener("click", removeBadge);
-          badgeContainer.addEventListener("click", removeBadge);
+            btn.addEventListener("click", removeBadge);
+            badgeContainer.addEventListener("click", removeBadge);
+          } else {
+            // hide or disable close when locked
+            (btn as HTMLElement).style.display = "none";
+          }
         }
       });
 
@@ -179,10 +203,16 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
       .map((part) => {
         if (part.startsWith("{") && part.endsWith("}")) {
           const id = part.slice(1, -1);
-          const badge = badges.find((b) => b.id.toString() === id);
+          const badge = mergedBadges.find((b) => b.id.toString() === id);
           if (badge) {
             return `<span style="display: inline-flex; align-items: center; background: #E3F2FD; border-radius: 8px; padding: 2px 6px; margin: 0 2px; cursor: pointer;" contenteditable="false" data-id="${id}" data-listeners-attached="true"><span style="margin-right: 4px;">${badge.title}</span><span style="font-size: 14px; font-weight: bold; cursor: pointer; padding: 0 2px; border-radius: 50%; line-height: 1;" class="badge-close" title="حذف">×</span></span>`;
           }
+          // If no badge definition exists, try to use suggested label (from AI suggestion)
+          const suggestedLabel = suggestedBadgeLabels[id];
+          if (suggestedLabel) {
+            return `<span style="display: inline-flex; align-items: center; background: #E3F2FD; border-radius: 8px; padding: 2px 6px; margin: 0 2px; cursor: pointer;" contenteditable="false" data-id="${id}" data-listeners-attached="true"><span style="margin-right: 4px;">${suggestedLabel}</span><span style="font-size: 14px; font-weight: bold; cursor: pointer; padding: 0 2px; border-radius: 50%; line-height: 1;" class="badge-close" title="حذف">×</span></span>`;
+          }
+
           return part;
         }
         return part;
@@ -191,30 +221,34 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
 
     ref.current.innerHTML = html;
 
-    // Re-attach event listeners to close buttons
+    // Re-attach event listeners to close buttons (or hide them when locked)
     const closeButtons = ref.current.querySelectorAll(".badge-close");
     closeButtons.forEach((btn) => {
       const badgeContainer = btn.parentElement;
       if (badgeContainer) {
-        btn.addEventListener("mouseenter", () => {
-          (btn as HTMLElement).style.backgroundColor = "rgba(0,0,0,0.1)";
-        });
-        btn.addEventListener("mouseleave", () => {
-          (btn as HTMLElement).style.backgroundColor = "transparent";
-        });
+        if (!locked) {
+          btn.addEventListener("mouseenter", () => {
+            (btn as HTMLElement).style.backgroundColor = "rgba(0,0,0,0.1)";
+          });
+          btn.addEventListener("mouseleave", () => {
+            (btn as HTMLElement).style.backgroundColor = "transparent";
+          });
 
-        const removeBadge = (e: Event) => {
-          e.preventDefault();
-          e.stopPropagation();
-          badgeContainer.remove();
-          handleInput();
-        };
+          const removeBadge = (e: Event) => {
+            e.preventDefault();
+            e.stopPropagation();
+            badgeContainer.remove();
+            handleInput();
+          };
 
-        btn.addEventListener("click", removeBadge);
-        badgeContainer.addEventListener("click", removeBadge);
+          btn.addEventListener("click", removeBadge);
+          badgeContainer.addEventListener("click", removeBadge);
+        } else {
+          (btn as HTMLElement).style.display = "none";
+        }
       }
     });
-  }, [value, badges]);
+  }, [value, mergedBadges]);
 
   // Get currently used tags
   const usedTags = useMemo(() => {
@@ -232,6 +266,7 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
 
   const insertBadge = (badge: TagItem) => {
     if (!ref.current) return;
+    if (locked) return;
 
     // Focus the contentEditable div first
     ref.current.focus();
@@ -357,18 +392,28 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
     lastValue.current = newValue;
     onChange(newValue);
   };
+
+  useEffect(() => {
+    console.log("Merged Badges:", mergedBadges);
+  }, [mergedBadges]);
+
   return (
     <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-        <Typography variant="h6">
-          {label}
-        </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 1,
+        }}
+      >
+        <Typography variant="h6">{label}</Typography>
       </Box>
 
       <Box sx={{ position: "relative" }}>
         <Box
           ref={ref}
-          contentEditable
+          contentEditable={!locked}
           suppressContentEditableWarning
           onInput={handleInput}
           onKeyDown={(e) => {
@@ -381,9 +426,9 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
             border: "1px solid #ccc",
             borderRadius: "8px",
             padding: "8px",
-            paddingLeft: showAiButton ? "44px" : "8px",
+            paddingLeft: "8px",
             minHeight: "80px",
-            cursor: "text",
+            cursor: locked ? "not-allowed" : "text",
             direction: "rtl",
             textAlign: "right",
             whiteSpace: "pre-wrap",
@@ -396,49 +441,17 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
             },
           }}
         />
-
-        {showAiButton && (
-          <Box sx={{ position: "absolute", bottom: 10, left: 10 }}>
-            <Tooltip title="دریافت پیشنهاد از هوش مصنوعی" placement="top">
-              <span>
-                <IconButton
-                  onClick={onAiSuggest}
-                  disabled={aiDisabled || isAiLoading}
-                  sx={{
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    color: "white",
-                    width: 24,
-                    height: 24,
-                    padding: 0,
-                    "&:hover": {
-                      background: "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
-                    },
-                    "&.Mui-disabled": {
-                      background: "#e0e0e0",
-                      color: "#9e9e9e",
-                    },
-                  }}
-                >
-                  {isAiLoading ? (
-                    <CircularProgress size={12} sx={{ color: "white" }} />
-                  ) : (
-                    <AiIcon style={{ fontSize: 12 }} />
-                  )}
-                </IconButton>
-              </span>
-            </Tooltip>
-          </Box>
-        )}
+        {/* AI suggestion button removed — suggestions are triggered by step change */}
       </Box>
       <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
-        {badges
+        {mergedBadges
           .filter((b) => !usedTags.includes(b.id.toString()))
           .map((b) => (
             <Chip
               key={`${b.type}-${b.id}`}
               label={b.title}
               size="small"
-              onClick={() => insertBadge(b)}
+              onClick={!locked ? () => insertBadge(b) : undefined}
               variant="outlined"
               color="primary"
             />

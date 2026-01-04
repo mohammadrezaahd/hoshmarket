@@ -34,6 +34,8 @@ import {
   resetProduct,
   setStepValidationError,
 } from "~/store/slices/productSlice";
+import { useTitleSuggest } from "~/api/product.api";
+import { parseTitleWithBadges } from "~/utils/titleParser";
 import { useCategoriesList } from "~/api/categories.api";
 import { useDetails, useDetail } from "~/api/details.api";
 import { useAttrs, useAttr } from "~/api/attributes.api";
@@ -828,6 +830,114 @@ const NewProductPage = () => {
     );
   }, [productState.stepValidationErrors]);
 
+  // AI suggestion state for title (labels and force lock)
+  const [suggestedBadgeLabels, setSuggestedBadgeLabels] = React.useState<{
+    [key: string]: string;
+  }>({});
+  const [aiForceLocked, setAiForceLocked] = React.useState(false);
+  const suggestedTriggeredRef = React.useRef(false);
+
+  const { mutateAsync: suggestTitle, isPending: isTitleSuggesting } =
+    useTitleSuggest();
+
+  // Trigger title suggestion automatically when entering PRODUCT_INFO step
+  React.useEffect(() => {
+    const runSuggestion = async () => {
+      if (!productState.selectedCategoryId) return;
+      try {
+        const response = await suggestTitle({
+          categoryId: productState.selectedCategoryId,
+        });
+        const data = response?.data;
+
+        // If API returned title, parse and apply
+        if (data && data.title) {
+          const parsed = parseTitleWithBadges(
+            data.title,
+            getAllAttributesData,
+            getAllDetailsData
+          );
+
+          // Set title
+          dispatch(setProductTitle(parsed.parsedText));
+
+          // Apply badges to selected attributes templates
+          const selected = parsed.selectedBadges || {};
+          const labels = parsed.selectedBadgesLabels || {};
+
+          // Update attributes templates
+          productState.selectedAttributesTemplates.forEach((template, idx) => {
+            try {
+              const templateData = template.data as ICategoryAttr | undefined;
+              if (templateData && templateData.category_group_attributes) {
+                Object.values(templateData.category_group_attributes).forEach(
+                  (group) => {
+                    Object.values(group.attributes).forEach((attr) => {
+                      const fieldKey = attr.code || attr.id.toString();
+                      if (selected[fieldKey] !== undefined) {
+                        dispatch(
+                          updateAttributesTemplateFormData({
+                            templateIndex: idx,
+                            fieldId: fieldKey,
+                            value: selected[fieldKey],
+                          })
+                        );
+                      }
+                    });
+                  }
+                );
+              }
+            } catch (err) {
+              console.warn(
+                "Failed to apply suggested badges to attributes",
+                err
+              );
+            }
+          });
+
+          // Update details templates (brand, status, platform, etc.)
+          productState.selectedDetailsTemplates.forEach((template, idx) => {
+            try {
+              const keys = [
+                "brand",
+                "status",
+                "platform",
+                "product_class",
+                "category_product_type",
+              ];
+              keys.forEach((key) => {
+                if (selected[key] !== undefined) {
+                  dispatch(
+                    updateDetailsTemplateFormData({
+                      templateIndex: idx,
+                      fieldName: key,
+                      value: selected[key],
+                    })
+                  );
+                }
+              });
+            } catch (err) {
+              console.warn("Failed to apply suggested badges to details", err);
+            }
+          });
+
+          setSuggestedBadgeLabels(labels);
+          setAiForceLocked(!!data.force);
+        }
+      } catch (err) {
+        console.error("Error fetching title suggestion:", err);
+      }
+    };
+
+    if (
+      productState.currentStep === FormStep.PRODUCT_INFO &&
+      !suggestedTriggeredRef.current
+    ) {
+      suggestedTriggeredRef.current = true;
+      runSuggestion();
+    }
+  }, [productState.currentStep, productState.selectedCategoryId]);
+
   // Render current step
   const renderCurrentStep = () => {
     const stepContent = (() => {
@@ -974,6 +1084,8 @@ const NewProductPage = () => {
               stepValidationErrors={productState.stepValidationErrors}
               attributesData={getAllAttributesData}
               detailsData={getAllDetailsData}
+              suggestedBadgeLabels={suggestedBadgeLabels}
+              locked={aiForceLocked}
             />
           );
 

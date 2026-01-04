@@ -13,9 +13,8 @@ import {
 } from "@mui/material";
 import DynamicTitleBuilder from "./DynamicTitleBuilder";
 import { AiIcon } from "~/components/icons/IconComponents";
-import { useTitleSuggest, useDescSuggest } from "~/api/product.api";
+import { useDescSuggest } from "~/api/product.api";
 import { useSnackbar } from "notistack";
-import { parseTitleWithBadges } from "~/utils/titleParser";
 import type { ICategoryAttr } from "~/types/interfaces/attributes.interface";
 import type { ICategoryDetails } from "~/types/interfaces/details.interface";
 
@@ -34,6 +33,8 @@ interface ProductInfoFormProps {
   };
   attributesData?: ICategoryAttr[];
   detailsData?: ICategoryDetails[];
+  suggestedBadgeLabels?: { [key: string]: string };
+  locked?: boolean;
   submitButtonLabel?: string;
 }
 
@@ -50,52 +51,22 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
   stepValidationErrors = {},
   attributesData = [],
   detailsData = [],
+  suggestedBadgeLabels = {},
+  locked = false,
   submitButtonLabel = "ایجاد محصول",
 }) => {
   const [errors, setErrors] = useState<{ title?: string }>({});
   const { enqueueSnackbar } = useSnackbar();
 
-  // AI suggestion hooks
-  const { mutateAsync: suggestTitle, isPending: isTitleSuggesting } = useTitleSuggest();
-  const { mutateAsync: suggestDesc, isPending: isDescSuggesting } = useDescSuggest();
-
-  // AI suggestion handlers
-  const handleTitleSuggest = async () => {
-    if (!categoryId) {
-      enqueueSnackbar("لطفاً ابتدا دسته‌بندی را انتخاب کنید", { variant: "warning" });
-      return;
-    }
-
-    try {
-      const response = await suggestTitle({ categoryId });
-      if (response?.data?.title) {
-        // Parse the title and extract badge selections
-        const { parsedText, selectedBadges } = parseTitleWithBadges(
-          response.data.title,
-          attributesData,
-          detailsData
-        );
-        
-        // Update title with parsed text
-        onTitleChange(parsedText);
-        
-        // Log selected badges for debugging
-        console.log('💡 AI Title Suggestion:', {
-          original: response.data.title,
-          parsed: parsedText,
-          selectedBadges,
-        });
-        
-        enqueueSnackbar("عنوان با موفقیت پیشنهاد شد", { variant: "success" });
-      }
-    } catch (error: any) {
-      enqueueSnackbar(`خطا در دریافت پیشنهاد عنوان: ${error.message}`, { variant: "error" });
-    }
-  };
+  // AI suggestion hooks (description only)
+  const { mutateAsync: suggestDesc, isPending: isDescSuggesting } =
+    useDescSuggest();
 
   const handleDescSuggest = async () => {
     if (!categoryId) {
-      enqueueSnackbar("لطفاً ابتدا دسته‌بندی را انتخاب کنید", { variant: "warning" });
+      enqueueSnackbar("لطفاً ابتدا دسته‌بندی را انتخاب کنید", {
+        variant: "warning",
+      });
       return;
     }
 
@@ -106,7 +77,9 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
         enqueueSnackbar("توضیحات با موفقیت پیشنهاد شد", { variant: "success" });
       }
     } catch (error: any) {
-      enqueueSnackbar(`خطا در دریافت پیشنهاد توضیحات: ${error.message}`, { variant: "error" });
+      enqueueSnackbar(`خطا در دریافت پیشنهاد توضیحات: ${error.message}`, {
+        variant: "error",
+      });
     }
   };
 
@@ -137,7 +110,8 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
       {hasValidationErrors && (
         <Alert severity="warning" sx={{ mb: 3 }}>
           <Typography variant="body2">
-            لطفاً ابتدا خطاهای موجود در مراحل قبلی را رفع کنید. مراحل دارای خطا با علامت ضربدر مشخص شده‌اند.
+            لطفاً ابتدا خطاهای موجود در مراحل قبلی را رفع کنید. مراحل دارای خطا
+            با علامت ضربدر مشخص شده‌اند.
           </Typography>
         </Alert>
       )}
@@ -155,12 +129,10 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
           detailsData={detailsData}
           label="عنوان محصول"
           placeholder="عنوان محصول را وارد کنید..."
-          showAiButton
-          onAiSuggest={handleTitleSuggest}
-          isAiLoading={isTitleSuggesting}
-          aiDisabled={!categoryId}
+          suggestedBadgeLabels={suggestedBadgeLabels}
+          locked={locked}
         />
-        
+
         {errors.title && (
           <Alert severity="error" sx={{ mt: 1, mb: 2 }}>
             {errors.title}
@@ -178,11 +150,11 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
             placeholder="توضیحات اختیاری در مورد محصول..."
             sx={{
               // add left padding so text doesn't collide with absolute icon
-              '& .MuiInputBase-root': { paddingLeft: '44px' }
+              "& .MuiInputBase-root": { paddingLeft: "44px" },
             }}
           />
 
-          <Box sx={{ position: 'absolute', bottom: 10, left: 10, zIndex: 20 }}> 
+          <Box sx={{ position: "absolute", bottom: 10, left: 10, zIndex: 20 }}>
             <Tooltip title="دریافت پیشنهاد از هوش مصنوعی" placement="top">
               <span>
                 <IconButton
@@ -190,18 +162,22 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
                   disabled={isDescSuggesting || !categoryId}
                   size="small"
                   sx={{
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     color: "white",
                     width: 20,
                     height: 20,
                     minWidth: 20,
                     padding: 0,
                     boxShadow: "0 1px 3px rgba(0,0,0,0.12)",
-                    '&:hover': { background: "linear-gradient(135deg, #764ba2 0%, #667eea 100%)" },
+                    "&:hover": {
+                      background:
+                        "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
+                    },
                   }}
                 >
                   {isDescSuggesting ? (
-                    <CircularProgress size={10} sx={{ color: 'white' }} />
+                    <CircularProgress size={10} sx={{ color: "white" }} />
                   ) : (
                     <AiIcon style={{ fontSize: 10 }} />
                   )}
@@ -214,25 +190,19 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
 
       <Divider sx={{ my: 3 }} />
 
-      <Alert severity="info" sx={{ mb: 3 }}>
-        <Typography variant="body2">
-          پس از کلیک روی "{submitButtonLabel}"، اطلاعات نهایی محصول در کنسول نمایش داده خواهد شد.
-        </Typography>
-      </Alert>
-
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Button
-          variant="outlined"
-          onClick={onBack}
-          disabled={isSubmitting}
-        >
+        <Button variant="outlined" onClick={onBack} disabled={isSubmitting}>
           مرحله قبل
         </Button>
-        
+
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={isSubmitting || hasValidationErrors || (!!errors.title && !title.trim())}
+          disabled={
+            isSubmitting ||
+            hasValidationErrors ||
+            (!!errors.title && !title.trim())
+          }
           sx={{ minWidth: 120 }}
         >
           {isSubmitting ? `در حال ${submitButtonLabel}...` : submitButtonLabel}
