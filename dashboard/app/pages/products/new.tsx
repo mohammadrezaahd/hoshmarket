@@ -37,8 +37,8 @@ import {
 import { useTitleSuggest } from "~/api/product.api";
 import { parseTitleWithBadges } from "~/utils/titleParser";
 import { useCategoriesList } from "~/api/categories.api";
-import { useDetails, useDetail } from "~/api/details.api";
-import { useAttrs, useAttr } from "~/api/attributes.api";
+import { useDetails, useDetail, detailsApi } from "~/api/details.api";
+import { useAttrs, useAttr, attrsApi } from "~/api/attributes.api";
 import { useSelectedImages } from "~/api/gallery.api";
 import {
   useProductDetailsValidation,
@@ -357,6 +357,82 @@ const NewProductPage = () => {
     activeAttributesTemplate?.id,
     dispatch,
   ]);
+
+  // Ensure all selected details templates are loaded when entering DETAILS_FORM
+  useEffect(() => {
+    const loadAllDetailsTemplates = async () => {
+      if (productState.currentStep !== FormStep.DETAILS_FORM) return;
+
+      const toLoad = productState.selectedDetailsTemplates.filter(
+        (t) => !t.data || Object.keys(t.data).length === 0
+      );
+
+      if (toLoad.length === 0) return;
+
+      try {
+        await Promise.all(
+          toLoad.map(async (tpl) => {
+            try {
+              const res = await detailsApi.getDetail(tpl.id);
+              if (res && res.data) {
+                dispatch(
+                  updateSelectedTemplateData({
+                    templateId: tpl.id,
+                    data: res.data.data_json,
+                    type: "details",
+                  })
+                );
+              }
+            } catch (err) {
+              console.warn("Failed to load details template", tpl.id, err);
+            }
+          })
+        );
+      } catch (err) {
+        console.error("Error loading details templates:", err);
+      }
+    };
+
+    loadAllDetailsTemplates();
+  }, [productState.currentStep, productState.selectedDetailsTemplates, dispatch]);
+
+  // Ensure all selected attributes templates are loaded when entering ATTRIBUTES_FORM
+  useEffect(() => {
+    const loadAllAttributesTemplates = async () => {
+      if (productState.currentStep !== FormStep.ATTRIBUTES_FORM) return;
+
+      const toLoad = productState.selectedAttributesTemplates.filter(
+        (t) => !t.data || Object.keys(t.data).length === 0
+      );
+
+      if (toLoad.length === 0) return;
+
+      try {
+        await Promise.all(
+          toLoad.map(async (tpl) => {
+            try {
+              const res = await attrsApi.getAttr(tpl.id);
+              if (res && res.data) {
+                dispatch(
+                  updateSelectedTemplateData({
+                    templateId: tpl.id,
+                    data: res.data.data_json,
+                    type: "attributes",
+                  })
+                );
+              }
+            } catch (err) {
+              console.warn("Failed to load attributes template", tpl.id, err);
+            }
+          })
+        );
+      } catch (err) {
+        console.error("Error loading attributes templates:", err);
+      }
+    };
+
+    loadAllAttributesTemplates();
+  }, [productState.currentStep, productState.selectedAttributesTemplates, dispatch]);
 
   // Handle category selection
   const handleCategorySelect = async (category: ICategoryList | null) => {
@@ -787,6 +863,72 @@ const NewProductPage = () => {
       });
   }, [productState.selectedAttributesTemplates]);
 
+  // Build selected attributes data array (ICategoryAttr[]) by applying formData to template data
+  const getSelectedAttributesData = useMemo(() => {
+    return productState.selectedAttributesTemplates
+      .map((template) => {
+        if (!template.data) return null;
+        const finalData = JSON.parse(JSON.stringify(template.data)) as ICategoryAttr;
+        const formData = template.formData || {};
+
+        if (finalData.category_group_attributes) {
+          Object.keys(finalData.category_group_attributes).forEach((categoryId) => {
+            const categoryData = finalData.category_group_attributes[categoryId];
+
+            Object.keys(categoryData.attributes).forEach((attributeId) => {
+              const attr = categoryData.attributes[attributeId];
+              const fieldKey = attr.code || attr.id.toString();
+              const formValue = formData[fieldKey];
+              const hasFormValue = fieldKey in formData;
+
+              switch (attr.type) {
+                case "input":
+                  if (hasFormValue && formValue !== null && formValue !== undefined && formValue !== "") {
+                    attr.value = formValue.toString();
+                  }
+                  break;
+                case "text":
+                  if (hasFormValue && formValue !== null && formValue !== undefined && formValue !== "") {
+                    const lines = formValue.toString().split("\n").filter((l: string) => l.trim() !== "");
+                    attr.value = { text_lines: lines, original_text: formValue.toString() };
+                  } else {
+                    attr.value = "";
+                  }
+                  break;
+                case "select":
+                  Object.keys(attr.values).forEach((valueId) => {
+                    attr.values[valueId].selected = false;
+                  });
+                  if (hasFormValue && formValue) {
+                    const formValueStr = formValue.toString();
+                    if (attr.values[formValueStr]) {
+                      attr.values[formValueStr].selected = true;
+                    }
+                  }
+                  break;
+                case "checkbox":
+                  Object.keys(attr.values).forEach((valueId) => {
+                    attr.values[valueId].selected = false;
+                  });
+                  if (hasFormValue && Array.isArray(formValue) && formValue.length > 0) {
+                    formValue.forEach((valueId: any) => {
+                      const valueIdStr = valueId.toString();
+                      if (attr.values[valueIdStr]) {
+                        attr.values[valueIdStr].selected = true;
+                      }
+                    });
+                  }
+                  break;
+              }
+            });
+          });
+        }
+
+        return finalData;
+      })
+      .filter((d): d is ICategoryAttr => !!d);
+  }, [productState.selectedAttributesTemplates]);
+
   // Get all details data from selected templates for title builder
   const getAllDetailsData = useMemo(() => {
     return productState.selectedDetailsTemplates
@@ -1063,6 +1205,7 @@ const NewProductPage = () => {
               isSubmitting={isSubmitting}
               stepValidationErrors={productState.stepValidationErrors}
               attributesData={getAllAttributesData}
+              selectedAttributesData={getSelectedAttributesData}
               detailsData={getAllDetailsData}
               suggestedBadgeLabels={suggestedBadgeLabels}
               locked={aiForceLocked}

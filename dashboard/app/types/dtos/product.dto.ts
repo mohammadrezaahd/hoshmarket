@@ -15,6 +15,6 @@ export interface IPostProduct {
 }
 
 export interface IProductSuggestion {
-  data?: ICategoryAttr;
+  data?: ICategoryAttr[];
   categoryId: number;
 }

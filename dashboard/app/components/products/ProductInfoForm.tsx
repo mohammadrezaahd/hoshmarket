@@ -32,6 +32,7 @@ interface ProductInfoFormProps {
     [key: string]: boolean;
   };
   attributesData?: ICategoryAttr[];
+  selectedAttributesData?: ICategoryAttr[];
   detailsData?: ICategoryDetails[];
   suggestedBadgeLabels?: { [key: string]: string };
   locked?: boolean;
@@ -50,6 +51,7 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
   hasValidationErrors = false,
   stepValidationErrors = {},
   attributesData = [],
+  selectedAttributesData = [],
   detailsData = [],
   suggestedBadgeLabels = {},
   locked = false,
@@ -71,7 +73,12 @@ const ProductInfoForm: React.FC<ProductInfoFormProps> = ({
     }
 
     try {
-      const response = await suggestDesc({ categoryId });
+      const payloadData =
+        selectedAttributesData && selectedAttributesData.length > 0
+          ? selectedAttributesData
+          : attributesData;
+
+      const response = await suggestDesc({ categoryId, data: payloadData });
       if (response?.data?.description) {
         onDescriptionChange(response.data.description);
         enqueueSnackbar("توضیحات با موفقیت پیشنهاد شد", { variant: "success" });
