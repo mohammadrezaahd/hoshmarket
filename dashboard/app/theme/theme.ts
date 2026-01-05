@@ -55,69 +55,68 @@ const palette = {
   gradient: "linear-gradient(135deg, #6C5CE7, #A29BFE)",
 };
 
-// تنظیمات typography با فونت یکان بخ
+// تنظیمات typography با فونت Kalameh
+// وزن‌های فونت: normal (Regular), medium (Medium), bold (Bold)
 const typography = {
   fontFamily: [
     "Kalameh",
-    "Kalameh-Medium",
-    "Kalameh-Bold",
     "Arial",
     "sans-serif",
   ].join(","),
   h1: {
     fontSize: "2.125rem",
-    fontWeight: 300,
+    fontWeight: "bold" as const,
     lineHeight: 1.167,
   },
   h2: {
     fontSize: "1.5rem",
-    fontWeight: 400,
+    fontWeight: "bold" as const,
     lineHeight: 1.2,
   },
   h3: {
     fontSize: "1.25rem",
-    fontWeight: 400,
+    fontWeight: "bold" as const,
     lineHeight: 1.167,
   },
   h4: {
     fontSize: "1.125rem",
-    fontWeight: 400,
+    fontWeight: "medium" as const,
     lineHeight: 1.235,
   },
   h5: {
     fontSize: "1rem",
-    fontWeight: 400,
+    fontWeight: "medium" as const,
     lineHeight: 1.334,
   },
   h6: {
     fontSize: "0.875rem",
-    fontWeight: 500,
+    fontWeight: "medium" as const,
     lineHeight: 1.6,
   },
   body1: {
     fontSize: "1rem",
-    fontWeight: 400,
+    fontWeight: "normal" as const,
     lineHeight: 1.5,
   },
   body2: {
     fontSize: "0.875rem",
-    fontWeight: 400,
+    fontWeight: "normal" as const,
     lineHeight: 1.43,
   },
   button: {
     fontSize: "0.875rem",
-    fontWeight: 500,
+    fontWeight: "medium" as const,
     lineHeight: 1.75,
     textTransform: "none" as const,
   },
   caption: {
     fontSize: "0.75rem",
-    fontWeight: 400,
+    fontWeight: "normal" as const,
     lineHeight: 1.66,
   },
   overline: {
     fontSize: "0.75rem",
-    fontWeight: 400,
+    fontWeight: "medium" as const,
     lineHeight: 2.66,
     textTransform: "uppercase" as const,
   },

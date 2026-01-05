@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "Kalameh-Medium";
+  font-family: "Kalameh";
   src:
-    url("/fonts/Kalameh/KalamehWebFaNum-Medium.woff2") format("woff2"),
-    url("/fonts/Kalameh/KalamehWebFaNum-Medium.woff") format("woff");
-  font-weight: 100 900;
+    url("/fonts/Kalameh/KalamehWebFaNum-Regular.woff2") format("woff2"),
+    url("/fonts/Kalameh/KalamehWebFaNum-Regular.woff") format("woff");
+  font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
@@ -13,26 +13,26 @@
 @font-face {
   font-family: "Kalameh";
   src:
-    url("/fonts/Kalameh/KalamehWebFaNum-Regular.woff2") format("woff2"),
-    url("/fonts/Kalameh/KalamehWebFaNum-Regular.woff") format("woff");
-  font-weight: 100 900;
+    url("/fonts/Kalameh/KalamehWebFaNum-Medium.woff2") format("woff2"),
+    url("/fonts/Kalameh/KalamehWebFaNum-Medium.woff") format("woff");
+  font-weight: medium;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Kalameh-Bold";
+  font-family: "Kalameh";
   src:
     url("/fonts/Kalameh/KalamehWebFaNum-Bold.woff2") format("woff2"),
     url("/fonts/Kalameh/KalamehWebFaNum-Bold.woff") format("woff");
-  font-weight: 100 900;
+  font-weight: bold;
   font-style: normal;
   font-display: swap;
 }
 
 @theme {
   --font-sans:
-    "Kalameh", "Kalameh-Medium", "Kalameh-Bold", ui-sans-serif, system-ui,
+    "Kalameh", ui-sans-serif, system-ui,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
     "Noto Color Emoji";
 }

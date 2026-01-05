@@ -157,7 +157,6 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
                       <Typography
                         variant="body2"
                         sx={{
-                          fontWeight: 500,
                           flex: 1,
                           minWidth: "150px",
                         }}
@@ -170,7 +169,6 @@ const RecentActivity: React.FC<RecentActivityProps> = ({
                         sx={{
                           backgroundColor: `${getColor(activity.type)}15`,
                           color: getColor(activity.type),
-                          fontWeight: 500,
                           fontSize: "0.75rem",
                         }}
                       />

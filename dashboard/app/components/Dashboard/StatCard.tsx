@@ -56,7 +56,6 @@ const StatCard: React.FC<StatCardProps> = ({
               variant="body2"
               color="text.secondary"
               gutterBottom
-              sx={{ fontWeight: 500 }}
             >
               {title}
             </Typography>

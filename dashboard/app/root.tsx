@@ -50,7 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <QueryClientProvider client={queryClient}>
             <SnackbarProvider
               maxSnack={5}
-              autoHideDuration={400000}
+              autoHideDuration={4000}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               style={{ 
                 paddingRight: '40px',

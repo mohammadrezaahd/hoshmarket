@@ -77,9 +77,7 @@ const QuickActions: React.FC = () => {
                 }}
               >
                 <Icon style={{ fontSize: 32 }} />
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {action.label}
-                </Typography>
+                <Typography variant="body2">{action.label}</Typography>
               </Button>
             );
           })}

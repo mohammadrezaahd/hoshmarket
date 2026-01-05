@@ -99,11 +99,6 @@ const Dashboard = () => {
 
   return (
     <Container maxWidth="lg">
-      <button
-        onClick={() => enqueueSnackbar("sadsadasd", { variant: "error" })}
-      >
-        SNACK
-      </button>
       <Box sx={{ width: "100%" }}>
         {/* Welcome Section */}
         <Box sx={{ mb: 4 }}>

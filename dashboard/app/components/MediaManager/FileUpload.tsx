@@ -775,30 +775,21 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 label="نوع تصویر"
                 disabled={isTypeFieldDisabled}
                 MenuProps={{
-                  disablePortal: true,
                   disableScrollLock: true,
                   PaperProps: {
                     sx: {
                       borderRadius: 2,
                       mt: 1,
                       maxHeight: 240,
-                      overflow: "auto",
                     },
                   },
                   anchorOrigin: {
                     vertical: "bottom",
-                    horizontal: "left",
+                    horizontal: "right",
                   },
                   transformOrigin: {
                     vertical: "top",
-                    horizontal: "left",
-                  },
-                  slotProps: {
-                    backdrop: {
-                      sx: {
-                        backgroundColor: "transparent",
-                      },
-                    },
+                    horizontal: "right",
                   },
                 }}
               >
