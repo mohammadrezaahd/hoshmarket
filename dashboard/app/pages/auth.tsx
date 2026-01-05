@@ -24,7 +24,6 @@ import {
   RegisterForm,
   PasswordLogin,
 } from "~/components/auth";
-import { useSnackbar } from "notistack";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -44,7 +43,6 @@ const Auth = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const { enqueueSnackbar } = useSnackbar();
 
   // State
   const [step, setStep] = useState<AuthStep>("phone");
@@ -63,11 +61,10 @@ const Auth = () => {
     const state = location.state as any;
     if (state?.needsRegistration && state?.step === "register") {
       setStep("register");
-      enqueueSnackbar("لطفاً اطلاعات خود را تکمیل کنید", { variant: "info" });
       // پاک کردن state بعد از استفاده
       window.history.replaceState({}, document.title);
     }
-  }, [location, enqueueSnackbar]);
+  }, [location]);
 
   // بررسی اینکه آیا کاربر قبلاً لاگین کرده و register شده یا نه
   useEffect(() => {
@@ -83,63 +80,39 @@ const Auth = () => {
   // Handlers
   const handlePhoneSubmit = async (phoneValue: string) => {
     try {
-      enqueueSnackbar("در حال بررسی شماره موبایل...", { variant: "info" });
       const result = await checkNumber.mutateAsync({ phone: phoneValue });
 
       if (result.new_user) {
         // کاربر جدید - ارسال OTP
         await sendOtp.mutateAsync({ phone: phoneValue });
         setStep("otp-new-user");
-        enqueueSnackbar("کد تایید به شماره شما ارسال شد", {
-          variant: "success",
-        });
       } else {
         // کاربر موجود - نمایش فرم لاگین با رمز
         setStep("password-login");
-        enqueueSnackbar("لطفاً با رمز عبور خود وارد شوید", { variant: "info" });
       }
-    } catch (err: any) {
-      enqueueSnackbar(
-        err?.response?.data?.message ||
-          err?.message ||
-          "خطا در بررسی شماره موبایل",
-        { variant: "error" }
-      );
-    }
+    } catch (err: any) {}
   };
 
   const handleOtpSubmit = async () => {
     const otpCode = otp.join("");
     if (otpCode.length !== 6) {
-      enqueueSnackbar("کد وارد شده باید 6 رقم باشد", { variant: "error" });
       return;
     }
 
     try {
-      enqueueSnackbar("در حال تایید کد...", { variant: "info" });
       const result = await verifyOtp.mutateAsync({ phone, code: otpCode });
 
       if (step === "otp-new-user") {
         // کاربر جدید - به فرم ثبت نام بروید
         setStep("register");
-        enqueueSnackbar("کد تایید شد! لطفاً اطلاعات خود را تکمیل کنید", {
-          variant: "success",
-        });
       } else {
         // کاربر موجود - لاگین شد
-        enqueueSnackbar("ورود موفقیت‌آمیز! در حال انتقال...", {
-          variant: "success",
-        });
+
         setTimeout(() => {
           navigate("/");
         }, 1500);
       }
-    } catch (err: any) {
-      enqueueSnackbar(
-        err?.response?.data?.message || err?.message || "کد تایید نامعتبر است",
-        { variant: "error" }
-      );
-    }
+    } catch (err: any) {}
   };
 
   const handleRegisterSubmit = async (data: {
@@ -149,84 +122,48 @@ const Auth = () => {
     password: string;
   }) => {
     try {
-      enqueueSnackbar("در حال ثبت نام...", { variant: "info" });
       await register.mutateAsync(data);
-      enqueueSnackbar("ثبت نام موفقیت‌آمیز! در حال ورود به سیستم...", {
-        variant: "success",
-      });
+
       setTimeout(() => {
         navigate("/");
       }, 1500);
-    } catch (err: any) {
-      enqueueSnackbar(
-        err?.response?.data?.message || err?.message || "خطا در ثبت نام",
-        { variant: "error" }
-      );
-    }
+    } catch (err: any) {}
   };
 
   const handlePasswordLogin = async (phoneNum: string, password: string) => {
     try {
-      enqueueSnackbar("در حال ورود...", { variant: "info" });
       await loginWithPassword.mutateAsync({
         phone: phoneNum,
         password,
       });
-      enqueueSnackbar("ورود موفقیت‌آمیز! در حال انتقال...", {
-        variant: "success",
-      });
+
       setTimeout(() => {
         navigate("/");
       }, 1500);
-    } catch (err: any) {
-      enqueueSnackbar(
-        err?.response?.data?.message ||
-          err?.message ||
-          "شماره یا رمز عبور اشتباه است",
-        { variant: "error" }
-      );
-    }
+    } catch (err: any) {}
   };
 
   const handleSwitchToOtp = async () => {
     if (!phone.trim()) {
-      enqueueSnackbar("لطفاً ابتدا شماره موبایل را وارد کنید", {
-        variant: "warning",
-      });
       return;
     }
 
     try {
-      enqueueSnackbar("در حال ارسال کد...", { variant: "info" });
       await sendOtp.mutateAsync({ phone });
       setStep("otp-existing-user");
-      enqueueSnackbar("کد تایید به شماره شما ارسال شد", { variant: "success" });
-    } catch (err: any) {
-      enqueueSnackbar(
-        err?.response?.data?.message || err?.message || "خطا در ارسال کد",
-        { variant: "error" }
-      );
-    }
+    } catch (err: any) {}
   };
 
   const handleResendOtp = async () => {
     setOtp(["", "", "", "", "", ""]);
     try {
-      enqueueSnackbar("در حال ارسال مجدد کد...", { variant: "info" });
       await sendOtp.mutateAsync({ phone });
-      enqueueSnackbar("کد تایید مجدداً ارسال شد", { variant: "success" });
-    } catch (err: any) {
-      enqueueSnackbar(
-        err?.response?.data?.message || err?.message || "خطا در ارسال مجدد کد",
-        { variant: "error" }
-      );
-    }
+    } catch (err: any) {}
   };
 
   const handleBackToPhone = () => {
     setStep("phone");
     setOtp(["", "", "", "", "", ""]);
-    enqueueSnackbar("بازگشت به صفحه ورود شماره موبایل", { variant: "info" });
   };
 
   const isLoading =

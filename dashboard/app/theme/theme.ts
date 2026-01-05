@@ -57,7 +57,13 @@ const palette = {
 
 // تنظیمات typography با فونت یکان بخ
 const typography = {
-  fontFamily: ["YekanBakhFaNum", "YekanBakh", "Arial", "sans-serif"].join(","),
+  fontFamily: [
+    "Kalameh",
+    "Kalameh-Medium",
+    "Kalameh-Bold",
+    "Arial",
+    "sans-serif",
+  ].join(","),
   h1: {
     fontSize: "2.125rem",
     fontWeight: 300,
@@ -214,8 +220,8 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           // حداکثر radius برای جلوگیری از گرد شدن بیش از حد
-          '&.MuiMenu-paper, &.MuiSelect-paper, &.MuiPopover-paper': {
-            borderRadius: '6px !important',
+          "&.MuiMenu-paper, &.MuiSelect-paper, &.MuiPopover-paper": {
+            borderRadius: "6px !important",
             maxHeight: 240,
           },
         },
@@ -238,9 +244,9 @@ export const theme = createTheme({
               boxShadow: `0 0 2px 0 rgba(145, 158, 171, 0.2), 0 12px 24px -4px rgba(145, 158, 171, 0.12)`,
               mt: 1,
               maxHeight: 240,
-              '&.MuiPaper-root': {
-                borderRadius: '6px !important', // اجبار به استفاده از radius مشخص
-              }
+              "&.MuiPaper-root": {
+                borderRadius: "6px !important", // اجبار به استفاده از radius مشخص
+              },
             },
           },
           MenuListProps: {
@@ -280,7 +286,7 @@ export const theme = createTheme({
     MuiMenu: {
       styleOverrides: {
         paper: {
-          borderRadius: '6px !important',
+          borderRadius: "6px !important",
           boxShadow: `0 0 2px 0 rgba(145, 158, 171, 0.2), 0 12px 24px -4px rgba(145, 158, 171, 0.12)`,
           maxHeight: 240,
         },
@@ -291,7 +297,7 @@ export const theme = createTheme({
       styleOverrides: {
         paper: {
           '&[role="listbox"], &[role="menu"]': {
-            borderRadius: '6px !important',
+            borderRadius: "6px !important",
             maxHeight: 240,
           },
         },
@@ -330,31 +336,39 @@ export const theme = createTheme({
         colorSuccess: {
           backgroundColor: palette.success.main,
           color: palette.success.contrastText,
-          '& .MuiChip-deleteIcon, & .MuiChip-icon': {
+          "& .MuiChip-deleteIcon, & .MuiChip-icon": {
             color: palette.success.contrastText,
           },
         },
         colorWarning: {
           backgroundColor: palette.warning.main,
           color: palette.warning.contrastText,
-          '& .MuiChip-deleteIcon, & .MuiChip-icon': {
+          "& .MuiChip-deleteIcon, & .MuiChip-icon": {
             color: palette.warning.contrastText,
           },
         },
         outlined: {
-          backgroundColor: 'transparent',
-        },
-        outlinedSuccess: {
-          borderColor: palette.success.main,
-          color: palette.success.main,
-          backgroundColor: 'transparent',
-        },
-        outlinedWarning: {
-          borderColor: palette.warning.main,
-          color: palette.warning.main,
-          backgroundColor: 'transparent',
+          backgroundColor: "transparent",
         },
       },
+      variants: [
+        {
+          props: { variant: "outlined", color: "success" },
+          style: {
+            borderColor: palette.success.main,
+            color: palette.success.main,
+            backgroundColor: "transparent",
+          },
+        },
+        {
+          props: { variant: "outlined", color: "warning" },
+          style: {
+            borderColor: palette.warning.main,
+            color: palette.warning.main,
+            backgroundColor: "transparent",
+          },
+        },
+      ],
     },
     MuiDrawer: {
       styleOverrides: {
