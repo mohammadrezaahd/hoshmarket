@@ -74,7 +74,7 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
                 });
               }
             });
-          }
+          },
         );
       }
     });
@@ -100,6 +100,13 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
           allBadges.push({
             id: "brand_model",
             title: "مدل برند",
+            type: "detail",
+          });
+        }
+        if (detailTemplate.bind.brand_model) {
+          allBadges.push({
+            id: "braand",
+            title: "برند",
             type: "detail",
           });
         }
