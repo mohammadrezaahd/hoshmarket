@@ -744,6 +744,11 @@ const NewProductPage = () => {
     dispatch(setCurrentStep(FormStep.DETAILS_SELECTION));
   };
 
+  // Handle step click from FormSteps component
+  const handleStepClick = (step: FormStep) => {
+    dispatch(setCurrentStep(step));
+  };
+
   // Handle form submissions
   const handleCreateProduct = async () => {
     try {
@@ -1362,6 +1367,7 @@ const NewProductPage = () => {
           <FormSteps
             currentStep={productState.currentStep}
             stepValidationErrors={productState.stepValidationErrors}
+            onStepClick={handleStepClick}
           />
 
           {renderCurrentStep()}

@@ -29,6 +29,7 @@ const ICON_SIZE = 24;
 interface FormStepsProps {
   currentStep: FormStep;
   stepValidationErrors: Partial<Record<FormStep, boolean>>;
+  onStepClick?: (step: FormStep) => void;
 }
 
 interface CustomStepIconProps {
@@ -125,6 +126,7 @@ const CustomStepIcon: React.FC<CustomStepIconProps> = ({
 const FormSteps: React.FC<FormStepsProps> = ({
   currentStep,
   stepValidationErrors,
+  onStepClick,
 }) => {
   const theme = useTheme();
 
@@ -168,10 +170,12 @@ const FormSteps: React.FC<FormStepsProps> = ({
                     hasError={hasError}
                   />
                 )}
+                onClick={() => onStepClick?.(step.key)}
                 sx={{
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
+                  cursor: onStepClick ? "pointer" : "default",
                   "& .MuiStepLabel-labelContainer": {
                     width: "100%",
                   },
@@ -192,6 +196,11 @@ const FormSteps: React.FC<FormStepsProps> = ({
                             ? theme.palette.success.main
                             : theme.palette.text.secondary,
                   },
+                  "&:hover": onStepClick ? {
+                    "& .MuiStepLabel-label": {
+                      color: theme.palette.primary.main,
+                    },
+                  } : {},
                 }}
               >
                 {step.label}
