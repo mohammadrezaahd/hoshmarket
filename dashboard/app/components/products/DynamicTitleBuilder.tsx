@@ -89,7 +89,7 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
           detailTemplate.bind.brands.length > 0
         ) {
           allBadges.push({
-            id: "brand",
+            id: "model",
             title: "مدل",
             type: "detail",
           });
