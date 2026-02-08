@@ -54,6 +54,10 @@ const DetailsFormFields: React.FC<DetailsFormFieldsProps> = ({
               onChange={(fieldName: string, value: any) => {
                 const isFake = value === "fake";
                 onFormDataChange("is_fake_product", isFake);
+                // Reset brand when switching to fake product
+                if (isFake) {
+                  onFormDataChange("brand", "");
+                }
               }}
               isRadioGroup
             />

@@ -46,7 +46,8 @@ const createProductDetailsValidationSchema = (detailsData: ICategoryDetails | nu
       function (value) {
         if (!value && !required) return true;
         if (!value && required) return false;
-        return value ? validValues.includes(value) : false;
+        // If value exists, it must be in valid options
+        return value ? validValues.includes(value) : true;
       }
     );
 
@@ -58,9 +59,19 @@ const createProductDetailsValidationSchema = (detailsData: ICategoryDetails | nu
     dynamicFields.is_fake_product = yup.boolean();
   }
 
-  // Brand validation
+  // Brand validation - required only for original products, not for fake products
   if (bind.brands && bind.brands.length > 0) {
-    dynamicFields.brand = createOptionValidation(bind.brands, true, "id");
+    if (bind.allow_fake) {
+      // If allow_fake is enabled, brand is conditional based on is_fake_product
+      dynamicFields.brand = yup.string().when("is_fake_product", {
+        is: true,
+        then: (schema) => yup.string(), // Optional when fake product - no validation needed
+        otherwise: (schema) => createOptionValidation(bind.brands, true, "id"), // Required when original
+      });
+    } else {
+      // If allow_fake is disabled, brand is always required
+      dynamicFields.brand = createOptionValidation(bind.brands, true, "id");
+    }
   }
 
   // Status validation
@@ -83,9 +94,19 @@ const createProductDetailsValidationSchema = (detailsData: ICategoryDetails | nu
     dynamicFields.category_product_type = createOptionValidation(bind.category_product_types, true, "value");
   }
 
-  // Fake reasons validation
+  // Fake reasons validation - required only for fake products
   if (bind.fake_reasons && bind.fake_reasons.length > 0) {
-    dynamicFields.fake_reason = createOptionValidation(bind.fake_reasons, true, "text");
+    if (bind.allow_fake) {
+      // If allow_fake is enabled, fake_reason is required only when is_fake_product is true
+      dynamicFields.fake_reason = yup.string().when("is_fake_product", {
+        is: true,
+        then: (schema) => createOptionValidation(bind.fake_reasons!, true, "text"), // Required when fake product
+        otherwise: (schema) => yup.string(), // Optional when original product
+      });
+    } else {
+      // If allow_fake is disabled, fake_reason is always optional
+      dynamicFields.fake_reason = yup.string();
+    }
   }
 
   // Brand model validation
@@ -164,7 +185,8 @@ const createProductAttributesValidationSchema = (attributesData: ICategoryAttr |
       function(value) {
         if (!value && !attr.required) return true;
         if (!value && attr.required) return false;
-        return value ? validOptions.includes(value) : false;
+        // If value exists, it must be in valid options
+        return value ? validOptions.includes(value) : true;
       }
     );
     
