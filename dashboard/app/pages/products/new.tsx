@@ -434,6 +434,126 @@ const NewProductPage = () => {
     loadAllAttributesTemplates();
   }, [productState.currentStep, productState.selectedAttributesTemplates, dispatch]);
 
+  // Load images from all selected templates when entering IMAGE_SELECTION step
+  useEffect(() => {
+    const loadAllTemplateImages = async () => {
+      if (productState.currentStep !== FormStep.IMAGE_SELECTION) return;
+
+      const allSelectedTemplates = [
+        ...productState.selectedDetailsTemplates,
+        ...productState.selectedAttributesTemplates,
+      ];
+
+      if (allSelectedTemplates.length === 0) return;
+
+      const toLoad = allSelectedTemplates.filter(
+        (t) => !t.data || Object.keys(t.data).length === 0
+      );
+
+      if (toLoad.length === 0) {
+        // All templates are already loaded, extract images and add them
+        const allImages: number[] = [];
+        allSelectedTemplates.forEach((template) => {
+          if (template.data && (template.data as any).images && Array.isArray((template.data as any).images)) {
+            allImages.push(...(template.data as any).images);
+          }
+        });
+
+        if (allImages.length > 0) {
+          const currentImages = new Set(productState.selectedImages);
+          const imagesToAdd = allImages.filter(
+            (imgId) => !currentImages.has(imgId)
+          );
+
+          if (imagesToAdd.length > 0) {
+            dispatch(
+              setSelectedImages([...productState.selectedImages, ...imagesToAdd])
+            );
+          }
+        }
+        return;
+      }
+
+      try {
+        await Promise.all(
+          toLoad.map(async (tpl) => {
+            try {
+              // Determine if it's a details or attributes template
+              const isDetailsTemplate = productState.selectedDetailsTemplates.some(
+                (dt) => dt.id === tpl.id
+              );
+
+              if (isDetailsTemplate) {
+                const res = await detailsApi.getDetail(tpl.id);
+                if (res && res.data) {
+                  dispatch(
+                    updateSelectedTemplateData({
+                      templateId: tpl.id,
+                      data: res.data.data_json,
+                      type: "details",
+                    })
+                  );
+                  // Add images from this template
+                  if (res.data.images && Array.isArray(res.data.images)) {
+                    const currentImages = new Set(productState.selectedImages);
+                    const imagesToAdd = res.data.images.filter(
+                      (imgId: number) => !currentImages.has(imgId)
+                    );
+                    if (imagesToAdd.length > 0) {
+                      dispatch(
+                        setSelectedImages([
+                          ...productState.selectedImages,
+                          ...imagesToAdd,
+                        ])
+                      );
+                    }
+                  }
+                }
+              } else {
+                const res = await attrsApi.getAttr(tpl.id);
+                if (res && res.data) {
+                  dispatch(
+                    updateSelectedTemplateData({
+                      templateId: tpl.id,
+                      data: res.data.data_json,
+                      type: "attributes",
+                    })
+                  );
+                  // Add images from this template
+                  if (res.data.images && Array.isArray(res.data.images)) {
+                    const currentImages = new Set(productState.selectedImages);
+                    const imagesToAdd = res.data.images.filter(
+                      (imgId: number) => !currentImages.has(imgId)
+                    );
+                    if (imagesToAdd.length > 0) {
+                      dispatch(
+                        setSelectedImages([
+                          ...productState.selectedImages,
+                          ...imagesToAdd,
+                        ])
+                      );
+                    }
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn("Failed to load template", tpl.id, err);
+            }
+          })
+        );
+      } catch (err) {
+        console.error("Error loading templates for images:", err);
+      }
+    };
+
+    loadAllTemplateImages();
+  }, [
+    productState.currentStep,
+    productState.selectedDetailsTemplates,
+    productState.selectedAttributesTemplates,
+    dispatch,
+  ]);
+
   // Handle category selection
   const handleCategorySelect = async (category: ICategoryList | null) => {
     setSelectedCategoryLocal(category);
