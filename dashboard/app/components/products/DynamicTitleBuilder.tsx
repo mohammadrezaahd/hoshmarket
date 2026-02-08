@@ -129,55 +129,7 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
   useEffect(() => {
     if (!ref.current) return;
 
-    // Skip update if this is from internal typing
-    if (isInternalUpdate.current) {
-      isInternalUpdate.current = false;
-
-      // Just ensure event listeners are attached
-      const closeButtons = ref.current.querySelectorAll(".badge-close");
-      closeButtons.forEach((btn) => {
-        const badgeContainer = btn.parentElement;
-        if (
-          badgeContainer &&
-          !badgeContainer.hasAttribute("data-listeners-attached")
-        ) {
-          badgeContainer.setAttribute("data-listeners-attached", "true");
-          if (!locked) {
-            btn.addEventListener("mouseenter", () => {
-              (btn as HTMLElement).style.backgroundColor = "rgba(0,0,0,0.1)";
-            });
-            btn.addEventListener("mouseleave", () => {
-              (btn as HTMLElement).style.backgroundColor = "transparent";
-            });
-
-            const removeBadge = (e: Event) => {
-              e.preventDefault();
-              e.stopPropagation();
-              badgeContainer.remove();
-              handleInput();
-            };
-
-            btn.addEventListener("click", removeBadge);
-            badgeContainer.addEventListener("click", removeBadge);
-          } else {
-            // hide or disable close when locked
-            (btn as HTMLElement).style.display = "none";
-          }
-        }
-      });
-
-      lastValue.current = value;
-      return;
-    }
-
-    // Skip if value hasn't actually changed
-    if (lastValue.current === value) {
-      return;
-    }
-
-    lastValue.current = value;
-
-    // Extract current value from the div to compare
+    // Get current value from the div
     let currentValue = "";
     const children = Array.from(ref.current.childNodes);
     children.forEach((node) => {
@@ -192,10 +144,20 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
       }
     });
 
-    // Only update if values don't match
-    if (currentValue === value) {
+    // If current content matches the value, don't re-render (prevents clearing on re-mount)
+    // This is crucial to preserve the content when navigating between steps
+    if (currentValue === value && value !== "") {
       return;
     }
+
+    // Skip update if this is from internal typing
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false;
+      lastValue.current = value;
+      return;
+    }
+
+    lastValue.current = value;
 
     // Parse the value and create HTML
     const parts = value.split(/(\{[^}]+\})/g);
@@ -248,7 +210,7 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
         }
       }
     });
-  }, [value, mergedBadges]);
+  }, [value, locked]);
 
   // Get currently used tags
   const usedTags = useMemo(() => {
@@ -392,10 +354,6 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
     lastValue.current = newValue;
     onChange(newValue);
   };
-
-  useEffect(() => {
-    // mergedBadges updated
-  }, [mergedBadges]);
 
   return (
     <Box sx={{ p: 2 }}>

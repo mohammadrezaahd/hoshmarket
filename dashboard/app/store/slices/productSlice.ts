@@ -45,6 +45,11 @@ interface ProductState {
   productDescription: string;
   finalProductData: IPostProduct | null;
   
+  // Title suggestion state
+  suggestedBadgeLabels: { [key: string]: string };
+  aiForceLocked: boolean;
+  isTitleSuggested: boolean;
+  
   // Validation state
   stepValidationErrors: {
     [FormStep.DETAILS_FORM]: boolean;
@@ -72,6 +77,10 @@ const initialState: ProductState = {
   productDescription: "",
   finalProductData: null,
   
+  suggestedBadgeLabels: {},
+  aiForceLocked: false,
+  isTitleSuggested: false,
+  
   stepValidationErrors: {
     [FormStep.DETAILS_FORM]: false,
     [FormStep.ATTRIBUTES_FORM]: false,
@@ -89,7 +98,7 @@ const productSlice = createSlice({
     },
 
     setSelectedCategory: (state, action: PayloadAction<number>) => {
-      // Reset all data when category changes
+      // Reset only templates and suggestion state, NOT the product title/description
       state.selectedCategoryId = action.payload;
       state.availableDetailsTemplates = [];
       state.selectedDetailsTemplates = [];
@@ -97,9 +106,12 @@ const productSlice = createSlice({
       state.availableAttributesTemplates = [];
       state.selectedAttributesTemplates = [];
       state.activeAttributesTemplateIndex = 0;
-      state.productTitle = "";
-      state.productDescription = "";
       state.finalProductData = null;
+      // Reset title suggestion state for new category
+      state.suggestedBadgeLabels = {};
+      state.aiForceLocked = false;
+      state.isTitleSuggested = false;
+      // Keep productTitle and productDescription as they should persist
     },
 
     // Details management
@@ -240,6 +252,19 @@ const productSlice = createSlice({
 
     setProductDescription: (state, action: PayloadAction<string>) => {
       state.productDescription = action.payload;
+    },
+
+    // Title suggestion management
+    setSuggestedBadgeLabels: (state, action: PayloadAction<{ [key: string]: string }>) => {
+      state.suggestedBadgeLabels = action.payload;
+    },
+
+    setAiForceLocked: (state, action: PayloadAction<boolean>) => {
+      state.aiForceLocked = action.payload;
+    },
+
+    setIsTitleSuggested: (state, action: PayloadAction<boolean>) => {
+      state.isTitleSuggested = action.payload;
     },
 
     // Images management
@@ -550,6 +575,9 @@ export const {
   updateAttributesTemplateFormData,
   setProductTitle,
   setProductDescription,
+  setSuggestedBadgeLabels,
+  setAiForceLocked,
+  setIsTitleSuggested,
   setSelectedImages,
   updateSelectedTemplateData,
   generateFinalProductData,

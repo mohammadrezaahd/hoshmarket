@@ -33,6 +33,9 @@ import {
   updateSelectedTemplateData,
   resetProduct,
   setStepValidationError,
+  setSuggestedBadgeLabels,
+  setAiForceLocked,
+  setIsTitleSuggested,
 } from "~/store/slices/productSlice";
 import { useTitleSuggest } from "~/api/product.api";
 import { parseTitleWithBadges } from "~/utils/titleParser";
@@ -559,6 +562,12 @@ const NewProductPage = () => {
     setSelectedCategoryLocal(category);
 
     if (category) {
+      // Only reset title/description if category is actually changing
+      if (productState.selectedCategoryId !== category.id) {
+        dispatch(setProductTitle(""));
+        dispatch(setProductDescription(""));
+      }
+
       dispatch(setSelectedCategory(category.id));
       dispatch(setCurrentStep(FormStep.DETAILS_SELECTION));
 
@@ -1077,23 +1086,35 @@ const NewProductPage = () => {
     );
   }, [productState.stepValidationErrors]);
 
-  // AI suggestion state for title (labels and force lock)
-  const [suggestedBadgeLabels, setSuggestedBadgeLabels] = React.useState<{
-    [key: string]: string;
-  }>({});
-  const [aiForceLocked, setAiForceLocked] = React.useState(false);
-  const suggestedTriggeredRef = React.useRef(false);
-
   const { mutateAsync: suggestTitle, isPending: isTitleSuggesting } =
     useTitleSuggest();
 
-  // Trigger title suggestion automatically when entering PRODUCT_INFO step
+  // Use ref to track if suggestion has been triggered to prevent re-runs
+  const suggestionTriggeredRef = React.useRef(false);
+
+  // Reset suggestion flag when category changes
   React.useEffect(() => {
+    suggestionTriggeredRef.current = false;
+  }, [productState.selectedCategoryId]);
+
+  // Trigger title suggestion automatically when entering PRODUCT_INFO step for the first time
+  React.useEffect(() => {
+    // Only run if we're in PRODUCT_INFO step and haven't suggested yet
+    if (
+      productState.currentStep !== FormStep.PRODUCT_INFO ||
+      suggestionTriggeredRef.current ||
+      !productState.selectedCategoryId
+    ) {
+      return;
+    }
+
+    // Mark as triggered immediately to prevent double execution
+    suggestionTriggeredRef.current = true;
+
     const runSuggestion = async () => {
-      if (!productState.selectedCategoryId) return;
       try {
         const response = await suggestTitle({
-          categoryId: productState.selectedCategoryId,
+          categoryId: productState.selectedCategoryId!,
         });
         const data = response?.data;
 
@@ -1168,21 +1189,18 @@ const NewProductPage = () => {
             }
           });
 
-          setSuggestedBadgeLabels(labels);
-          setAiForceLocked(!!data.force);
+          // Mark as suggested and save labels
+          dispatch(setSuggestedBadgeLabels(labels));
+          dispatch(setAiForceLocked(!!data.force));
+          dispatch(setIsTitleSuggested(true));
         }
       } catch (err) {
         console.error("Error fetching title suggestion:", err);
+        // Even on error, keep the flag to avoid retry loops
       }
     };
 
-    if (
-      productState.currentStep === FormStep.PRODUCT_INFO &&
-      !suggestedTriggeredRef.current
-    ) {
-      suggestedTriggeredRef.current = true;
-      runSuggestion();
-    }
+    runSuggestion();
   }, [productState.currentStep, productState.selectedCategoryId]);
 
   // Render current step
@@ -1332,8 +1350,8 @@ const NewProductPage = () => {
               attributesData={getAllAttributesData}
               selectedAttributesData={getSelectedAttributesData}
               detailsData={getAllDetailsData}
-              suggestedBadgeLabels={suggestedBadgeLabels}
-              locked={aiForceLocked}
+              suggestedBadgeLabels={productState.suggestedBadgeLabels}
+              locked={productState.aiForceLocked}
             />
           );
 
