@@ -149,36 +149,6 @@ const ProfileMenu: React.FC<Props> = ({
         </Box>
       </MenuItem>
 
-      <MenuItem
-        onClick={() => handleNavigation("/pricing")}
-        sx={{ py: 1.25, px: 2 }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            width: "100%",
-            justifyContent: "space-between",
-          }}
-        >
-          <Typography>
-            {currentUser?.subscription
-              ? currentUser.subscription.ai_model_title
-              : "اشتراک فعال ندارید"}
-          </Typography>
-          {currentUser?.subscription ? (
-            <Chip
-              label={`${currentUser.subscription.ai_credit} کردیت`}
-              size="small"
-              color="success"
-            />
-          ) : (
-            <Chip label="برای خرید اشتراک" size="small" color="warning" />
-          )}
-        </Box>
-      </MenuItem>
-
       <Divider sx={{ my: 1 }} />
 
       <MenuItem

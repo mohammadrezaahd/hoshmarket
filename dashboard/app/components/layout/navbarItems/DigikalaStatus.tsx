@@ -43,6 +43,10 @@ const DigikalaStatus = ({ onClick }: DigikalaStatusProps) => {
       return;
     }
 
+    if (registeredStore) {
+      return;
+    }
+
     onClick();
   };
 
