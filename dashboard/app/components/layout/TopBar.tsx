@@ -7,6 +7,8 @@ import {
 } from "@mui/material";
 import { MenuBars } from "../icons/IconComponents";
 import Navbar from "./Navbar";
+import DigikalaStatus from "./navbarItems/DigikalaStatus";
+import { useNavigate } from "react-router";
 
 interface AppBarProps {
   currentDrawerWidth: number;
@@ -19,6 +21,12 @@ const TopBar = ({
   handleDrawerToggle,
   title = "پنل مدیریت",
 }: AppBarProps) => {
+  const navigate = useNavigate();
+
+  const handleDigikalaConnect = () => {
+    navigate("/digikala-redirect");
+  };
+
   return (
     <MuiAppBar
       position="fixed"
@@ -44,18 +52,27 @@ const TopBar = ({
           <MenuBars />
         </IconButton>
 
-        {/* Title */}
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
+        <Box
           sx={{
             flexGrow: 1,
-            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
           }}
         >
-          {title}
-        </Typography>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            {title}
+          </Typography>
+
+          <DigikalaStatus onClick={handleDigikalaConnect} />
+        </Box>
 
         {/* Navbar - Desktop & Mobile */}
         <Box

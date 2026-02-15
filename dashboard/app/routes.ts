@@ -13,6 +13,8 @@ export default [
   // Protected routes (محافظت شده)
   layout("pages/protected-layout.tsx", [
     index("pages/dashboard.tsx"),
+    route("digikala-redirect", "pages/digikala-redirect.tsx"),
+    route("digikala_auth/connect", "pages/digikala-connect.tsx"),
     route("templates/new", "pages/templates/new.tsx"),
     route("templates/list", "pages/templates/list.tsx"),
     route("templates/edit", "pages/templates/edit.tsx"),
