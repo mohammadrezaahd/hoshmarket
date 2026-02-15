@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Button, alpha, Skeleton, useTheme } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Avatar, Box, Button, alpha, Skeleton, useTheme } from "@mui/material";
 import { useDigikalaInfo } from "~/api/digikalaAuth.api";
 import { ApiStatus } from "~/types";
 import type { IDigikalaAuthInfo } from "~/types/interfaces/digikalaAuth.interface";
@@ -16,26 +16,35 @@ const DigikalaStatus = ({ onClick }: DigikalaStatusProps) => {
   const [registeredStore, setRegisteredStore] =
     useState<IDigikalaAuthInfo | null>(null);
 
-  const fetchStatus = useCallback(async () => {
+  const fetchStatus = async () => {
     setIsLoading(true);
     setIsError(false);
 
-    const response = await fetchDigikalaInfo();
+    try {
+      const response = await fetchDigikalaInfo();
 
-    if (response.status !== ApiStatus.SUCCEEDED) {
+      if (response.status !== ApiStatus.SUCCEEDED) {
+        setIsError(true);
+        setRegisteredStore(null);
+        return;
+      }
+
+      const sellerList = Array.isArray(response.data)
+        ? response.data
+        : ((response.data as any)?.seller_list ?? []);
+      const firstStore = sellerList[0] || null;
+      setRegisteredStore(firstStore);
+    } catch (error) {
       setIsError(true);
       setRegisteredStore(null);
+    } finally {
       setIsLoading(false);
-      return;
     }
-    const firstStore = response.data?.seller_list[0] || null;
-    setRegisteredStore(firstStore);
-    setIsLoading(false);
-  }, [fetchDigikalaInfo]);
+  };
 
   useEffect(() => {
     fetchStatus();
-  }, [fetchStatus]);
+  }, []);
 
   const handleClick = () => {
     if (isError) {
@@ -52,9 +61,9 @@ const DigikalaStatus = ({ onClick }: DigikalaStatusProps) => {
 
   const label = isError
     ? "خطا در دریافت اطلاعات"
-    : registeredStore
-      ? `فروشگاه ثبت‌شده: ${registeredStore.seller_name}`
-      : "هنوز فروشگاهی ثبت نشده";
+    : !registeredStore
+      ? "هنوز فروشگاهی ثبت نشده"
+      : "";
 
   if (isLoading) {
     return (
@@ -87,7 +96,9 @@ const DigikalaStatus = ({ onClick }: DigikalaStatusProps) => {
         maxWidth: { xs: 220, md: 320 },
         overflow: "hidden",
         textOverflow: "ellipsis",
-        display: "inline-block",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 1,
         animation: "pulse-border 2s ease-in-out infinite",
         "@keyframes pulse-border": {
           "0%, 100%": {
@@ -105,7 +116,29 @@ const DigikalaStatus = ({ onClick }: DigikalaStatusProps) => {
         },
       }}
     >
-      {label}
+      {registeredStore ? (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            minWidth: 0,
+          }}
+        >
+          <Avatar
+            src={registeredStore.logo?.file}
+            alt={registeredStore.seller_name}
+            sx={{ width: 22, height: 22, fontSize: "0.75rem" }}
+          >
+            {registeredStore.seller_name?.[0] || "S"}
+          </Avatar>
+          <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+            {registeredStore.seller_name}
+          </Box>
+        </Box>
+      ) : (
+        label
+      )}
     </Button>
   );
 };

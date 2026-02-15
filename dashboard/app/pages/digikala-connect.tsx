@@ -124,15 +124,6 @@ const DigikalaConnectPage = () => {
                       {connectResult.data.seller_id}
                     </Typography>
                   </Box>
-
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      وضعیت لوگو
-                    </Typography>
-                    <Typography variant="body1" fontWeight={600}>
-                      {connectResult.data.logo.status}
-                    </Typography>
-                  </Box>
                 </Stack>
               )}
 

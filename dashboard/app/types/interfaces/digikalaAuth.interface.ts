@@ -11,7 +11,7 @@ export interface IDigikalaAuthLogo {
 }
 
 export interface IDigikalaAuthInfo {
-  //   logo: IDigikalaAuthLogo;
+  logo: IDigikalaAuthLogo;
   seller_name: string;
   seller_id: number;
 }

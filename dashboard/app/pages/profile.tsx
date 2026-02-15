@@ -33,9 +33,12 @@ import {
 } from "~/components/icons/IconComponents";
 
 import { useProfile, useUpdateProfile } from "~/api/profile.api";
+import { useDigikalaInfo } from "~/api/digikalaAuth.api";
 import { useAppDispatch, useAppSelector } from "~/store/hooks";
 import { setUser } from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
+import { ApiStatus } from "~/types";
+import type { IDigikalaAuthInfo } from "~/types/interfaces/digikalaAuth.interface";
 
 export function meta() {
   return [
@@ -65,6 +68,13 @@ const ProfilePage = () => {
 
   // Update profile mutation
   const updateProfileMutation = useUpdateProfile();
+  const { mutateAsync: fetchDigikalaInfo } = useDigikalaInfo();
+
+  const [digikalaStore, setDigikalaStore] = useState<IDigikalaAuthInfo | null>(
+    null
+  );
+  const [digikalaLoading, setDigikalaLoading] = useState(true);
+  const [digikalaError, setDigikalaError] = useState(false);
 
   // ذخیره در store
   useEffect(() => {
@@ -93,6 +103,33 @@ const ProfilePage = () => {
       });
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    const loadDigikalaInfo = async () => {
+      setDigikalaLoading(true);
+      setDigikalaError(false);
+
+      try {
+        const response = await fetchDigikalaInfo();
+
+        if (response.status !== ApiStatus.SUCCEEDED) {
+          setDigikalaError(true);
+          setDigikalaStore(null);
+          return;
+        }
+
+        const firstStore = response.data?.seller_list?.[0] || null;
+        setDigikalaStore(firstStore);
+      } catch (error) {
+        setDigikalaError(true);
+        setDigikalaStore(null);
+      } finally {
+        setDigikalaLoading(false);
+      }
+    };
+
+    loadDigikalaInfo();
+  }, [fetchDigikalaInfo]);
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -845,6 +882,73 @@ const ProfilePage = () => {
                           ).toLocaleDateString("fa-IR")
                         : "نامحدود"}
                     </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{
+                        fontWeight: "600",
+                        mb: 2,
+                        display: "block",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      فروشگاه دیجیکالا
+                    </Typography>
+
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`,
+                      }}
+                    >
+                      {digikalaLoading ? (
+                        <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
+                          <CircularProgress size={22} />
+                        </Box>
+                      ) : digikalaError ? (
+                        <Typography variant="body2" color="error.main" fontWeight={600}>
+                          خطا در دریافت اطلاعات فروشگاه
+                        </Typography>
+                      ) : digikalaStore ? (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                          <Avatar
+                            src={digikalaStore.logo?.file}
+                            alt={digikalaStore.seller_name}
+                            sx={{ width: 34, height: 34, fontSize: "0.95rem" }}
+                          >
+                            {digikalaStore.seller_name?.[0] || "S"}
+                          </Avatar>
+
+                          <Box sx={{ minWidth: 0 }}>
+                            <Typography
+                              variant="body1"
+                              sx={{
+                                fontWeight: 700,
+                                color: theme.palette.text.primary,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {digikalaStore.seller_name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              شناسه فروشنده: {digikalaStore.seller_id}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                          هنوز فروشگاهی ثبت نشده است
+                        </Typography>
+                      )}
+                    </Paper>
                   </Box>
 
                   <Box>
