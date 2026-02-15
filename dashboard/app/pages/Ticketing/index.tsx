@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, useTheme, Typography, Paper, Container } from "@mui/material";
+import {
+  Box,
+  useTheme,
+  Typography,
+  Paper,
+  Container,
+  useMediaQuery,
+} from "@mui/material";
 import AppLayout from "~/components/layout/AppLayout";
 import {
   TicketingSidebar,
@@ -11,6 +18,7 @@ type TicketingView = "chat" | "newTicket" | "empty";
 
 const TicketingPage: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [selectedTicketId, setSelectedTicketId] = useState<number>();
   const [currentView, setCurrentView] = useState<TicketingView>("empty");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -93,19 +101,32 @@ const TicketingPage: React.FC = () => {
 
   return (
     <AppLayout title="پشتیبانی">
-      <Container maxWidth="lg">
-        <Box sx={{ height: "calc(100vh - 64px)", display: "flex" }}>
-          {/* Sidebar */}
-          <TicketingSidebar
-            selectedTicketId={selectedTicketId}
-            onTicketSelect={handleTicketSelect}
-            onNewTicketClick={handleNewTicketClick}
-            width={400}
-            refreshTrigger={refreshTrigger}
-          />
+      <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2 }, py: { xs: 1, md: 2 } }}>
+        <Box
+          sx={{
+            height: { xs: "calc(100vh - 88px)", md: "calc(100vh - 96px)" },
+            display: "flex",
+            borderRadius: 2,
+            overflow: "hidden",
+            border: `1px solid ${theme.palette.divider}`,
+            backgroundColor: "background.paper",
+          }}
+        >
+          {(!isMobile || currentView === "empty") && (
+            <TicketingSidebar
+              selectedTicketId={selectedTicketId}
+              onTicketSelect={handleTicketSelect}
+              onNewTicketClick={handleNewTicketClick}
+              width={isMobile ? "100%" : 360}
+              refreshTrigger={refreshTrigger}
+            />
+          )}
 
-          {/* Main Content */}
-          <Box sx={{ flex: 1, height: "100%" }}>{renderMainContent()}</Box>
+          {(!isMobile || currentView !== "empty") && (
+            <Box sx={{ flex: 1, height: "100%", minWidth: 0 }}>
+              {renderMainContent()}
+            </Box>
+          )}
         </Box>
       </Container>
     </AppLayout>

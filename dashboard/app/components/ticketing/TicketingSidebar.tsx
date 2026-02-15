@@ -39,7 +39,7 @@ interface TicketingSidebarProps {
   selectedTicketId?: number;
   onTicketSelect: (ticketId: number) => void;
   onNewTicketClick: () => void;
-  width?: number;
+  width?: number | string;
   refreshTrigger?: number;
 }
 
@@ -131,16 +131,17 @@ const TicketingSidebar: React.FC<TicketingSidebarProps> = ({
 
   return (
     <Paper
-      // elevation={1}
       sx={{
         width,
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        borderRadius: 0,
+        borderRight: { md: `1px solid ${theme.palette.divider}` },
       }}
     >
       {/* Header */}
-      <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+      <Box sx={{ p: { xs: 1.5, sm: 2 }, borderBottom: `1px solid ${theme.palette.divider}` }}>
         <Box
           sx={{
             display: "flex",
@@ -162,7 +163,7 @@ const TicketingSidebar: React.FC<TicketingSidebarProps> = ({
           variant="contained"
           startIcon={<AddIcon />}
           onClick={onNewTicketClick}
-          sx={{ mb: 2, gap: 1.5 }}
+          sx={{ mb: 1.5, gap: 1.5 }}
         >
           تیکت جدید
         </Button>
@@ -179,7 +180,7 @@ const TicketingSidebar: React.FC<TicketingSidebarProps> = ({
             ),
           }}
           size="small"
-          sx={{ mb: 2 }}
+          sx={{ mb: 1.5 }}
         />
 
         {/* Filters Toggle */}

@@ -276,7 +276,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
       <Paper
         elevation={1}
         sx={{
-          p: 2,
+          p: { xs: 1.5, sm: 2 },
           borderRadius: 0,
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}
@@ -286,6 +286,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
+            gap: 1,
           }}
         >
           <Box sx={{ flex: 1 }}>
@@ -358,7 +359,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
             </Box>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexShrink: 0 }}>
             {ticket.status === TicketStatus.OPEN && (
               <Button
                 variant="outlined"
@@ -366,7 +367,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
                 color="error"
                 onClick={handleCloseTicket}
                 disabled={closeTicketMutation.isPending}
-                sx={{ mr: 1 }}
+                sx={{ mr: 0.5, whiteSpace: "nowrap" }}
               >
                 {closeTicketMutation.isPending ? "در حال بستن..." : "بستن تیکت"}
               </Button>
@@ -384,7 +385,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
         sx={{
           flex: 1,
           overflow: "auto",
-          p: 2,
+          p: { xs: 1.5, sm: 2 },
           backgroundColor: theme.palette.grey[50],
         }}
       >
@@ -413,7 +414,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
         <Paper
           elevation={1}
           sx={{
-            p: 2,
+            p: { xs: 1.5, sm: 2 },
             borderRadius: 0,
             borderTop: `1px solid ${theme.palette.divider}`,
           }}
@@ -430,7 +431,14 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
             </Box>
           )}
 
-          <Box sx={{ display: "flex", gap: 1, alignItems: "flex-end" }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              alignItems: "flex-end",
+              flexDirection: { xs: "column", sm: "row" },
+            }}
+          >
             <TextField
               fullWidth
               multiline
@@ -452,6 +460,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
             <IconButton
               onClick={handleFileUpload}
               color={showFileUpload ? "primary" : "default"}
+              sx={{ alignSelf: { xs: "flex-start", sm: "center" } }}
             >
               <AttachIcon />
             </IconButton>
@@ -463,6 +472,7 @@ const TicketChat: React.FC<TicketChatProps> = ({ ticketId, onClose }) => {
                 !replyForm.watch("message")?.trim() ||
                 newMessageMutation.isPending
               }
+              sx={{ width: { xs: "100%", sm: "auto" } }}
             >
               {newMessageMutation.isPending ? "در حال ارسال..." : "ارسال"}
             </Button>

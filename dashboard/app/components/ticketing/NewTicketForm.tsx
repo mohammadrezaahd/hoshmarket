@@ -163,7 +163,7 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
       <Paper
         elevation={1}
         sx={{
-          p: 2,
+          p: { xs: 1.5, sm: 2 },
           borderRadius: 0,
           borderBottom: `1px solid ${theme.palette.divider}`,
         }}
@@ -189,7 +189,7 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
         sx={{
           flex: 1,
           overflow: "auto",
-          p: 3,
+          p: { xs: 1.5, sm: 2.5, md: 3 },
         }}
       >
         <Box
@@ -215,7 +215,13 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
           />
 
           {/* Two Column Layout */}
-          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+              gap: 2,
+            }}
+          >
             {/* Department */}
             <FormControl
               fullWidth
@@ -422,17 +428,24 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
       <Paper
         elevation={1}
         sx={{
-          p: 2,
+          p: { xs: 1.5, sm: 2 },
           borderRadius: 0,
           borderTop: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 1.5,
+            justifyContent: "flex-end",
+            flexDirection: { xs: "column-reverse", sm: "row" },
+          }}
+        >
           <Button
             variant="outlined"
             onClick={onClose}
             disabled={isLoading}
-            sx={{ borderRadius: 1 }}
+            sx={{ borderRadius: 1, width: { xs: "100%", sm: "auto" } }}
           >
             انصراف
           </Button>
@@ -441,7 +454,7 @@ const NewTicketForm: React.FC<NewTicketFormProps> = ({
             onClick={handleSubmit}
             disabled={!form.formState.isValid || isLoading}
             startIcon={<SendIcon />}
-            sx={{ borderRadius: 1 }}
+            sx={{ borderRadius: 1, width: { xs: "100%", sm: "auto" } }}
           >
             {isLoading ? "در حال ایجاد تیکت..." : "ایجاد تیکت"}
           </Button>

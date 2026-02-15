@@ -141,7 +141,8 @@ const TicketsList: React.FC<TicketsListProps> = ({
               onClick={() => onTicketSelect(ticket.id)}
               selected={selectedTicketId === ticket.id}
               sx={{
-                p: 2,
+                px: { xs: 1.5, sm: 2 },
+                py: 1.5,
                 backgroundColor:
                   selectedTicketId === ticket.id
                     ? theme.palette.action.selected
@@ -200,6 +201,7 @@ const TicketsList: React.FC<TicketsListProps> = ({
                       alignItems: "center",
                       gap: 1,
                       mt: 1,
+                      flexWrap: "wrap",
                     }}
                   >
                     <Chip
