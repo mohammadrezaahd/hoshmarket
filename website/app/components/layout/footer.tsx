@@ -221,13 +221,38 @@ const Footer = () => {
             flexDirection: { xs: "column", md: "row" },
             justifyContent: "space-between",
             alignItems: "center",
-            gap: 2,
+            gap: 3,
             color: "#64748B",
             fontSize: "0.875rem",
           }}
         >
-          <Typography variant="body2">© 1404 تمامی حقوق محفوظ است.</Typography>
-          <Typography variant="body2">طراحی شده با ❤️</Typography>
+          <Typography variant="body2">
+            © 1404 تمامی حقوق محفوظ است.
+          </Typography>
+
+          {/* Enamad */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            dangerouslySetInnerHTML={{
+              __html: `
+                <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=672181&Code=C5Et3mGPXHHW2i0QzIN0IQjBPBZl6ls9'>
+                  <img referrerpolicy='origin'
+                    src='https://trustseal.enamad.ir/logo.aspx?id=672181&Code=C5Et3mGPXHHW2i0QzIN0IQjBPBZl6ls9'
+                    alt=''
+                    style='cursor:pointer; height:80px'
+                    code='C5Et3mGPXHHW2i0QzIN0IQjBPBZl6ls9'>
+                </a>
+              `,
+            }}
+          />
+
+          <Typography variant="body2">
+            طراحی شده با ❤️
+          </Typography>
         </Box>
       </Container>
     </Box>
