@@ -181,12 +181,51 @@ const PricingCard: React.FC<PricingCardProps> = ({
         </Box>
 
         {/* Pricing */}
-        <Box sx={{ textAlign: "right", mb: 4 }}>
+        <Box sx={{ textAlign: "center", mb: 4 }}>
+          
+
           {hasDiscount && (
             <Stack
               direction="row"
               alignItems="center"
-              justifyContent="flex-end"
+              justifyContent="center"
+              spacing={1}
+              sx={{ mb: 1 }}
+            >
+              <Typography
+                variant="body1"
+                component="span"
+                sx={{
+                  color: isPopular
+                    ? "rgba(255, 255, 255, 0.75)"
+                    : "text.secondary",
+                  textDecoration: "line-through",
+                  textDecorationThickness: "1.5px",
+                  fontWeight: 600,
+                }}
+              >
+                {formatPrice(oldPrice)}
+              </Typography>
+              <Typography
+                variant="caption"
+                component="span"
+
+                sx={{
+                  color: isPopular
+                    ? "rgba(255, 255, 255, 0.7)"
+                    : "text.secondary",
+                  fontWeight: 500,
+                }}
+              >
+                تومان
+              </Typography>
+            </Stack>
+          )}
+          {hasDiscount && (
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="center"
               sx={{ mb: 1.25 }}
             >
               <Chip
@@ -209,64 +248,10 @@ const PricingCard: React.FC<PricingCardProps> = ({
               />
             </Stack>
           )}
-
-          {hasDiscount && (
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="flex-end"
-              spacing={1}
-              sx={{ mb: 1 }}
-            >
-              <Typography
-                variant="body1"
-                component="span"
-                sx={{
-                  color: isPopular
-                    ? "rgba(255, 255, 255, 0.75)"
-                    : "text.secondary",
-                  textDecoration: "line-through",
-                  textDecorationThickness: "1.5px",
-                  fontWeight: 600,
-                }}
-              >
-                {formatPrice(oldPrice)}
-              </Typography>
-              <Typography
-                variant="caption"
-                component="span"
-                sx={{
-                  color: isPopular
-                    ? "rgba(255, 255, 255, 0.7)"
-                    : "text.secondary",
-                  fontWeight: 500,
-                }}
-              >
-                تومان
-              </Typography>
-            </Stack>
-          )}
-
-          {hasDiscount && (
-            <Typography
-              variant="caption"
-              sx={{
-                display: "block",
-                mt: 0.5,
-                color: isPopular
-                  ? "rgba(255, 255, 255, 0.9)"
-                  : "error.main",
-                fontWeight: 700,
-              }}
-            >
-              صرفه‌جویی: {formatPrice(discountAmount)} تومان
-            </Typography>
-          )}
-
           <Stack
             direction="row"
             alignItems="baseline"
-            justifyContent="flex-end"
+            justifyContent="center"
             spacing={1}
           >
             <Typography
