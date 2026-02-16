@@ -117,6 +117,7 @@ const HeroSection = () => {
               >
                 <Button
                   variant="contained"
+                  onClick={() => window.location.href = "https://pro.hoshmarket.com/"}
                   sx={{
                     background: "#0EA5E9",
                     color: "white",
@@ -133,26 +134,6 @@ const HeroSection = () => {
                   }}
                 >
                   شروع ساخت محصول
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  sx={{
-                    color: "#1E293B",
-                    borderColor: "#E2E8F0",
-                    background: "#FFFFFF",
-                    textTransform: "none",
-                    fontSize: "1.125rem",
-                    fontWeight: "500",
-                    py: 1.5,
-                    px: 4,
-                    borderRadius: "0.75rem",
-                    "&:hover": {
-                      background: "#F1F5F9",
-                    },
-                  }}
-                >
-                  دموی پلتفرم
                 </Button>
               </Stack>
             </Box>
