@@ -11,6 +11,12 @@ import {
   TestimonialsSkeleton,
 } from "~/components/skeletons";
 
+export const meta = () => {
+  return [
+    { title: "هوش مارکت | ساخت و مدیریت هوشمند محصولات دیجی‌کالا" },
+    { name: "description", content: "هوش مارکت" },
+  ];
+};
 const TestimonialsSection = lazy(
   () => import("~/components/home/Testimonials")
 );
