@@ -36,13 +36,24 @@ export const parseTitleWithBadges = (
       // Find the field in attributes or details
       let fieldId: string | null = null;
 
+      const normalizedKey = key?.toString().trim();
+
       // Search in attributes
       for (const attrData of attributesData) {
         if (attrData.category_group_attributes) {
           for (const group of Object.values(attrData.category_group_attributes)) {
             for (const attr of Object.values(group.attributes)) {
-              // Check if attribute title matches
-              if (attr.title === key || attr.code === key) {
+              const attrId = attr.id?.toString();
+              const attrCode = attr.code?.toString();
+              const attrTitle = attr.title?.toString();
+
+              // Match by title/code/id (dynamic numeric keys like "6477" should match attr.id)
+              const isAttributeKeyMatch =
+                attrTitle === normalizedKey ||
+                attrCode === normalizedKey ||
+                attrId === normalizedKey;
+
+              if (isAttributeKeyMatch) {
                 fieldId = attr.code || attr.id.toString();
                 
                 // Find matching value ID
@@ -90,6 +101,14 @@ export const parseTitleWithBadges = (
                 selectedBadges[fieldId] = "";
                 selectedBadgesLabels[fieldId] = value;
               }
+              break;
+            }
+
+            // Check model (alias for brand_model chip placeholder)
+            if ((key === "model" || key === "مدل" || key === "brand_model") && bind.brand_model) {
+              fieldId = "model";
+              selectedBadges[fieldId] = value?.toString() || "";
+              selectedBadgesLabels[fieldId] = value?.toString() || "";
               break;
             }
 

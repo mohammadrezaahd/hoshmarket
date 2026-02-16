@@ -83,7 +83,7 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
     // Extract details: brands and brand_model
     detailsData.forEach((detailTemplate) => {
       if (detailTemplate?.bind) {
-        // Add single brand chip if brands exist
+        // Add model chip if brands exist
         if (
           detailTemplate.bind.brands &&
           detailTemplate.bind.brands.length > 0
@@ -103,9 +103,13 @@ const DynamicTitleBuilder: React.FC<DynamicTitleBuilderProps> = ({
             type: "detail",
           });
         }
-        if (detailTemplate.bind.brand_model) {
+        // Add brand chip when brand options exist
+        if (
+          detailTemplate.bind.brands &&
+          detailTemplate.bind.brands.length > 0
+        ) {
           allBadges.push({
-            id: "braand",
+            id: "brand",
             title: "برند",
             type: "detail",
           });

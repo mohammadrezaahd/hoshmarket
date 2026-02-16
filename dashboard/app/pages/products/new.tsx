@@ -1089,6 +1089,13 @@ const NewProductPage = () => {
   const { mutateAsync: suggestTitle, isPending: isTitleSuggesting } =
     useTitleSuggest();
 
+  const hasApplicableSuggestionValue = (value: unknown) => {
+    if (value === undefined || value === null) return false;
+    if (typeof value === "string") return value.trim().length > 0;
+    if (Array.isArray(value)) return value.length > 0;
+    return true;
+  };
+
   // Use ref to track if suggestion has been triggered to prevent re-runs
   const suggestionTriggeredRef = React.useRef(false);
 
@@ -1142,7 +1149,7 @@ const NewProductPage = () => {
                   (group) => {
                     Object.values(group.attributes).forEach((attr) => {
                       const fieldKey = attr.code || attr.id.toString();
-                      if (selected[fieldKey] !== undefined) {
+                      if (hasApplicableSuggestionValue(selected[fieldKey])) {
                         dispatch(
                           updateAttributesTemplateFormData({
                             templateIndex: idx,
@@ -1174,7 +1181,7 @@ const NewProductPage = () => {
                 "category_product_type",
               ];
               keys.forEach((key) => {
-                if (selected[key] !== undefined) {
+                if (hasApplicableSuggestionValue(selected[key])) {
                   dispatch(
                     updateDetailsTemplateFormData({
                       templateIndex: idx,
