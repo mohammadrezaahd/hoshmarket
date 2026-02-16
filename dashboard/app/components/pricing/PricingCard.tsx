@@ -42,6 +42,16 @@ const PricingCard: React.FC<PricingCardProps> = ({
     return new Intl.NumberFormat("fa-IR").format(price);
   };
 
+  const hasDiscount =
+    typeof plan.price_old === "number" && plan.price_old > plan.price_toman;
+
+  const oldPrice = typeof plan.price_old === "number" ? plan.price_old : 0;
+  const discountAmount = hasDiscount ? oldPrice - plan.price_toman : 0;
+  const discountPercent =
+    hasDiscount && oldPrice > 0
+      ? Math.round((discountAmount / oldPrice) * 100)
+      : 0;
+
   const formatDuration = (days: number) => {
     if (days >= 365) {
       const years = Math.floor(days / 365);
@@ -172,6 +182,87 @@ const PricingCard: React.FC<PricingCardProps> = ({
 
         {/* Pricing */}
         <Box sx={{ textAlign: "right", mb: 4 }}>
+          {hasDiscount && (
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-end"
+              sx={{ mb: 1.25 }}
+            >
+              <Chip
+                label={`تخفیف ویژه ${discountPercent.toLocaleString("fa-IR")}٪`}
+                size="small"
+                sx={{
+                  height: 28,
+                  fontWeight: 800,
+                  color: "common.white",
+                  background: isPopular
+                    ? "linear-gradient(45deg, rgba(255, 107, 53, 0.95), rgba(247, 147, 30, 0.95))"
+                    : "linear-gradient(45deg, #ef4444, #f97316)",
+                  boxShadow: isPopular
+                    ? "0 6px 16px rgba(0,0,0,0.25)"
+                    : "0 6px 14px rgba(239, 68, 68, 0.28)",
+                  "& .MuiChip-label": {
+                    px: 1.25,
+                  },
+                }}
+              />
+            </Stack>
+          )}
+
+          {hasDiscount && (
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="flex-end"
+              spacing={1}
+              sx={{ mb: 1 }}
+            >
+              <Typography
+                variant="body1"
+                component="span"
+                sx={{
+                  color: isPopular
+                    ? "rgba(255, 255, 255, 0.75)"
+                    : "text.secondary",
+                  textDecoration: "line-through",
+                  textDecorationThickness: "1.5px",
+                  fontWeight: 600,
+                }}
+              >
+                {formatPrice(oldPrice)}
+              </Typography>
+              <Typography
+                variant="caption"
+                component="span"
+                sx={{
+                  color: isPopular
+                    ? "rgba(255, 255, 255, 0.7)"
+                    : "text.secondary",
+                  fontWeight: 500,
+                }}
+              >
+                تومان
+              </Typography>
+            </Stack>
+          )}
+
+          {hasDiscount && (
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                mt: 0.5,
+                color: isPopular
+                  ? "rgba(255, 255, 255, 0.9)"
+                  : "error.main",
+                fontWeight: 700,
+              }}
+            >
+              صرفه‌جویی: {formatPrice(discountAmount)} تومان
+            </Typography>
+          )}
+
           <Stack
             direction="row"
             alignItems="baseline"
@@ -203,6 +294,20 @@ const PricingCard: React.FC<PricingCardProps> = ({
               تومان
             </Typography>
           </Stack>
+
+          {hasDiscount && (
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                mt: 0.75,
+                color: isPopular ? "rgba(255, 255, 255, 0.85)" : "success.main",
+                fontWeight: 700,
+              }}
+            >
+              مبلغ قابل پرداخت پس از تخفیف
+            </Typography>
+          )}
 
           <Box sx={{ mt: 1.5 }}>
             <Typography

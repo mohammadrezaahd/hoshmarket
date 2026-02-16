@@ -3,6 +3,7 @@ export interface IPricing {
   name: string;
   subscription_type: SubscriptionType;
   price_toman: number;
+  price_old?: number | null;
   max_products: number;
   duration_days: number;
   ai_usage_limit: number;
