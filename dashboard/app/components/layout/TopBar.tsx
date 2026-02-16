@@ -88,7 +88,10 @@ const TopBar = ({
               py: 0.5,
             }}
           >
-            <Typography variant="body2" sx={{ color: "common.white", fontWeight: 600 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: "common.white", fontWeight: 600 }}
+            >
               {currentUser?.subscription
                 ? currentUser.subscription.ai_model_title
                 : "اشتراک فعال ندارید"}
@@ -101,7 +104,12 @@ const TopBar = ({
                 color="success"
               />
             ) : (
-              <Chip label="برای خرید اشتراک" size="small" color="warning" />
+              <Chip
+                label="خرید اشتراک"
+                size="small"
+                color="warning"
+                onClick={() => navigate("/pricing")}
+              />
             )}
           </Box>
         </Box>

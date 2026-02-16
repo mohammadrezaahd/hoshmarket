@@ -27,8 +27,6 @@ import {
   EditIcon,
   CloseIcon,
   StarIcon,
-  ShieldIcon,
-  VerifiedIcon,
   SaveIcon,
 } from "~/components/icons/IconComponents";
 
@@ -39,6 +37,7 @@ import { setUser } from "~/store/slices/userSlice";
 import { useSnackbar } from "notistack";
 import { ApiStatus } from "~/types";
 import type { IDigikalaAuthInfo } from "~/types/interfaces/digikalaAuth.interface";
+import { useNavigate } from "react-router";
 
 export function meta() {
   return [
@@ -51,6 +50,8 @@ const ProfilePage = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
+
+  const navigate = useNavigate();
 
   // State for edit mode
   const [isEditing, setIsEditing] = useState(false);
@@ -71,7 +72,7 @@ const ProfilePage = () => {
   const { mutateAsync: fetchDigikalaInfo } = useDigikalaInfo();
 
   const [digikalaStore, setDigikalaStore] = useState<IDigikalaAuthInfo | null>(
-    null
+    null,
   );
   const [digikalaLoading, setDigikalaLoading] = useState(true);
   const [digikalaError, setDigikalaError] = useState(false);
@@ -82,7 +83,10 @@ const ProfilePage = () => {
       // preserve any existing subscription info in the store when updating user
       const merged = {
         ...userData.data,
-        subscription: (currentUser as any)?.subscription ?? userData.data.subscription ?? null,
+        subscription:
+          (currentUser as any)?.subscription ??
+          userData.data.subscription ??
+          null,
       };
       dispatch(setUser(merged));
     }
@@ -241,29 +245,14 @@ const ProfilePage = () => {
                 radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%)
               `,
             },
-            "&::after": {
-              content: '""',
-              position: "absolute",
-              top: "-50%",
-              right: "-20%",
-              width: "600px",
-              height: "600px",
-              background: `conic-gradient(from 0deg, transparent, ${alpha(theme.palette.common.white, 0.08)}, transparent)`,
-              borderRadius: "50%",
-              animation: "rotate 20s linear infinite",
-              "@keyframes rotate": {
-                "0%": { transform: "rotate(0deg)" },
-                "100%": { transform: "rotate(360deg)" },
-              },
-            },
           }}
         >
-          <Box sx={{ position: "relative", zIndex: 2, p: 4 }}>
+          <Box sx={{ position: "relative", zIndex: 2, p: { xs: 2, md: 3 } }}>
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 3,
                 flexDirection: { xs: "column", md: "row" },
               }}
             >
@@ -287,14 +276,14 @@ const ProfilePage = () => {
                 >
                   <Avatar
                     sx={{
-                      width: 140,
-                      height: 140,
-                      fontSize: "3.5rem",
+                      width: 112,
+                      height: 112,
+                      fontSize: "2.4rem",
                       fontWeight: "bold",
                       bgcolor: alpha(theme.palette.common.white, 0.25),
-                      border: `5px solid ${alpha(theme.palette.common.white, 0.4)}`,
+                      border: `4px solid ${alpha(theme.palette.common.white, 0.35)}`,
                       boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.3)}`,
-                      backdropFilter: "blur(10px)",
+                      backdropFilter: "blur(6px)",
                     }}
                   >
                     {userInfo?.first_name?.[0]?.toUpperCase() ||
@@ -316,7 +305,7 @@ const ProfilePage = () => {
                     display: "flex",
                     alignItems: "flex-start",
                     justifyContent: "space-between",
-                    mb: 3,
+                    mb: 2,
                     flexDirection: { xs: "column", md: "row" },
                     gap: { xs: 2, md: 0 },
                   }}
@@ -326,9 +315,9 @@ const ProfilePage = () => {
                       variant="h3"
                       sx={{
                         fontWeight: "bold",
-                        mb: 1.5,
+                        mb: 1,
                         textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                        fontSize: { xs: "2rem", md: "3rem" },
+                        fontSize: { xs: "1.6rem", md: "2.2rem" },
                       }}
                     >
                       {userInfo?.first_name && userInfo?.last_name
@@ -340,6 +329,7 @@ const ProfilePage = () => {
                       sx={{
                         opacity: 0.9,
                         fontWeight: 400,
+                        fontSize: { xs: "0.95rem", md: "1rem" },
                         mb: { xs: 2, md: 0 },
                       }}
                     >
@@ -423,9 +413,9 @@ const ProfilePage = () => {
                 <Box
                   sx={{
                     display: "flex",
-                    gap: 1.5,
+                    gap: 1,
                     flexWrap: "wrap",
-                    mb: 4,
+                    mb: 2.5,
                     justifyContent: { xs: "center", md: "flex-start" },
                   }}
                 >
@@ -464,7 +454,7 @@ const ProfilePage = () => {
                   />
                 </Box>
 
-                <Grid container spacing={3}>
+                <Grid container spacing={2}>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Box
                       sx={{ textAlign: { xs: "center", md: "right" }, py: 1 }}
@@ -475,6 +465,7 @@ const ProfilePage = () => {
                           fontWeight: "bold",
                           textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                           mb: 0.5,
+                          fontSize: { xs: "1.35rem", sm: "1.6rem" },
                         }}
                       >
                         فعال
@@ -517,13 +508,13 @@ const ProfilePage = () => {
         </Paper>
 
         {/* Modern Information Grid */}
-        <Grid container spacing={5} sx={{ mb: 5 }}>
+        <Grid container spacing={3} sx={{ mb: 3 }}>
           {/* Personal Information Card */}
           <Grid size={{ xs: 12, lg: 4 }}>
             <Paper
               elevation={0}
               sx={{
-                borderRadius: 4,
+                borderRadius: 3,
                 height: "100%",
                 background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.05)} 0%, ${alpha(theme.palette.secondary.main, 0.05)} 100%)`,
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
@@ -535,13 +526,13 @@ const ProfilePage = () => {
                   top: 0,
                   left: 0,
                   width: "100%",
-                  height: "5px",
+                  height: "4px",
                   background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
                 },
               }}
             >
-              <CardContent sx={{ p: 5, pt: 6 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
+              <CardContent sx={{ p: 3, pt: 4 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                   <Avatar
                     sx={{
                       bgcolor: alpha(theme.palette.primary.main, 0.1),
@@ -564,7 +555,7 @@ const ProfilePage = () => {
                   </Typography>
                 </Box>
 
-                <Stack spacing={5}>
+                <Stack spacing={3}>
                   <Box>
                     <Typography
                       variant="caption"
@@ -589,7 +580,7 @@ const ProfilePage = () => {
                           "& .MuiOutlinedInput-root": {
                             backgroundColor: alpha(
                               theme.palette.background.paper,
-                              0.8
+                              0.8,
                             ),
                           },
                         }}
@@ -631,7 +622,7 @@ const ProfilePage = () => {
                           "& .MuiOutlinedInput-root": {
                             backgroundColor: alpha(
                               theme.palette.background.paper,
-                              0.8
+                              0.8,
                             ),
                           },
                         }}
@@ -724,7 +715,7 @@ const ProfilePage = () => {
                           "& .MuiOutlinedInput-root": {
                             backgroundColor: alpha(
                               theme.palette.background.paper,
-                              0.8
+                              0.8,
                             ),
                           },
                           "& input": { textAlign: "right" },
@@ -788,7 +779,7 @@ const ProfilePage = () => {
             <Paper
               elevation={0}
               sx={{
-                borderRadius: 4,
+                borderRadius: 3,
                 height: "100%",
                 background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, 0.05)} 0%, ${alpha(theme.palette.error.main, 0.05)} 100%)`,
                 border: `1px solid ${alpha(theme.palette.warning.main, 0.1)}`,
@@ -800,13 +791,13 @@ const ProfilePage = () => {
                   top: 0,
                   left: 0,
                   width: "100%",
-                  height: "5px",
+                  height: "4px",
                   background: `linear-gradient(90deg, ${theme.palette.warning.main}, ${theme.palette.error.main})`,
                 },
               }}
             >
-              <CardContent sx={{ p: 5, pt: 6 }}>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
+              <CardContent sx={{ p: 3, pt: 4 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                   <Avatar
                     sx={{
                       bgcolor: alpha(theme.palette.warning.main, 0.1),
@@ -829,7 +820,7 @@ const ProfilePage = () => {
                   </Typography>
                 </Box>
 
-                <Stack spacing={5}>
+                <Stack spacing={3}>
                   <Box>
                     <Typography
                       variant="caption"
@@ -878,7 +869,7 @@ const ProfilePage = () => {
                     >
                       {subscription?.subscription_expiry
                         ? new Date(
-                            subscription.subscription_expiry
+                            subscription.subscription_expiry,
                           ).toLocaleDateString("fa-IR")
                         : "نامحدود"}
                     </Typography>
@@ -903,20 +894,39 @@ const ProfilePage = () => {
                       sx={{
                         p: 2,
                         borderRadius: 2,
-                        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        backgroundColor: alpha(
+                          theme.palette.background.paper,
+                          0.8,
+                        ),
                         border: `1px solid ${alpha(theme.palette.warning.main, 0.2)}`,
                       }}
                     >
                       {digikalaLoading ? (
-                        <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            py: 1,
+                          }}
+                        >
                           <CircularProgress size={22} />
                         </Box>
                       ) : digikalaError ? (
-                        <Typography variant="body2" color="error.main" fontWeight={600}>
+                        <Typography
+                          variant="body2"
+                          color="error.main"
+                          fontWeight={600}
+                        >
                           خطا در دریافت اطلاعات فروشگاه
                         </Typography>
                       ) : digikalaStore ? (
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.5,
+                          }}
+                        >
                           <Avatar
                             src={digikalaStore.logo?.file}
                             alt={digikalaStore.seller_name}
@@ -938,13 +948,20 @@ const ProfilePage = () => {
                             >
                               {digikalaStore.seller_name}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               شناسه فروشنده: {digikalaStore.seller_id}
                             </Typography>
                           </Box>
                         </Box>
                       ) : (
-                        <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          fontWeight={600}
+                        >
                           هنوز فروشگاهی ثبت نشده است
                         </Typography>
                       )}
@@ -954,10 +971,18 @@ const ProfilePage = () => {
                   <Box>
                     {/* show credit if available above the upgrade button */}
                     {typeof subscription?.ai_credit === "number" ? (
-                      <Box sx={{ mb: 2, display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                      <Box
+                        sx={{
+                          mb: 2,
+                          display: "flex",
+                          justifyContent: { xs: "center", md: "flex-start" },
+                        }}
+                      >
                         <Chip
                           label={`${subscription.ai_credit} کردیت`}
-                          color={subscription.ai_credit > 0 ? "success" : "warning"}
+                          color={
+                            subscription.ai_credit > 0 ? "success" : "warning"
+                          }
                           size="small"
                           sx={{ fontWeight: "bold" }}
                         />
@@ -969,8 +994,8 @@ const ProfilePage = () => {
                       variant="contained"
                       sx={{
                         borderRadius: 3,
-                        py: 2,
-                        fontSize: "1rem",
+                        py: 1.5,
+                        fontSize: "0.95rem",
                         fontWeight: "bold",
                         background: `linear-gradient(45deg, ${theme.palette.warning.main}, ${theme.palette.error.main})`,
                         "&:hover": {
@@ -988,89 +1013,16 @@ const ProfilePage = () => {
         </Grid>
 
         {/* Additional Features Section */}
-        <Grid container spacing={5} sx={{ mt: 5 }}>
-          {/* Quick Actions */}
-          <Grid size={{ xs: 12, md: 8 }}>
-            <Paper
-              elevation={0}
-              sx={{
-                borderRadius: 4,
-                background: `linear-gradient(135deg, ${alpha(theme.palette.grey[50], 0.8)} 0%, ${alpha(theme.palette.grey[100], 0.8)} 100%)`,
-                border: `1px solid ${alpha(theme.palette.grey[300], 0.5)}`,
-                p: 5,
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                  mb: 4,
-                  color: theme.palette.text.primary,
-                  fontSize: "1.3rem",
-                }}
-              >
-                دسترسی سریع
-              </Typography>
-              <Grid container spacing={4}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<ShieldIcon />}
-                    sx={{
-                      borderRadius: 3,
-                      py: 2.5,
-                      borderColor: alpha(theme.palette.warning.main, 0.3),
-                      color: theme.palette.warning.main,
-                      fontSize: "1.1rem",
-                      fontWeight: "bold",
-                      "&:hover": {
-                        borderColor: theme.palette.warning.main,
-                        bgcolor: alpha(theme.palette.warning.main, 0.05),
-                        transform: "translateY(-2px)",
-                      },
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    تنظیمات امنیت
-                  </Button>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<UserIcon />}
-                    sx={{
-                      borderRadius: 3,
-                      py: 2.5,
-                      borderColor: alpha(theme.palette.primary.main, 0.3),
-                      color: theme.palette.primary.main,
-                      fontSize: "1.1rem",
-                      fontWeight: "bold",
-                      "&:hover": {
-                        borderColor: theme.palette.primary.main,
-                        bgcolor: alpha(theme.palette.primary.main, 0.05),
-                        transform: "translateY(-2px)",
-                      },
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    مدیریت حساب
-                  </Button>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-
+        <Grid container spacing={3} sx={{ mt: 3 }}>
           {/* Help & Support */}
-          <Grid size={{ xs: 12, md: 4 }}>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ mx: "auto" }}>
             <Paper
               elevation={0}
               sx={{
-                borderRadius: 4,
+                borderRadius: 3,
                 background: `linear-gradient(135deg, ${alpha(theme.palette.info.main, 0.05)} 0%, ${alpha(theme.palette.primary.main, 0.05)} 100%)`,
                 border: `1px solid ${alpha(theme.palette.info.main, 0.1)}`,
-                p: 5,
+                p: 3,
                 height: "100%",
               }}
             >
@@ -1078,9 +1030,9 @@ const ProfilePage = () => {
                 variant="h6"
                 sx={{
                   fontWeight: "bold",
-                  mb: 3,
+                  mb: 2,
                   color: theme.palette.info.main,
-                  fontSize: "1.3rem",
+                  fontSize: "1.1rem",
                 }}
               >
                 راهنما و پشتیبانی
@@ -1088,26 +1040,26 @@ const ProfilePage = () => {
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ mb: 4, lineHeight: 1.7, fontSize: "1rem" }}
+                sx={{ mb: 2.5, lineHeight: 1.7, fontSize: "0.95rem" }}
               >
                 {isEditing
                   ? "ایمیل، نام و نام خانوادگی قابل ویرایش هستند. شماره موبایل از طریق تنظیمات امنیتی قابل تغییر است."
                   : "برای ویرایش اطلاعات پروفایل، روی دکمه ویرایش در بالای صفحه کلیک کنید."}
               </Typography>
               <Button
+                onClick={() => navigate("/ticketing")}
                 fullWidth
                 variant="contained"
                 sx={{
                   borderRadius: 3,
-                  py: 2,
-                  fontSize: "1.1rem",
+                  py: 1.5,
+                  fontSize: "1rem",
                   fontWeight: "bold",
                   background: `linear-gradient(45deg, ${theme.palette.info.main}, ${theme.palette.primary.main})`,
                   "&:hover": {
                     background: `linear-gradient(45deg, ${theme.palette.info.dark}, ${theme.palette.primary.dark})`,
-                    transform: "translateY(-2px)",
                   },
-                  transition: "all 0.2s ease",
+                  transition: "background 0.2s ease",
                 }}
               >
                 تماس با پشتیبانی

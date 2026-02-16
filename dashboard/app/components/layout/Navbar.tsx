@@ -70,7 +70,10 @@ const Navbar: React.FC = () => {
       // preserve existing subscription on store when updating profile
       const merged = {
         ...userData.data,
-        subscription: (currentUser as any)?.subscription ?? userData.data.subscription ?? null,
+        subscription:
+          (currentUser as any)?.subscription ??
+          userData.data.subscription ??
+          null,
       };
       dispatch(setUser(merged));
     }
@@ -331,8 +334,9 @@ const Navbar: React.FC = () => {
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
         {/* Subscription status button */}
         {(() => {
-          const credit = currentUser?.subscription?.ai_credit ?? 0;
-          const active = credit > 0;
+          // const credit = currentUser?.subscription?.ai_credit ?? 0;
+          const credit = currentUser?.subscription;
+          const active = credit?.subscription_plan;
 
           return (
             <Button

@@ -11,6 +11,7 @@ import {
   Collapse,
   Divider,
   IconButton,
+  Tooltip,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
@@ -23,6 +24,7 @@ import {
   GridIcon,
   ImportIcon,
   MenuBars,
+  AddIcon,
   TagIcon,
   TemplateIcon,
 } from "../icons/IconComponents";
@@ -119,6 +121,7 @@ const menuItems: MenuItem[] = [
     id: "quick-product",
     title: "ساخت محصول سریع !",
     path: "/products/quick",
+    icon: AddIcon,
     important: true,
   },
 ];
@@ -224,10 +227,17 @@ const Drawer = ({
           const ItemIcon = item.icon;
           const isActive = isMenuItemActive(item);
           const isOpen = getOpenState(item.id);
+          const compactImportantItem = collapsed && item.important;
 
           return (
             <Box key={item.id}>
               <ListItem disablePadding>
+                <Tooltip
+                  title={collapsed ? item.title : ""}
+                  placement="left"
+                  arrow
+                  disableHoverListener={!collapsed}
+                >
                 <ListItemButton
                   component={item.path && !item.expandable ? Link : "div"}
                   to={item.path && !item.expandable ? item.path : undefined}
@@ -244,16 +254,25 @@ const Drawer = ({
                     color: item.important
                       ? theme.palette.common.white
                       : "inherit",
-                    borderRadius: item.important ? 2 : 1,
                     border: item.important
                       ? `1px solid ${theme.palette.primary.main}`
                       : "none",
-                    margin: item.important ? "10px 8px" : "4px",
+                    margin: compactImportantItem
+                      ? "10px 12px"
+                      : item.important
+                        ? "10px 8px"
+                        : "4px",
+                    width: compactImportantItem ? 38 : "auto",
+                    height: compactImportantItem ? 38 : "auto",
+                    minWidth: compactImportantItem ? 38 : "auto",
+                    borderRadius: compactImportantItem ? "999px" : item.important ? 2 : 1,
                     boxShadow: item.important
                       ? "0 6px 18px rgba(16,24,40,0.06)"
                       : "none",
                     alignItems: "center",
-                    justifyContent: "flex-start",
+                    justifyContent: compactImportantItem
+                      ? "center"
+                      : "flex-start",
                     transition: "all 150ms ease",
                     "&:hover": {
                       // Hover: become bordered / transparent and show primary text
@@ -272,20 +291,29 @@ const Drawer = ({
                         ? theme.palette.common.black
                         : undefined,
                     },
+                    "&:hover .MuiListItemIcon-root": {
+                      color: item.important
+                        ? theme.palette.primary.main
+                        : undefined,
+                    },
                   }}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: ItemIcon ? "auto" : 0,
-                      ml: collapsed ? 0 : 1,
+                      ml: compactImportantItem ? 0 : collapsed ? 0 : 1,
                       justifyContent: "center",
-                      color: isActive ? theme.palette.primary.main : "inherit",
+                      color: item.important
+                        ? theme.palette.common.white
+                        : isActive
+                          ? theme.palette.primary.main
+                          : "inherit",
                       // keep icon space compact when there is no icon
                       width: ItemIcon ? undefined : 0,
                       overflow: "hidden",
                     }}
                   >
-                    {ItemIcon ? <ItemIcon /> : null}
+                    {ItemIcon ? <ItemIcon size={compactImportantItem ? 14 : undefined} /> : null}
                   </ListItemIcon>
                   {!collapsed && (
                     <>
@@ -319,6 +347,7 @@ const Drawer = ({
                     </>
                   )}
                 </ListItemButton>
+                </Tooltip>
               </ListItem>
 
               {/* Sub Items */}
