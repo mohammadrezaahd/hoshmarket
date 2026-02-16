@@ -305,7 +305,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
               background: isPopular
                 ? "rgba(255, 255, 255, 0.25)"
                 : "primary.main",
-              color: "white",
+              color: isPopular ? "white" : "common.black",
               borderColor: isPopular
                 ? "rgba(255, 255, 255, 0.4)"
                 : "primary.main",

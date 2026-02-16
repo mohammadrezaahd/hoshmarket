@@ -24,6 +24,7 @@ import {
   RegisterForm,
   PasswordLogin,
 } from "~/components/auth";
+import { useSnackbar } from "notistack";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -43,11 +44,13 @@ const Auth = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const { enqueueSnackbar } = useSnackbar();
 
   // State
   const [step, setStep] = useState<AuthStep>("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [registerError, setRegisterError] = useState<string | null>(null);
 
   // API Hooks
   const checkNumber = useCheckNumber();
@@ -61,16 +64,43 @@ const Auth = () => {
     const state = location.state as any;
     if (state?.needsRegistration && state?.step === "register") {
       setStep("register");
+      setRegisterError(null);
       // پاک کردن state بعد از استفاده
       window.history.replaceState({}, document.title);
     }
   }, [location]);
+
+  const getRegisterErrorMessage = (error: unknown): string => {
+    const fallbackMessage = "خطای ناشناخته است. لطفاً با پشتیبانی تماس بگیرید";
+
+    if (!error || typeof error !== "object") {
+      return fallbackMessage;
+    }
+
+    const maybeError = error as {
+      response?: { data?: { detail?: unknown } };
+      data?: { detail?: unknown };
+      detail?: unknown;
+    };
+
+    const detail =
+      maybeError.response?.data?.detail ??
+      maybeError.data?.detail ??
+      maybeError.detail;
+
+    if (typeof detail === "string" && detail.trim()) {
+      return detail;
+    }
+
+    return fallbackMessage;
+  };
 
   // بررسی اینکه آیا کاربر قبلاً لاگین کرده و register شده یا نه
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const state = location.state as any;
 
+    setRegisterError(null);
     // فقط redirect کن اگر needsRegistration نباشد
     if (token && !state?.needsRegistration) {
       navigate("/", { replace: true });
@@ -122,12 +152,17 @@ const Auth = () => {
     password: string;
   }) => {
     try {
+      setRegisterError(null);
       await register.mutateAsync(data);
 
       setTimeout(() => {
         navigate("/");
       }, 1500);
-    } catch (err: any) {}
+    } catch (err: unknown) {
+      const errorMessage = getRegisterErrorMessage(err);
+      setRegisterError(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: "error" });
+    }
   };
 
   const handlePasswordLogin = async (phoneNum: string, password: string) => {
@@ -164,6 +199,7 @@ const Auth = () => {
   const handleBackToPhone = () => {
     setStep("phone");
     setOtp(["", "", "", "", "", ""]);
+    setRegisterError(null);
   };
 
   const isLoading =
@@ -202,7 +238,11 @@ const Auth = () => {
 
       case "register":
         return (
-          <RegisterForm onSubmit={handleRegisterSubmit} isLoading={isLoading} />
+          <RegisterForm
+            onSubmit={handleRegisterSubmit}
+            isLoading={isLoading}
+            serverError={registerError}
+          />
         );
 
       case "password-login":

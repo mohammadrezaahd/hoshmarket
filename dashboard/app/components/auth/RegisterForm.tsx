@@ -6,6 +6,7 @@ import {
   CircularProgress,
   InputAdornment,
   IconButton,
+  Alert,
 } from "@mui/material";
 
 import {
@@ -26,9 +27,14 @@ interface RegisterFormProps {
     password: string;
   }) => void;
   isLoading: boolean;
+  serverError?: string | null;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({
+  onSubmit,
+  isLoading,
+  serverError,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
   const {
     control,
@@ -42,6 +48,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, isLoading }) => {
 
   return (
     <Box component="form" onSubmit={onFormSubmit} sx={{ width: "100%" }}>
+      {serverError ? (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {serverError}
+        </Alert>
+      ) : null}
+
       <Controller
         name="first_name"
         control={control}
