@@ -79,7 +79,7 @@ const EditProductPage = () => {
 
     // Find category
     const category = categoriesData.data.items.find(
-      (cat: any) => cat.id === product.category_id
+      (cat: any) => cat.id === product.category_id,
     );
     if (category) {
       setSelectedCategory(category);
@@ -145,7 +145,7 @@ const EditProductPage = () => {
             data: detailData,
             formData,
           };
-        }
+        },
       );
       setDetailsTemplates(templates);
     }
@@ -182,7 +182,7 @@ const EditProductPage = () => {
                       break;
                     case "select":
                       const selectedValue = Object.entries(
-                        attr.values || {}
+                        attr.values || {},
                       ).find(([_, v]: [string, any]) => v.selected)?.[0];
                       if (selectedValue) {
                         formData[fieldKey] = selectedValue;
@@ -198,7 +198,7 @@ const EditProductPage = () => {
                       break;
                   }
                 });
-              }
+              },
             );
           }
 
@@ -209,7 +209,7 @@ const EditProductPage = () => {
             data: attrData,
             formData,
           };
-        }
+        },
       );
       setAttributesTemplates(templates);
     }
@@ -222,7 +222,7 @@ const EditProductPage = () => {
   // Validation
   const productInfoValidation = useProductInfoValidation(
     productTitle,
-    productDescription
+    productDescription,
   );
   const { data: selectedImagesData } = useSelectedImages(selectedImages);
 
@@ -230,7 +230,7 @@ const EditProductPage = () => {
   const allDetailsValidationErrors = useMemo(() => {
     const allErrors = getDetailsTemplatesValidationErrors(detailsTemplates);
     const activeTemplateErrors = allErrors.find(
-      (errorSet) => errorSet.templateId === activeDetailsTemplate?.id
+      (errorSet) => errorSet.templateId === activeDetailsTemplate?.id,
     );
     return activeTemplateErrors?.errors || {};
   }, [detailsTemplates, activeDetailsTemplate?.id]);
@@ -239,7 +239,7 @@ const EditProductPage = () => {
     const allErrors =
       getAttributesTemplatesValidationErrors(attributesTemplates);
     const activeTemplateErrors = allErrors.find(
-      (errorSet) => errorSet.templateId === activeAttributesTemplate?.id
+      (errorSet) => errorSet.templateId === activeAttributesTemplate?.id,
     );
     return activeTemplateErrors?.errors || {};
   }, [attributesTemplates, activeAttributesTemplate?.id]);
@@ -445,7 +445,7 @@ const EditProductPage = () => {
                   }
                 }
               });
-            }
+            },
           );
         }
 
@@ -511,14 +511,14 @@ const EditProductPage = () => {
     (templates: TemplateData[]) => {
       setDetailsTemplates(templates);
     },
-    []
+    [],
   );
 
   const handleAttributesTemplatesChange = React.useCallback(
     (templates: TemplateData[]) => {
       setAttributesTemplates(templates);
     },
-    []
+    [],
   );
 
   const handleActiveDetailsTabChange = React.useCallback((tab: number) => {
@@ -578,7 +578,7 @@ const EditProductPage = () => {
   const renderComponent = () => {
     if (!productData?.data || !productData.data?.source) return null;
     switch (productData.data?.source) {
-      case TemplateSource.App:
+      case TemplateSource.App || TemplateSource.Transfer:
         return (
           <AppEditProduct
             productData={productData}
@@ -601,7 +601,7 @@ const EditProductPage = () => {
             onActiveAttributesTabChange={handleActiveAttributesTabChange}
           />
         );
-      case TemplateSource.Quick || TemplateSource.Transfer:
+      case TemplateSource.Quick:
         return (
           <QuickEditProduct
             productData={productData}
@@ -644,7 +644,7 @@ const EditProductPage = () => {
                     )}
                     {selectedImages.length > 0 &&
                       !selectedImagesData?.data?.list?.some(
-                        (img) => img.product === true
+                        (img) => img.product === true,
                       ) && (
                         <li>
                           حداقل یکی از تصاویر انتخاب شده باید عکس محصول
