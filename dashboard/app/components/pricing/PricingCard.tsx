@@ -66,12 +66,26 @@ const PricingCard: React.FC<PricingCardProps> = ({
 
   const features = [
     {
-      text: `حداکثر ${plan.max_products.toLocaleString("fa-IR")} محصول`,
+      text: `امکان انتشار ${plan.max_products.toLocaleString("fa-IR")} محصول در روز`,
       icon: <ArchiveIcon />,
       included: true,
     },
     {
-      text: `${plan.ai_usage_limit.toLocaleString("fa-IR")} استفاده از هوش مصنوعی`,
+      text: (
+        <>
+          {plan.ai_usage_limit.toLocaleString("fa-IR")} توکن هوشیار{" "}
+          <Typography
+            component="span"
+            sx={{
+              fontSize: "0.75rem",
+              opacity: 0.8,
+              fontWeight: 400,
+            }}
+          >
+            (هوش مصنوعی)
+          </Typography>
+        </>
+      ),
       icon: <AiIcon />,
       included: true,
     },
@@ -81,7 +95,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       included: true,
     },
     {
-      text: "پشتیبانی آنلاین ۲۴/۷",
+      text: "پشتیبانی آنلاین",
       icon: <CheckIcon />,
       included: true,
     },

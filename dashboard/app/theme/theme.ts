@@ -3,9 +3,9 @@ import { createTheme } from "@mui/material/styles";
 // تعریف رنگ‌های پیش‌فرض
 const palette = {
   primary: {
-    main: "#6C5CE7",
-    light: "#A29BFE",
-    dark: "#4C3BCF",
+    main: "#1158b6ff",
+    light: "#5165a5ff",
+    dark: "rgba(59, 106, 207, 1)ff",
     contrastText: "#ffffff",
   },
   secondary: {
