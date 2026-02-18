@@ -357,11 +357,12 @@ const ProductsList = () => {
   // Get product status text
   const getStatusText = (status: ProductStatus): string => {
     const statusMap: Record<ProductStatus, string> = {
-      0: "در انتظار انتشار",
-      1: "در انتظار تایید",
-      2: "در صف",
-      3: "در حال پردازش",
-      4: "تکمیل شده",
+      0: "در انتظار تکمیل اطلاعات",
+      1: "در انتظار انتشار",
+      2: "در انتظار تایید",
+      3: "قرار گرفتن در صف ساخت",
+      4: "درحال ساخت",
+      5: "ساخته شد",
     };
     return statusMap[status] || "نامشخص";
   };
@@ -378,7 +379,8 @@ const ProductsList = () => {
       1: "warning",
       2: "default",
       3: "info",
-      4: "success",
+      4: "info",
+      5: "success",
     };
     return colorMap[status] || "default";
   };
@@ -599,7 +601,7 @@ const ProductsList = () => {
                                 color="success"
                                 onClick={() => handlePublish(item.id)}
                                 disabled={
-                                  item.user_status !== 0 || isPublishing
+                                  item.user_status !== 1 || isPublishing
                                 }
                               >
                                 <ExportIcon size="small" />

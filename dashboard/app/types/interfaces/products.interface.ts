@@ -17,11 +17,12 @@ export interface IGetProduct extends IPostProduct {
 }
 
 export enum ProductStatus {
-  PENDING = 0,
-  WAITING_FOR_APPROVAL = 1,
-  QUEUED = 2,
-  PROCESSING = 3,
-  COMPLETED = 4,
+  NOT_COMPLETE = 0,
+  PENDING = 1,
+  WAITING_FOR_APPROVAL = 2,
+  QUEUED = 3,
+  PROCESSING = 4,
+  COMPLETED = 5,
 }
 
 export enum SubProductStatus {
