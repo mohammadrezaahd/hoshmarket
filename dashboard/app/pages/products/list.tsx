@@ -580,7 +580,7 @@ const ProductsList = () => {
                                 size="small"
                                 color="primary"
                                 onClick={() => handleEdit(item.id)}
-                                disabled={item.user_status !== 0}
+                                disabled={item.user_status > 1}
                               >
                                 <EditIcon size="small" />
                               </IconButton>
@@ -590,7 +590,7 @@ const ProductsList = () => {
                                 size="small"
                                 color="error"
                                 onClick={() => handleDelete(item.id)}
-                                disabled={item.user_status !== 0 || isRemoving}
+                                disabled={item.user_status > 1 || isRemoving}
                               >
                                 <DeleteIcon size="small" />
                               </IconButton>
@@ -601,7 +601,7 @@ const ProductsList = () => {
                                 color="success"
                                 onClick={() => handlePublish(item.id)}
                                 disabled={
-                                  item.user_status !== 1 || isPublishing
+                                  item.user_status > 1 || isPublishing
                                 }
                               >
                                 <ExportIcon size="small" />
