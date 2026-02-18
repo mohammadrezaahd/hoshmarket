@@ -601,7 +601,7 @@ const ProductsList = () => {
                                 color="success"
                                 onClick={() => handlePublish(item.id)}
                                 disabled={
-                                  item.user_status > 1 || isPublishing
+                                  item.user_status !== 1 || isPublishing
                                 }
                               >
                                 <ExportIcon size="small" />
