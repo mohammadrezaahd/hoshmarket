@@ -146,12 +146,12 @@ const Drawer = ({
   const theme = useTheme();
   const location = useLocation();
 
-  // Check if screen size is md or smaller (900px or less)
-  const isMdOrSmaller = useMediaQuery(theme.breakpoints.down("lg"));
+  // Mobile uses temporary drawer; desktop/tablet uses permanent drawer.
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Collapse only when desktopCollapsed is true and we're NOT on small screens.
-  // On mobile (isMdOrSmaller) we want the temporary drawer to show full items.
-  const collapsed = desktopCollapsed && !isMdOrSmaller;
+  // Respect desktop collapsed state on all non-mobile sizes.
+  // On mobile we always render full item labels in temporary drawer.
+  const collapsed = desktopCollapsed && !isMobile;
 
   // Helper function to check if a path is active
   const isPathActive = (path: string) => {
