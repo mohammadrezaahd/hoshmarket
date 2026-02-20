@@ -17,7 +17,7 @@ import TransferSources from "~/components/transfer/Sources";
 import CategorySelector from "~/components/templates/CategorySelector";
 import { useCreateTransfer } from "~/api/transfer.api";
 import { useCategoriesList } from "~/api/categories.api";
-import type { TransferSource, IPostTransfer } from "~/types/dtos/transfer.dto";
+import { TransferSource, type IPostTransfer } from "~/types/dtos/transfer.dto";
 import type { ICategoryList } from "~/types/interfaces/categories.interface";
 import { ApiStatus } from "~/types";
 import { useSnackbar } from "notistack";
@@ -36,7 +36,7 @@ const NewTransferPage = () => {
     useCreateTransfer();
 
   const [selectedSource, setSelectedSource] = useState<TransferSource | null>(
-    null
+    TransferSource.AMAZON
   );
   const [urls, setUrls] = useState<string[]>([""]);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);

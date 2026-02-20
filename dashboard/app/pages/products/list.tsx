@@ -126,14 +126,12 @@ const ProductsList = () => {
   // Calculate skip value based on current page
   const skip = (page - 1) * limit;
 
-  // Handle pagination change - fetch data for selected page
-  const handlePageChange = async (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setPage(value);
-    try {
-      const skipValue = (value - 1) * limit;
+  const fetchProducts = useCallback(
+    async (options?: { page?: number; resetPage?: boolean }) => {
+      const targetPage = options?.page ?? page;
+      const shouldResetPage = options?.resetPage ?? false;
+      const skipValue = shouldResetPage ? 0 : (targetPage - 1) * limit;
+
       const response = await getList({
         skip: skipValue,
         limit,
@@ -148,7 +146,23 @@ const ProductsList = () => {
         if (response.meta_data) {
           setMetaData(response.meta_data);
         }
+
+        if (shouldResetPage && page !== 1) {
+          setPage(1);
+        }
       }
+    },
+    [page, limit, searchValue, categoryId, statusFilter, getList]
+  );
+
+  // Handle pagination change - fetch data for selected page
+  const handlePageChange = async (
+    event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
+    setPage(value);
+    try {
+      await fetchProducts({ page: value });
     } catch (error: any) {
       enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
         variant: "error",
@@ -160,21 +174,7 @@ const ProductsList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getList({
-          skip: 0,
-          limit,
-          searchTerm: "",
-          categoryId: undefined,
-          status: undefined,
-        });
-
-        if (response.status === "true" && response.data?.list) {
-          setProductsList(response.data.list);
-          setTotal(response.data.list.length);
-          if (response.meta_data) {
-            setMetaData(response.meta_data);
-          }
-        }
+        await fetchProducts({ page: 1, resetPage: true });
       } catch (error: any) {
         enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
           variant: "error",
@@ -183,27 +183,13 @@ const ProductsList = () => {
     };
 
     fetchData();
-  }, []);
+  }, [fetchProducts, enqueueSnackbar]);
 
   // Fetch when search or filters change
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getList({
-          skip: 0,
-          limit,
-          searchTerm: searchValue,
-          categoryId,
-          status: statusFilter,
-        });
-
-        if (response.status === "true" && response.data?.list) {
-          setProductsList(response.data.list);
-          setTotal(response.data.list.length);
-          if (response.meta_data) {
-            setMetaData(response.meta_data);
-          }
-        }
+        await fetchProducts({ page: 1, resetPage: true });
       } catch (error: any) {
         enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
           variant: "error",
@@ -213,10 +199,16 @@ const ProductsList = () => {
 
     // فقط وقتی search/filter واقعا تغییر کرده باشد، fetch کن
     if (searchValue || categoryId !== undefined || statusFilter !== undefined) {
-      setPage(1); // Reset to page 1
       fetchData();
     }
-  }, [searchValue, categoryId, statusFilter, limit, getList, enqueueSnackbar]);
+  }, [
+    searchValue,
+    categoryId,
+    statusFilter,
+    limit,
+    fetchProducts,
+    enqueueSnackbar,
+  ]);
 
   // Handle limit change
   const handleLimitChange = (event: any) => {
@@ -250,15 +242,7 @@ const ProductsList = () => {
     try {
       await removeProduct(deleteDialog.id);
       enqueueSnackbar("محصول با موفقیت حذف شد", { variant: "success" });
-      // Refresh the products list with current page
-      const skipValue = (page - 1) * limit;
-      await getList({
-        skip: skipValue,
-        limit,
-        searchTerm: searchValue,
-        categoryId,
-        status: statusFilter,
-      });
+      await fetchProducts({ page });
     } catch (error: any) {
       enqueueSnackbar(`خطا در حذف محصول: ${error.message}`, {
         variant: "error",
@@ -279,15 +263,7 @@ const ProductsList = () => {
 
       if (response.status === "true") {
         enqueueSnackbar("محصول با موفقیت منتشر شد", { variant: "success" });
-        // Refresh the products list with current page
-        const skipValue = (page - 1) * limit;
-        await getList({
-          skip: skipValue,
-          limit,
-          searchTerm: searchValue,
-          categoryId,
-          status: statusFilter,
-        });
+        await fetchProducts({ page });
       } else {
         enqueueSnackbar(response.message || "خطا در انتشار محصول", {
           variant: "error",
@@ -303,22 +279,7 @@ const ProductsList = () => {
   // Handle refresh
   const handleRefresh = async () => {
     try {
-      const skipValue = (page - 1) * limit;
-      const response = await getList({
-        skip: skipValue,
-        limit,
-        searchTerm: searchValue,
-        categoryId,
-        status: statusFilter,
-      });
-
-      if (response.status === "true" && response.data?.list) {
-        setProductsList(response.data.list);
-        setTotal(response.data.list.length);
-        if (response.meta_data) {
-          setMetaData(response.meta_data);
-        }
-      }
+      await fetchProducts({ page });
     } catch (error: any) {
       enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
         variant: "error",

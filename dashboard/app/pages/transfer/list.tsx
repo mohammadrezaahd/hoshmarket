@@ -575,6 +575,11 @@ const TransferList: React.FC = () => {
                             alt={r.title}
                             variant="rounded"
                             sx={{ width: 56, height: 56 }}
+                            imgProps={{
+                              style: {
+                                objectFit: "scale-down",
+                              },
+                            }}
                           />
                         </TableCell>
 
@@ -793,6 +798,9 @@ const TransferList: React.FC = () => {
                                   color="primary"
                                   onClick={() =>
                                     navigate(`/products/edit/${r.id}`)
+                                  }
+                                  disabled={
+                                    r.status === TransferStatus.CONVERTED
                                   }
                                 >
                                   <EditIcon size="small" />

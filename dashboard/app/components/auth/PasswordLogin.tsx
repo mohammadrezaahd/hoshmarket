@@ -7,6 +7,7 @@ import {
   InputAdornment,
   IconButton,
   Divider,
+  Alert,
 } from "@mui/material";
 
 import {
@@ -24,6 +25,7 @@ interface PasswordLoginProps {
   onSubmit: (phone: string, password: string) => void;
   onSwitchToOtp: () => void;
   isLoading: boolean;
+  serverError?: string | null;
 }
 
 const PasswordLogin: React.FC<PasswordLoginProps> = ({
@@ -32,6 +34,7 @@ const PasswordLogin: React.FC<PasswordLoginProps> = ({
   onSubmit,
   onSwitchToOtp,
   isLoading,
+  serverError,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const {
@@ -46,6 +49,12 @@ const PasswordLogin: React.FC<PasswordLoginProps> = ({
 
   return (
     <Box component="form" onSubmit={onFormSubmit} sx={{ width: "100%" }}>
+      {serverError ? (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {serverError}
+        </Alert>
+      ) : null}
+
       <Controller
         name="phone"
         control={control}

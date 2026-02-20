@@ -103,24 +103,27 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   // Effect to handle edit mode
   useEffect(() => {
-    if (editImageId && editImageData?.data && !isEditMode) {
+    if (editImageId && editImageData?.data) {
       const imageData = editImageData.data;
       setIsEditMode(true);
 
-      // Set form values from edit data
-      setValue("title", imageData.title);
+      // Rehydrate form values from selected image data (runs on every image switch)
+      const imageType = imageData.packaging
+        ? "packaging"
+        : imageData.product
+          ? "product"
+          : "none";
 
-      // Set type based on packaging/product flags
-      if (imageData.packaging) {
-        setValue("type", "packaging");
-      } else if (imageData.product) {
-        setValue("type", "product");
-      } else {
-        setValue("type", "none");
-      }
+      reset({
+        title: imageData.title,
+        type: imageType as any,
+        file: null,
+        multipleUpload: false,
+      });
 
       // Set preview URL from existing image
       setPreviewUrl(fixImageUrl(imageData.image_url));
+      setPreviewUrls([]);
 
       // In edit mode, file is not required, so we set it to null but preview remains
       setValue("file", null);
@@ -136,8 +139,9 @@ const FileUpload: React.FC<FileUploadProps> = ({
       };
       reset(defaultValues);
       setPreviewUrl("");
+      setPreviewUrls([]);
     }
-  }, [editImageId, editImageData?.data, isEditMode]);
+  }, [editImageId, editImageData?.data, isEditMode, allowedType, defaultType, reset, setValue]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

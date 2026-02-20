@@ -4,6 +4,8 @@ import type { ICategoryAttr } from "~/types/interfaces/attributes.interface";
 import type { IPostAttr } from "~/types/dtos/attributes.dto";
 import { TemplateSource } from "~/types/dtos/templates.dto";
 
+const getAttributeFormFieldKey = (attrId: number | string) => `attr_${attrId}`;
+
 export interface AttributesState {
   currentCategoryId: number | null;
   attributesData: ICategoryAttr | null;
@@ -47,25 +49,26 @@ const attributesSlice = createSlice({
           Object.values(data.category_group_attributes).forEach(
             (categoryData) => {
               Object.values(categoryData.attributes).forEach((attr) => {
+                const fieldKey = getAttributeFormFieldKey(attr.id);
                 // Handle text and multi_text fields
                 if (attr.type === "text" || attr.type === "multi_text") {
                   if (attr.value !== undefined && attr.value !== null) {
                     if (typeof attr.value === 'object' && 'text_lines' in attr.value && attr.value.text_lines && Array.isArray(attr.value.text_lines)) {
-                      initialFormData[attr.id] = attr.value.text_lines.join('\n');
+                      initialFormData[fieldKey] = attr.value.text_lines.join('\n');
                     } else if (typeof attr.value === 'object' && 'original_text' in attr.value && attr.value.original_text) {
-                      initialFormData[attr.id] = attr.value.original_text;
+                      initialFormData[fieldKey] = attr.value.original_text;
                     } else if (typeof attr.value === 'string' || typeof attr.value === 'number') {
-                      initialFormData[attr.id] = String(attr.value);
+                      initialFormData[fieldKey] = String(attr.value);
                     } else {
-                      initialFormData[attr.id] = "";
+                      initialFormData[fieldKey] = "";
                     }
                   } else {
-                    initialFormData[attr.id] = "";
+                    initialFormData[fieldKey] = "";
                   }
                 }
                 // Handle input fields
                 else if (attr.type === "input") {
-                  initialFormData[attr.id] = attr.value !== undefined && attr.value !== null ? attr.value : "";
+                  initialFormData[fieldKey] = attr.value !== undefined && attr.value !== null ? attr.value : "";
                 }
                 // Handle select and checkbox fields
                 else {
@@ -75,9 +78,9 @@ const attributesSlice = createSlice({
 
                   if (selectedValues.length > 0) {
                     if (attr.type === "select") {
-                      initialFormData[attr.id] = selectedValues[0];
+                      initialFormData[fieldKey] = selectedValues[0];
                     } else if (attr.type === "checkbox") {
-                      initialFormData[attr.id] = selectedValues;
+                      initialFormData[fieldKey] = selectedValues;
                     }
                   }
                 }
@@ -142,27 +145,28 @@ const attributesSlice = createSlice({
         Object.values(templateData.category_group_attributes).forEach(
           (categoryData: any) => {
             Object.values(categoryData.attributes).forEach((attr: any) => {
+              const fieldKey = getAttributeFormFieldKey(attr.id);
               // برای text و multi_text fields
               if (attr.type === 'text' || attr.type === 'multi_text') {
                 if (attr.value !== undefined && attr.value !== null && attr.value !== "") {
                   if (typeof attr.value === 'object' && attr.value.text_lines) {
                     // اگر به صورت آرایه ذخیره شده
-                    formData[attr.id] = attr.value.text_lines.join('\n');
+                    formData[fieldKey] = attr.value.text_lines.join('\n');
                   } else if (typeof attr.value === 'object' && attr.value.original_text) {
                     // اگر متن اصلی ذخیره شده
-                    formData[attr.id] = attr.value.original_text;
+                    formData[fieldKey] = attr.value.original_text;
                   } else if (typeof attr.value === 'string') {
                     // اگر به صورت متن ساده ذخیره شده
-                    formData[attr.id] = attr.value;
+                    formData[fieldKey] = attr.value;
                   }
                 } else {
                   // Load empty value
-                  formData[attr.id] = "";
+                  formData[fieldKey] = "";
                 }
               }
               // برای input fields
               else if (attr.type === 'input') {
-                formData[attr.id] = attr.value !== undefined && attr.value !== null ? attr.value : "";
+                formData[fieldKey] = attr.value !== undefined && attr.value !== null ? attr.value : "";
               }
               // برای select fields
               else if (attr.type === 'select') {
@@ -170,9 +174,9 @@ const attributesSlice = createSlice({
                   .filter(([_, valueData]: [string, any]) => valueData.selected)
                   .map(([valueId, _]) => valueId);
                 if (selectedValues.length > 0) {
-                  formData[attr.id] = selectedValues[0];
+                  formData[fieldKey] = selectedValues[0];
                 } else {
-                  formData[attr.id] = "";
+                  formData[fieldKey] = "";
                 }
               }
               // برای checkbox fields
@@ -180,7 +184,7 @@ const attributesSlice = createSlice({
                 const selectedValues = Object.entries(attr.values)
                   .filter(([_, valueData]: [string, any]) => valueData.selected)
                   .map(([valueId, _]) => valueId);
-                formData[attr.id] = selectedValues.length > 0 ? selectedValues : [];
+                formData[fieldKey] = selectedValues.length > 0 ? selectedValues : [];
               }
             });
           }
@@ -215,10 +219,16 @@ export const getFinalAttributesObject = (state: {
 
       Object.keys(categoryData.attributes).forEach((attributeId) => {
         const attr = categoryData.attributes[attributeId];
-        const formValue = state.attributes.formData[attr.id];
+        const fieldKey = getAttributeFormFieldKey(attr.id);
+        const legacyFieldKey = attr.id;
+        const formValue =
+          state.attributes.formData[fieldKey] ??
+          state.attributes.formData[legacyFieldKey as any];
 
         // Check if field exists in formData (even if empty string)
-        const hasFormValue = attr.id in state.attributes.formData;
+        const hasFormValue =
+          fieldKey in state.attributes.formData ||
+          (legacyFieldKey as any) in state.attributes.formData;
 
         if (hasFormValue) {
           switch (attr.type) {

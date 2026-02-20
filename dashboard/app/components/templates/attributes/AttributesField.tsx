@@ -6,20 +6,67 @@ import {
   IconButton,
   Tooltip,
   InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import React from "react";
 import {
   AttributeType,
+  type ICategoryAttr,
   type IAttr,
 } from "~/types/interfaces/attributes.interface";
 import SuggestedValues from "./SuggestedValues";
+import { useAiSuggest } from "~/api/ai.api";
+import { ApiStatus } from "~/types";
+import { useSnackbar } from "notistack";
 
 import { AiIcon } from "~/components/icons/IconComponents";
 
 // کامپوننت آیکون AI
-const AIIcon: React.FC<{ attr: IAttr }> = ({ attr }) => {
-  const handleAIClick = () => {
-    // AI helper clicked for field - removed debug logs
+const AIIcon: React.FC<{
+  attr: IAttr;
+  categoryId?: number | null;
+  aiData?: ICategoryAttr[];
+  onValueChange: (value: any) => void;
+}> = ({ attr, categoryId, aiData, onValueChange }) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { mutateAsync: suggestAi, isPending } = useAiSuggest();
+
+  const extractAiValue = (data: any) => {
+    if (!data || typeof data !== "object") return undefined;
+    if (data.ai !== undefined && data.ai !== null) return data.ai;
+    if (data.Ai !== undefined && data.Ai !== null) return data.Ai;
+    if (data.value !== undefined && data.value !== null) return data.value;
+    return undefined;
+  };
+
+  const handleAIClick = async () => {
+    if (!categoryId || isPending) return;
+
+    try {
+      const response = await suggestAi({
+        categoryId,
+        id: attr.id,
+        data: aiData,
+      });
+
+      if (response.status === ApiStatus.SUCCEEDED) {
+        const suggestedValue = extractAiValue(response.data);
+        if (suggestedValue !== undefined) {
+          onValueChange(suggestedValue);
+        }
+        return;
+      }
+
+      enqueueSnackbar(
+        response.message || response.error || "خطا در دریافت پیشنهاد هوش مصنوعی",
+        { variant: "error" },
+      );
+    } catch (error: any) {
+      enqueueSnackbar(
+        error?.message || "خطا در دریافت پیشنهاد هوش مصنوعی",
+        { variant: "error" },
+      );
+    }
   };
 
   return (
@@ -27,6 +74,7 @@ const AIIcon: React.FC<{ attr: IAttr }> = ({ attr }) => {
       <IconButton
         onClick={handleAIClick}
         size="small"
+        disabled={!categoryId || isPending}
         sx={{
           padding: "4px",
           marginLeft: "4px",
@@ -44,7 +92,11 @@ const AIIcon: React.FC<{ attr: IAttr }> = ({ attr }) => {
           height: "24px",
         }}
       >
-        <AiIcon style={{ fontSize: "16px" }} />
+        {isPending ? (
+          <CircularProgress size={14} sx={{ color: "white" }} />
+        ) : (
+          <AiIcon style={{ fontSize: "16px" }} />
+        )}
       </IconButton>
     </Tooltip>
   );
@@ -55,6 +107,8 @@ interface AttributesFieldProps {
   value: any;
   onChange: (attrId: number | string, value: any) => void;
   error?: string;
+  categoryId?: number | null;
+  aiData?: ICategoryAttr[];
 }
 
 export default function AttributesField({
@@ -62,6 +116,8 @@ export default function AttributesField({
   value,
   onChange,
   error,
+  categoryId,
+  aiData,
 }: AttributesFieldProps) {
   const fieldKey = attr.code || attr.id;
 
@@ -107,7 +163,14 @@ export default function AttributesField({
                       {attr.postfix || attr.unit}
                     </Box>
                   )}
-                  {attr.Ai && <AIIcon attr={attr} />}
+                  {attr.Ai && (
+                    <AIIcon
+                      attr={attr}
+                      categoryId={categoryId}
+                      aiData={aiData}
+                      onValueChange={(nextValue) => onChange(fieldKey, nextValue)}
+                    />
+                  )}
                 </Box>
               ),
             }}
@@ -167,7 +230,16 @@ export default function AttributesField({
                           }}
                         >
                           {params.InputProps.endAdornment}
-                          {attr.Ai && <AIIcon attr={attr} />}
+                          {attr.Ai && (
+                            <AIIcon
+                              attr={attr}
+                              categoryId={categoryId}
+                              aiData={aiData}
+                              onValueChange={(nextValue) =>
+                                onChange(fieldKey, nextValue)
+                              }
+                            />
+                          )}
                         </Box>
                       ),
                     }}
@@ -234,7 +306,16 @@ export default function AttributesField({
                           }}
                         >
                           {params.InputProps.endAdornment}
-                          {attr.Ai && <AIIcon attr={attr} />}
+                          {attr.Ai && (
+                            <AIIcon
+                              attr={attr}
+                              categoryId={categoryId}
+                              aiData={aiData}
+                              onValueChange={(nextValue) =>
+                                onChange(fieldKey, nextValue)
+                              }
+                            />
+                          )}
                         </Box>
                       ),
                     }}
@@ -288,7 +369,14 @@ export default function AttributesField({
             required={attr.required}
             error={!!error}
             InputProps={{
-              endAdornment: attr.Ai ? <AIIcon attr={attr} /> : undefined,
+              endAdornment: attr.Ai ? (
+                <AIIcon
+                  attr={attr}
+                  categoryId={categoryId}
+                  aiData={aiData}
+                  onValueChange={(nextValue) => onChange(fieldKey, nextValue)}
+                />
+              ) : undefined,
             }}
           />
           <SuggestedValues
@@ -315,7 +403,12 @@ export default function AttributesField({
             InputProps={{
               endAdornment: attr.Ai ? (
                 <Box sx={{ alignSelf: "flex-end" }}>
-                  <AIIcon attr={attr} />
+                  <AIIcon
+                    attr={attr}
+                    categoryId={categoryId}
+                    aiData={aiData}
+                    onValueChange={(nextValue) => onChange(fieldKey, nextValue)}
+                  />
                 </Box>
               ) : undefined,
             }}

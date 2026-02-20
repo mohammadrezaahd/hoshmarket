@@ -2,6 +2,8 @@ import * as yup from 'yup';
 import type { ICategoryAttr, IAttr } from '~/types/interfaces/attributes.interface';
 import { AttributeType } from '~/types/interfaces/attributes.interface';
 
+const getAttributeFormFieldKey = (attrId: number | string) => `attr_${attrId}`;
+
 /**
  * Validation messages in Persian
  */
@@ -120,7 +122,7 @@ export const createAttributesFormSchema = (
       // Skip specific attribute (as per original code)
       if (attr.id === 2233) return;
       
-      const fieldKey = attr.id.toString();
+      const fieldKey = getAttributeFormFieldKey(attr.id.toString());
       
       switch (attr.type) {
         case AttributeType.Select:
@@ -181,8 +183,9 @@ export const getAttributesDefaultValues = (
     Object.values(categoryData.attributes).forEach((attr) => {
       if (attr.id === 2233) return;
       
-      const fieldKey = attr.id.toString();
-      const currentValue = currentFormData[fieldKey];
+      const fieldKey = getAttributeFormFieldKey(attr.id.toString());
+      const currentValue =
+        currentFormData[fieldKey] ?? currentFormData[attr.id.toString()];
       
       if (currentValue !== undefined) {
         defaultValues[fieldKey] = currentValue;

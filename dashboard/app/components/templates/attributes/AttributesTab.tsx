@@ -36,8 +36,10 @@ export default function AttributesTab({
   onValidationChange,
   isLoading,
 }: AttributesTabProps) {
+  const getAttributeFieldKey = (attrId: number | string) => `attr_${attrId}`;
+
   const dispatch = useAppDispatch();
-  const { attributesData, formData, title, description, images } =
+  const { currentCategoryId, attributesData, formData, title, description, images } =
     useAppSelector((state) => state.attributes);
 
   // Use validation hook
@@ -197,15 +199,24 @@ export default function AttributesTab({
             <Grid container spacing={2}>
               {packagingAttributes.map((attr) => (
                 <Grid key={attr.id} size={{ xs: 12, md: 3 }}>
+                  {(() => {
+                    const fieldKey = getAttributeFieldKey(attr.id);
+                    return (
                   <AttributesField
                     attr={attr}
-                    value={form.watch(attr.id.toString())}
-                    onChange={handleInputChange}
+                    value={form.watch(fieldKey)}
+                    categoryId={currentCategoryId}
+                    aiData={attributesData ? [attributesData] : undefined}
+                    onChange={(_, value) =>
+                      handleInputChange(fieldKey, value)
+                    }
                     error={
-                      form.formState.errors[attr.id.toString()]
+                      form.formState.errors[fieldKey]
                         ?.message as string
                     }
                   />
+                    );
+                  })()}
                 </Grid>
               ))}
             </Grid>
@@ -218,14 +229,23 @@ export default function AttributesTab({
           <Grid container spacing={3}>
             {otherAttributes.map((attr) => (
               <Grid key={attr.id} size={{ xs: 12, md: 6 }}>
+                {(() => {
+                  const fieldKey = getAttributeFieldKey(attr.id);
+                  return (
                 <AttributesField
                   attr={attr}
-                  value={form.watch(attr.id.toString())}
-                  onChange={handleInputChange}
+                  value={form.watch(fieldKey)}
+                  categoryId={currentCategoryId}
+                  aiData={attributesData ? [attributesData] : undefined}
+                  onChange={(_, value) =>
+                    handleInputChange(fieldKey, value)
+                  }
                   error={
-                    form.formState.errors[attr.id.toString()]?.message as string
+                    form.formState.errors[fieldKey]?.message as string
                   }
                 />
+                  );
+                })()}
               </Grid>
             ))}
           </Grid>

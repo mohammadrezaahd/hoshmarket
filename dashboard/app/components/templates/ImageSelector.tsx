@@ -12,7 +12,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { GalleryIcon } from "~/components/icons/IconComponents";
-import { useImages } from "~/api/gallery.api";
+import { useImages, useSelectedImages } from "~/api/gallery.api";
 import { MediaManager, MediaGrid } from "~/components/MediaManager";
 import { SearchInput } from "~/components/common";
 import type { SelectChangeEvent } from "@mui/material";
@@ -74,6 +74,9 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
     product: product,
   });
 
+  const { data: selectedImagesData, isLoading: isLoadingSelectedImages } =
+    useSelectedImages(selectedImages);
+
   const galleryData = imagesData?.data?.list || [];
   const metaData = imagesData?.meta_data;
 
@@ -89,7 +92,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
     product: item.product,
   }));
 
-  const totalItems = metaData?.totalItems || 0;
+  const totalItems = metaData?.total_items || 0;
 
   // Initialize temp selection when dialog opens
   useEffect(() => {
@@ -157,10 +160,15 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
     setPreviewPage(1);
   };
 
+  // Get selected image details for preview - always from selectedImages API
+  const selectedImagesList = selectedImagesData?.data?.list || [];
+
   // Get selected image details for preview - convert to MediaFile format
   const selectedImageFiles: IMediaFile[] = selectedImages
     .map((id) => {
-      const item = galleryData.find((img: IGallery) => img.id === id);
+      const item =
+        selectedImagesList.find((img: IGallery) => img.id === id) ||
+        galleryData.find((img: IGallery) => img.id === id);
       return item
         ? {
             _id: item.id.toString(),
@@ -202,7 +210,7 @@ const ImageSelector: React.FC<ImageSelectorProps> = ({
           </Typography>
           <MediaGrid
             media={paginatedSelectedFiles}
-            loading={false}
+            loading={isLoadingSelectedImages}
             currentPage={previewPage}
             totalItems={selectedImageFiles.length}
             pageSize={previewPageSize}

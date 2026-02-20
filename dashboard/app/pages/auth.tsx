@@ -51,6 +51,10 @@ const Auth = () => {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [registerError, setRegisterError] = useState<string | null>(null);
+  const [passwordLoginError, setPasswordLoginError] = useState<string | null>(
+    null,
+  );
+  const [otpError, setOtpError] = useState<string | null>(null);
 
   // API Hooks
   const checkNumber = useCheckNumber();
@@ -70,7 +74,7 @@ const Auth = () => {
     }
   }, [location]);
 
-  const getRegisterErrorMessage = (error: unknown): string => {
+  const getAuthErrorMessage = (error: unknown): string => {
     const fallbackMessage = "خطای ناشناخته است. لطفاً با پشتیبانی تماس بگیرید";
 
     if (!error || typeof error !== "object") {
@@ -101,6 +105,8 @@ const Auth = () => {
     const state = location.state as any;
 
     setRegisterError(null);
+    setPasswordLoginError(null);
+    setOtpError(null);
     // فقط redirect کن اگر needsRegistration نباشد
     if (token && !state?.needsRegistration) {
       navigate("/", { replace: true });
@@ -130,6 +136,7 @@ const Auth = () => {
     }
 
     try {
+      setOtpError(null);
       const result = await verifyOtp.mutateAsync({ phone, code: otpCode });
 
       if (step === "otp-new-user") {
@@ -142,7 +149,11 @@ const Auth = () => {
           navigate("/");
         }, 1500);
       }
-    } catch (err: any) {}
+    } catch (err: unknown) {
+      const errorMessage = getAuthErrorMessage(err);
+      setOtpError(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: "error" });
+    }
   };
 
   const handleRegisterSubmit = async (data: {
@@ -159,7 +170,7 @@ const Auth = () => {
         navigate("/");
       }, 1500);
     } catch (err: unknown) {
-      const errorMessage = getRegisterErrorMessage(err);
+      const errorMessage = getAuthErrorMessage(err);
       setRegisterError(errorMessage);
       enqueueSnackbar(errorMessage, { variant: "error" });
     }
@@ -167,6 +178,7 @@ const Auth = () => {
 
   const handlePasswordLogin = async (phoneNum: string, password: string) => {
     try {
+      setPasswordLoginError(null);
       await loginWithPassword.mutateAsync({
         phone: phoneNum,
         password,
@@ -175,7 +187,11 @@ const Auth = () => {
       setTimeout(() => {
         navigate("/");
       }, 1500);
-    } catch (err: any) {}
+    } catch (err: unknown) {
+      const errorMessage = getAuthErrorMessage(err);
+      setPasswordLoginError(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: "error" });
+    }
   };
 
   const handleSwitchToOtp = async () => {
@@ -184,22 +200,35 @@ const Auth = () => {
     }
 
     try {
+      setPasswordLoginError(null);
+      setOtpError(null);
       await sendOtp.mutateAsync({ phone });
       setStep("otp-existing-user");
-    } catch (err: any) {}
+    } catch (err: unknown) {
+      const errorMessage = getAuthErrorMessage(err);
+      setPasswordLoginError(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: "error" });
+    }
   };
 
   const handleResendOtp = async () => {
     setOtp(["", "", "", "", "", ""]);
     try {
+      setOtpError(null);
       await sendOtp.mutateAsync({ phone });
-    } catch (err: any) {}
+    } catch (err: unknown) {
+      const errorMessage = getAuthErrorMessage(err);
+      setOtpError(errorMessage);
+      enqueueSnackbar(errorMessage, { variant: "error" });
+    }
   };
 
   const handleBackToPhone = () => {
     setStep("phone");
     setOtp(["", "", "", "", "", ""]);
     setRegisterError(null);
+    setPasswordLoginError(null);
+    setOtpError(null);
   };
 
   const isLoading =
@@ -232,6 +261,7 @@ const Auth = () => {
             onResend={handleResendOtp}
             onBack={handleBackToPhone}
             isLoading={isLoading}
+            error={otpError}
             phone={phone}
           />
         );
@@ -253,6 +283,7 @@ const Auth = () => {
             onSubmit={handlePasswordLogin}
             onSwitchToOtp={handleSwitchToOtp}
             isLoading={isLoading}
+            serverError={passwordLoginError}
           />
         );
 

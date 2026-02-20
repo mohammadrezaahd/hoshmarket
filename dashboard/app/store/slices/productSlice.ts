@@ -176,7 +176,7 @@ const productSlice = createSlice({
               const fieldKey = attr.code || attr.id.toString();
               
               // برای text fields
-              if (attr.type === 'text') {
+              if (attr.type === 'text' || attr.type === 'multi_text') {
                 if (attr.value !== undefined && attr.value !== null && attr.value !== "") {
                   if (typeof attr.value === 'object' && attr.value.text_lines) {
                     initialFormData[fieldKey] = attr.value.text_lines.join('\n');
@@ -306,6 +306,32 @@ const productSlice = createSlice({
           
           if (templateData.fake_reason) initialFormData.fake_reason = templateData.fake_reason;
           if (templateData.is_fake_product !== undefined) initialFormData.is_fake_product = templateData.is_fake_product;
+
+          // Populate bind text fields (e.g. brand_model)
+          const bind = templateData.bind as any;
+          const textFields = [
+            "brand_model",
+            "color_pattern",
+            "warranty",
+            "size",
+            "weight",
+            "material",
+            "origin_country",
+            "manufacturer",
+            "model_number",
+            "barcode",
+            "package_dimensions",
+            "special_features",
+            "care_instructions",
+          ];
+
+          if (bind) {
+            textFields.forEach((fieldName) => {
+              if (bind[fieldName]?.value !== undefined) {
+                initialFormData[fieldName] = bind[fieldName].value;
+              }
+            });
+          }
           
           // Update the template's form data
           template.formData = { ...template.formData, ...initialFormData };
@@ -328,7 +354,7 @@ const productSlice = createSlice({
                   const fieldKey = attr.code || attr.id.toString();
                   
                   // For text fields
-                  if (attr.type === 'text') {
+                  if (attr.type === 'text' || attr.type === 'multi_text') {
                     if (attr.value !== undefined && attr.value !== null && attr.value !== "") {
                       if (typeof attr.value === 'object' && attr.value.text_lines) {
                         initialFormData[fieldKey] = attr.value.text_lines.join('\n');
@@ -483,6 +509,7 @@ const productSlice = createSlice({
                   }
                   break;
                 case "text":
+                case "multi_text":
                   if (hasFormValue && formValue !== null && formValue !== undefined && formValue !== "") {
                     // ذخیره متن به صورت ساختاریافته برای نمایش بهتر
                     const lines = formValue.toString().split('\n').filter((line: string) => line.trim() !== '');

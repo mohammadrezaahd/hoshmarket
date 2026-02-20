@@ -878,10 +878,11 @@ const NewProductPage = () => {
 
                 Object.keys(categoryData.attributes).forEach((attributeId) => {
                   const attr = categoryData.attributes[attributeId];
-                  const formValue = formData[attr.id];
+                  const fieldKey = attr.code || attr.id.toString();
+                  const formValue = formData[fieldKey];
 
                   // Check if field exists in formData (even if empty string)
-                  const hasFormValue = attr.id in formData;
+                  const hasFormValue = fieldKey in formData;
 
                   if (hasFormValue) {
                     switch (attr.type) {
@@ -893,6 +894,7 @@ const NewProductPage = () => {
                             : "";
                         break;
                       case "text":
+                      case "multi_text":
                         // Set value even if empty string
                         if (
                           formValue !== null &&
@@ -1022,6 +1024,7 @@ const NewProductPage = () => {
                   }
                   break;
                 case "text":
+                case "multi_text":
                   if (hasFormValue && formValue !== null && formValue !== undefined && formValue !== "") {
                     const lines = formValue.toString().split("\n").filter((l: string) => l.trim() !== "");
                     attr.value = { text_lines: lines, original_text: formValue.toString() };
