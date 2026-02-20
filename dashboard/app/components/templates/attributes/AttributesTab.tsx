@@ -206,7 +206,7 @@ export default function AttributesTab({
                     attr={attr}
                     value={form.watch(fieldKey)}
                     categoryId={currentCategoryId}
-                    aiData={attributesData ? [attributesData] : undefined}
+                    aiData={attributesData || undefined}
                     onChange={(_, value) =>
                       handleInputChange(fieldKey, value)
                     }
@@ -236,7 +236,7 @@ export default function AttributesTab({
                   attr={attr}
                   value={form.watch(fieldKey)}
                   categoryId={currentCategoryId}
-                  aiData={attributesData ? [attributesData] : undefined}
+                  aiData={attributesData || undefined}
                   onChange={(_, value) =>
                     handleInputChange(fieldKey, value)
                   }

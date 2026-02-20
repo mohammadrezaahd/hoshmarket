@@ -14,6 +14,8 @@ interface AttributesFormFieldsProps {
   formData: { [key: string]: any };
   onFormDataChange: (fieldId: string | number, value: any) => void;
   validationErrors?: { [key: string]: string };
+  categoryId?: number | null;
+  aiData?: ICategoryAttr;
 }
 
 const AttributesFormFields: React.FC<AttributesFormFieldsProps> = ({
@@ -21,6 +23,8 @@ const AttributesFormFields: React.FC<AttributesFormFieldsProps> = ({
   formData,
   onFormDataChange,
   validationErrors = {},
+  categoryId,
+  aiData,
 }) => {
   if (!attributesData?.category_group_attributes) {
     return (
@@ -72,6 +76,8 @@ const AttributesFormFields: React.FC<AttributesFormFieldsProps> = ({
                         value={formData[fieldKey]}
                         onChange={onFormDataChange}
                         error={validationErrors[fieldKey.toString()]}
+                        categoryId={categoryId}
+                        aiData={aiData}
                       />
                     </Grid>
                   );

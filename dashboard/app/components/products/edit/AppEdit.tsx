@@ -138,8 +138,20 @@ const AppEditProduct: React.FC<AppEditProductProps> = ({
 
   // Handle form data changes
   const handleDetailsFormDataChange = (fieldName: string, value: any) => {
-    const updatedTemplates = [...detailsTemplates];
-    updatedTemplates[activeDetailsTab].formData[fieldName] = value;
+    const updatedTemplates = detailsTemplates.map((template, index) => {
+      if (index !== activeDetailsTab) {
+        return template;
+      }
+
+      return {
+        ...template,
+        formData: {
+          ...template.formData,
+          [fieldName]: value,
+        },
+      };
+    });
+
     onDetailsTemplatesChange(updatedTemplates);
   };
 
@@ -147,9 +159,22 @@ const AppEditProduct: React.FC<AppEditProductProps> = ({
     fieldId: number | string,
     value: any
   ) => {
-    const updatedTemplates = [...attributesTemplates];
     const fieldKey = typeof fieldId === "string" ? fieldId : fieldId.toString();
-    updatedTemplates[activeAttributesTab].formData[fieldKey] = value;
+
+    const updatedTemplates = attributesTemplates.map((template, index) => {
+      if (index !== activeAttributesTab) {
+        return template;
+      }
+
+      return {
+        ...template,
+        formData: {
+          ...template.formData,
+          [fieldKey]: value,
+        },
+      };
+    });
+
     onAttributesTemplatesChange(updatedTemplates);
   };
 
@@ -336,6 +361,8 @@ const AppEditProduct: React.FC<AppEditProductProps> = ({
                     <ProductAttributesForm
                       data={activeAttributesTemplate.data as ICategoryAttr}
                       formData={activeAttributesTemplate.formData}
+                      categoryId={productData?.data?.category_id || null}
+                      aiData={activeAttributesTemplate.data as ICategoryAttr}
                       onFormDataChange={handleAttributesFormDataChange}
                       validationErrors={allAttributesValidationErrors}
                     />

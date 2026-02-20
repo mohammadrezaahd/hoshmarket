@@ -1313,6 +1313,8 @@ const NewProductPage = () => {
                   <ProductAttributesForm
                     data={activeAttributesTemplateData.data.data_json}
                     formData={activeAttributesTemplate.formData}
+                    categoryId={productState.selectedCategoryId || null}
+                    aiData={activeAttributesTemplateData.data.data_json}
                     onFormDataChange={(fieldId: number | string, value: any) =>
                       dispatch(
                         updateAttributesTemplateFormData({

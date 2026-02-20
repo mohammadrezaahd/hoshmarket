@@ -25,7 +25,7 @@ import { AiIcon } from "~/components/icons/IconComponents";
 const AIIcon: React.FC<{
   attr: IAttr;
   categoryId?: number | null;
-  aiData?: ICategoryAttr[];
+  aiData?: ICategoryAttr;
   onValueChange: (value: any) => void;
 }> = ({ attr, categoryId, aiData, onValueChange }) => {
   const { enqueueSnackbar } = useSnackbar();
@@ -108,7 +108,7 @@ interface AttributesFieldProps {
   onChange: (attrId: number | string, value: any) => void;
   error?: string;
   categoryId?: number | null;
-  aiData?: ICategoryAttr[];
+  aiData?: ICategoryAttr;
 }
 
 export default function AttributesField({
