@@ -11,5 +11,6 @@ export default [
     route("/about", "pages/about.tsx"),
     route("/contact", "pages/contact.tsx"),
     route("/terms", "pages/terms.tsx"),
+    route("/birth-hub", "pages/birthHub.tsx"),
   ]),
 ] satisfies RouteConfig;
