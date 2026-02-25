@@ -23,7 +23,7 @@ const rotateDeg = Math.max(-15, -5 - offsetY * 0.01);
         overflow: "hidden",
       }}
     >
-      {/* 🔥 Fire Parallax Background
+      {/* 🔥 Fire Parallax Background */}
       <Box
         sx={{
           position: "absolute",
@@ -46,7 +46,7 @@ const rotateDeg = Math.max(-15, -5 - offsetY * 0.01);
             fontSize: { xs: 240, md: 240 },
             opacity: 0.6,
             filter: "blur(10px)",
-            transform: `translateY(${offsetY * 0.75}px)`,
+            transform: `translateY(${offsetY * 0.55}px)`,
             transition: "transform 0.15s ease-out",
           }}
         >
@@ -70,7 +70,7 @@ const rotateDeg = Math.max(-15, -5 - offsetY * 0.01);
         >
           <Box>🔥</Box>
         </Box>
-      </Box> */}
+      </Box>
 
       {/* Gradient Glow */}
       <Box
@@ -105,7 +105,7 @@ const rotateDeg = Math.max(-15, -5 - offsetY * 0.01);
             src="https://hosh-media.hoshmarket.com/digikala_white_logo.png"
             alt="Digikala Logo"
             sx={{
-              height: { xs: 50, md: 70 },
+              height: { xs: 100, md: 100 },
               animation: "float 4s ease-in-out infinite",
               "@keyframes float": {
                 "0%": { transform: "translateY(0px)" },
@@ -120,7 +120,7 @@ const rotateDeg = Math.max(-15, -5 - offsetY * 0.01);
             src="https://hosh-media.hoshmarket.com/Hoshmarket-icon2.png"
             alt="Hoshmarket Logo"
             sx={{
-              height: { xs: 50, md: 70 },
+              height: { xs: 100, md: 100 },
               animation: "float2 4s ease-in-out infinite",
               "@keyframes float2": {
                 "0%": { transform: "translateY(-6px)" },

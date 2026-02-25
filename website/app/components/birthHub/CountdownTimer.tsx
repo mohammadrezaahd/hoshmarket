@@ -92,7 +92,7 @@ const CountdownTimer: React.FC = () => {
             fontSize: 42,
             fontWeight: 900,
             fontFamily: "Kalameh-Bold",
-            color: "#8d8d8dff",
+            color: "#c4b4ffff",
             mx: 1,
           }}
           
