@@ -1,8 +1,19 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Container, Typography, Button, Stack } from "@mui/material";
 import CountdownTimer from "./CountdownTimer";
 
 const HeroSection: React.FC = () => {
+  const [offsetY, setOffsetY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setOffsetY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+const rotateDeg = Math.max(-15, -5 - offsetY * 0.01);
   return (
     <Box
       sx={{
@@ -12,6 +23,55 @@ const HeroSection: React.FC = () => {
         overflow: "hidden",
       }}
     >
+      {/* 🔥 Fire Parallax Background
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+          overflow: "hidden",
+        }}
+      >
+        
+        <Box
+          sx={{
+            position: "absolute",
+            top: "20%",
+            left:"10%",
+            width: "100%",
+            height: "200%",
+            display: "flex",
+            justifyContent: "space-around",
+            fontSize: { xs: 240, md: 240 },
+            opacity: 0.6,
+            filter: "blur(10px)",
+            transform: `translateY(${offsetY * 0.75}px)`,
+            transition: "transform 0.15s ease-out",
+          }}
+        >
+          <Box>🎈</Box>
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "20%",
+            left:"10%",
+            width: "100%",
+            height: "200%",
+            display: "flex",
+            justifyContent: "space-around",
+            fontSize: { xs: 240, md: 240 },
+            opacity: 0.7,
+            filter: "blur(10px)",
+            transform: `translateY(${offsetY * 0.25}px) rotate(-45deg)`,
+            transition: "transform 0.1s linear",
+          }}
+        >
+          <Box>🔥</Box>
+        </Box>
+      </Box> */}
+
       {/* Gradient Glow */}
       <Box
         sx={{
@@ -26,7 +86,51 @@ const HeroSection: React.FC = () => {
         }}
       />
 
-      <Container maxWidth="lg" sx={{ position: "relative", textAlign: "center" }}>
+      <Container
+        maxWidth="lg"
+        sx={{ position: "relative", textAlign: "center", zIndex: 2 }}
+      >
+        {/* Logos Side by Side */}
+        <Box
+          sx={{
+            mb: 5,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 4,
+          }}
+        >
+          <Box
+            component="img"
+            src="https://hosh-media.hoshmarket.com/digikala_white_logo.png"
+            alt="Digikala Logo"
+            sx={{
+              height: { xs: 50, md: 70 },
+              animation: "float 4s ease-in-out infinite",
+              "@keyframes float": {
+                "0%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-8px)" },
+                "100%": { transform: "translateY(0px)" },
+              },
+            }}
+          />
+
+          <Box
+            component="img"
+            src="https://hosh-media.hoshmarket.com/Hoshmarket-icon2.png"
+            alt="Hoshmarket Logo"
+            sx={{
+              height: { xs: 50, md: 70 },
+              animation: "float2 4s ease-in-out infinite",
+              "@keyframes float2": {
+                "0%": { transform: "translateY(-6px)" },
+                "50%": { transform: "translateY(6px)" },
+                "100%": { transform: "translateY(-6px)" },
+              },
+            }}
+          />
+        </Box>
+
         <Typography
           variant="h1"
           sx={{
@@ -48,8 +152,21 @@ const HeroSection: React.FC = () => {
             lineHeight: 1.8,
           }}
         >
-          همزمان با این رویداد، هوش مارکت با نسل جدید هوش مصنوعی
-         لانچ شد.
+          همزمان با این رویداد،{" "}
+          <Box
+            component="span"
+            sx={{ color: "#ffffff", fontWeight: 700 }}
+          >
+            هوش مارکت
+          </Box>{" "}
+          با نسل جدید هوش مصنوعی{" "}
+          <Box
+            component="span"
+            sx={{ color: "#ffffff", fontWeight: 700 }}
+          >
+            لانچ شد
+          </Box>
+          .
         </Typography>
 
         <Box sx={{ mt: 6 }}>
@@ -65,6 +182,7 @@ const HeroSection: React.FC = () => {
               py: 2,
               fontWeight: 700,
               borderRadius: 3,
+              fontSize:18,
               background: "linear-gradient(135deg,#6D28D9,#9333EA)",
               boxShadow: "0 10px 40px rgba(0, 0, 0, 0.27)",
             }}

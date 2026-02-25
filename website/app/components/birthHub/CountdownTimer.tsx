@@ -81,11 +81,26 @@ const CountdownTimer: React.FC = () => {
       <Typography
         sx={{
           textAlign: "center",
-          mt: 5,
+          mt: 1,
           fontSize: 12,
           color: "#ffffffff",
         }}
       >
+        <Box
+          component="span"
+          sx={{
+            fontSize: 42,
+            fontWeight: 900,
+            fontFamily: "Kalameh-Bold",
+            color: "#8d8d8dff",
+            mx: 1,
+          }}
+          
+        >
+          تا پایان
+        </Box>
+        <br />
+        <br />
         تخفیف‌های جشن تولد سرویس‌هاب دیجی‌کالا{" "}
         <br />
         <br />
@@ -100,7 +115,7 @@ const CountdownTimer: React.FC = () => {
           }}
           
         >
-          20٪
+          ٪20
         </Box>
         تا
         <Box
