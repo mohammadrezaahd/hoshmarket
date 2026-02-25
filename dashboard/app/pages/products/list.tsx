@@ -123,14 +123,9 @@ const ProductsList = () => {
   const { mutateAsync: getSubProducts, isPending: isLoadingSubProducts } =
     useSubProducts();
 
-  // Calculate skip value based on current page
-  const skip = (page - 1) * limit;
-
   const fetchProducts = useCallback(
-    async (options?: { page?: number; resetPage?: boolean }) => {
-      const targetPage = options?.page ?? page;
-      const shouldResetPage = options?.resetPage ?? false;
-      const skipValue = shouldResetPage ? 0 : (targetPage - 1) * limit;
+    async (targetPage: number) => {
+      const skipValue = (targetPage - 1) * limit;
 
       const response = await getList({
         skip: skipValue,
@@ -146,13 +141,9 @@ const ProductsList = () => {
         if (response.meta_data) {
           setMetaData(response.meta_data);
         }
-
-        if (shouldResetPage && page !== 1) {
-          setPage(1);
-        }
       }
     },
-    [page, limit, searchValue, categoryId, statusFilter, getList]
+    [limit, searchValue, categoryId, statusFilter, getList]
   );
 
   // Handle pagination change - fetch data for selected page
@@ -162,7 +153,7 @@ const ProductsList = () => {
   ) => {
     setPage(value);
     try {
-      await fetchProducts({ page: value });
+      await fetchProducts(value);
     } catch (error: any) {
       enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
         variant: "error",
@@ -170,11 +161,12 @@ const ProductsList = () => {
     }
   };
 
-  // Initial load on component mount
+  // Initial load + fetch when search/filters/limit change
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchProducts({ page: 1, resetPage: true });
+        setPage(1);
+        await fetchProducts(1);
       } catch (error: any) {
         enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
           variant: "error",
@@ -183,24 +175,6 @@ const ProductsList = () => {
     };
 
     fetchData();
-  }, [fetchProducts, enqueueSnackbar]);
-
-  // Fetch when search or filters change
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await fetchProducts({ page: 1, resetPage: true });
-      } catch (error: any) {
-        enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
-          variant: "error",
-        });
-      }
-    };
-
-    // فقط وقتی search/filter واقعا تغییر کرده باشد، fetch کن
-    if (searchValue || categoryId !== undefined || statusFilter !== undefined) {
-      fetchData();
-    }
   }, [
     searchValue,
     categoryId,
@@ -242,7 +216,7 @@ const ProductsList = () => {
     try {
       await removeProduct(deleteDialog.id);
       enqueueSnackbar("محصول با موفقیت حذف شد", { variant: "success" });
-      await fetchProducts({ page });
+      await fetchProducts(page);
     } catch (error: any) {
       enqueueSnackbar(`خطا در حذف محصول: ${error.message}`, {
         variant: "error",
@@ -263,7 +237,7 @@ const ProductsList = () => {
 
       if (response.status === "true") {
         enqueueSnackbar("محصول با موفقیت منتشر شد", { variant: "success" });
-        await fetchProducts({ page });
+        await fetchProducts(page);
       } else {
         enqueueSnackbar(response.message || "خطا در انتشار محصول", {
           variant: "error",
@@ -279,7 +253,7 @@ const ProductsList = () => {
   // Handle refresh
   const handleRefresh = async () => {
     try {
-      await fetchProducts({ page });
+      await fetchProducts(page);
     } catch (error: any) {
       enqueueSnackbar(`خطا در دریافت لیست محصولات: ${error.message}`, {
         variant: "error",

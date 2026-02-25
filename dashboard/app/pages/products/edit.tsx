@@ -169,6 +169,7 @@ const EditProductPage = () => {
                   switch (attr.type) {
                     case "input":
                     case "text":
+                    case "multi_text":
                       if (attr.value) {
                         if (
                           typeof attr.value === "object" &&
@@ -401,6 +402,7 @@ const EditProductPage = () => {
                           : "";
                       break;
                     case "text":
+                    case "multi_text":
                       if (
                         formValue !== null &&
                         formValue !== undefined &&

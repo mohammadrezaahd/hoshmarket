@@ -186,57 +186,29 @@ const GalleryPage = () => {
           </Alert>
         )}
 
-        {!isLoading && (
-          <MediaManager
-            media={mediaFiles}
-            onDelete={handleDelete}
-            onEdit={handleEdit}
-            loading={isLoading}
-            currentPage={page}
-            totalItems={totalItems}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            pageSizeOptions={[6, 12, 24, 48]}
-            showUpload={true}
-            // FileUpload props
-            allowedType="none"
-            onUploadSuccess={handleUploadSuccess}
-            onUploadError={handleUploadError}
-            editImageId={editImageId}
-            onEditComplete={handleEditComplete}
-            // Filter props
-            showFilters={true}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-          />
-        )}
-
-        {isLoading && (
-          <MediaManager
-            media={[]}
-            onDelete={handleDelete}
-            onEdit={handleEdit}
-            loading={isLoading}
-            currentPage={page}
-            totalItems={0}
-            pageSize={pageSize}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            pageSizeOptions={[6, 12, 24, 48]}
-            showUpload={true}
-            // FileUpload props
-            allowedType="none"
-            onUploadSuccess={handleUploadSuccess}
-            onUploadError={handleUploadError}
-            editImageId={editImageId}
-            onEditComplete={handleEditComplete}
-            // Filter props
-            showFilters={true}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-          />
-        )}
+        <MediaManager
+          media={mediaFiles}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+          loading={isLoading}
+          currentPage={page}
+          totalItems={totalItems}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          pageSizeOptions={[6, 12, 24, 48]}
+          showUpload={true}
+          // FileUpload props
+          allowedType="none"
+          onUploadSuccess={handleUploadSuccess}
+          onUploadError={handleUploadError}
+          editImageId={editImageId}
+          onEditComplete={handleEditComplete}
+          // Filter props
+          showFilters={true}
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+        />
       </Container>
 
       {/* Delete Confirmation Dialog */}
