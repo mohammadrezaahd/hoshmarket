@@ -7,10 +7,20 @@ import {
   ScrollRestoration,
 } from "react-router";
 
+
+import { useEffect } from "react";
+import { useLocation } from "react-router";
+import ReactGA from "react-ga4";
+
+
 import { ThemeProvider } from "./theme";
 import "./app.css";
 
 import { Box, Typography, Button, Container } from "@mui/material";
+
+
+
+
 
 export const links = () => [
   { rel: "icon", href: "/Hoshmarket.ico", type: "image/x-icon" },
@@ -35,6 +45,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.initialize(import.meta.env.VITE_GA_ID);
+  }, []);
+
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      page: location.pathname + location.search,
+    });
+  }, [location]);
+
   return <Outlet />;
 }
 
