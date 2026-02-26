@@ -8,6 +8,12 @@ import {
 } from "react-router";
 import { Provider } from "react-redux";
 
+
+import { useEffect } from "react";
+import { useLocation } from "react-router";
+import ReactGA from "react-ga4";
+
+
 import { ThemeProvider } from "./theme";
 import { store } from "./store";
 import "./app.css";
@@ -87,6 +93,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+
+  const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.initialize(import.meta.env.VITE_GA_ID);
+  }, []);
+
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      page: location.pathname + location.search,
+    });
+  }, [location]);
+
+
   return <Outlet />;
 }
 
