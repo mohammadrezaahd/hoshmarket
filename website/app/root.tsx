@@ -48,14 +48,18 @@ export default function App() {
   const location = useLocation();
 
   useEffect(() => {
-    ReactGA.initialize(import.meta.env.VITE_GA_ID);
+    if (typeof window !== "undefined" && import.meta.env.VITE_GA_ID) {
+      ReactGA.initialize(import.meta.env.VITE_GA_ID);
+    }
   }, []);
 
   useEffect(() => {
-    ReactGA.send({
-      hitType: "pageview",
-      page: location.pathname + location.search,
-    });
+    if (typeof window !== "undefined" && import.meta.env.VITE_GA_ID) {
+      ReactGA.send({
+        hitType: "pageview",
+        page: location.pathname + location.search,
+      });
+    }
   }, [location]);
 
   return <Outlet />;
